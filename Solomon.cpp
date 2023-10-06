@@ -9,6 +9,7 @@ int main(int argc, char * argv[]) {
         if (path.empty()) {
             std::cerr << "Not a valid argument" << std::endl;
         }
+
         if (atof(argv[2]) >= 0 && atof(argv[3]) >= 0) {
             double lambda = atof(argv[2]);
             double q = atof(argv[3]);
