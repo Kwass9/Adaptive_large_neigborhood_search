@@ -3,6 +3,7 @@
 #include <vector>
 #include <cstring>
 #include <algorithm>
+#include "customer.h"
 
 void removeCharsFromString( std::string &str, char* charsToRemove ) {
     for (unsigned int i = 0; i < strlen(charsToRemove); ++i) {
@@ -10,16 +11,40 @@ void removeCharsFromString( std::string &str, char* charsToRemove ) {
     }
 }
 
+void removeDelimiters(std::string &str, std::string delimiter) {
+    size_t cell = 0;
+    while ((cell = str.find(delimiter)) == 0) { //ak je na zaciatku medzera tak ju vymaz
+        str.erase(0, cell + delimiter.length());
+        cell = str.find(delimiter);
+    }
+}
+
+unsigned int getAtribudeForCustomer(std::string &str, std::string delimiter) {
+    size_t cell = 0;
+    std::string word;
+    if ((cell = str.find(delimiter)) != std::string::npos) {
+        word = str.substr(0, cell);
+        str.erase(0, cell + delimiter.length());
+    }
+    return std::stoi(word);
+}
+
+unsigned int processString(std::string &str, std::string delimiter) {
+    removeDelimiters(str, delimiter);
+    return getAtribudeForCustomer(str, delimiter);
+}
+
 int main(int argc, char * argv[]) {
-    //argumenty
     std::string path;
     double alfa1;
     double alfa2;
     double lambda;
     double q;
+    std::vector<customer> customers;
 
     if (argc == 6) {
         path = argv[1];
+        //kvoli tomu ako sa win chova k specialnym znakom
         removeCharsFromString(path,"\"");
         if (path.empty()) {
             std::cerr << "Not a valid argument" << std::endl;
@@ -42,9 +67,8 @@ int main(int argc, char * argv[]) {
     std::ifstream input;
     std::vector<std::string> data{};
     std::string par;
-    std::string delimiter = ";";
+    std::string delimiter = " ";
     size_t cell = 0;
-    std::string word;
     input.open(path);
     if (input) {
         while(!input.eof()) {
@@ -60,5 +84,26 @@ int main(int argc, char * argv[]) {
     for (auto & i : data) {
         std::cout << i << std::endl;
     }
+    //zbavenie sa hlavicky v subore
+    for (int i = 0; i < 9; ++i) {
+        data[i].erase();
+    }
 
+    //inicializacia zakaznikov
+    for (auto & i : data) {
+        if ((cell = i.find(delimiter)) != std::string::npos) {
+            unsigned int id = processString(i, delimiter);
+            unsigned int x = processString(i, delimiter);
+            unsigned int y = processString(i, delimiter);
+            unsigned int demand = processString(i, delimiter);
+            unsigned int readyTime = processString(i, delimiter);
+            unsigned int dueDate = processString(i, delimiter);
+            //tu este bude problem lebo stringy sa koncia na znak "
+            unsigned int serviceTime = processString(i, delimiter);
+            //removeDelimiters(i, delimiter);
+
+            auto customer = new class customer(id, x, y, demand, readyTime, dueDate, serviceTime);
+            customers.emplace_back(*customer);
+        }
+    }
 }
