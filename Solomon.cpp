@@ -48,6 +48,74 @@ void calculateDistances(std::vector<customer> &customers, std::vector<std::vecto
     }
 }
 
+unsigned int findCustomerWithEarliestDeadline(std::vector<customer> &customers) {
+    unsigned int min = INT_MAX - 1;
+    unsigned int minIndex = 0;
+    for (int i = 0; i < customers.size(); ++i) {
+        if (!customers[i].isRouted()) {
+            if (customers[i].getDueDate() < min) {
+                min = customers[i].getDueDate();
+                minIndex = i;
+            }
+        }
+    }
+    return minIndex;
+}
+
+//toto asi pojde uplne prec
+double calculateMaxPushForward(std::vector<double> &pushForward, std::vector<double> &timeWaitedAtCustomer,
+                               std::vector<int> &route) {
+    double max = 0;
+    for (int i = 0; i < route.size() - 1; ++i) {
+        if (max < (pushForward[route[i]] - timeWaitedAtCustomer[route[i + 1]])) {
+            max = pushForward[route[i]] - timeWaitedAtCustomer[route[i + 1]];
+        }
+    }
+    return max;
+}
+
+//toto este asi nie je done
+void calcualtePushForward(std::vector<double> &pushForward, std::vector<double> &timeWaitedAtCustomer,
+                          std::vector<int> &route, std::vector<customer> &customers) {
+    for (int i = 0; i < route.size() - 1; ++i) {
+        /**tato rovnica nie je dobre je to len vystrel zatial...*/
+        pushForward[route[i + 1]] = pushForward[route[i]] - timeWaitedAtCustomer[route[i + 1]] +
+                                    customers[route[i + 1]].getServiceTime();
+        //tu by bol nejaky break ze ak push forward bol absorbovany tou rezervou cakania tak uz dalsie nemusi pocitat...
+    }
+}
+
+bool lema11(std::vector<double> &beginingOfService, std::vector<int> &pushForward,
+            std::vector<int> &route, std::vector<customer> &customers, int u) {
+    if (beginingOfService[u] <= customers[u].getDueDate()) {
+        int i = 0;
+        while (i < route.size()) {
+            if (beginingOfService[route[i]] + pushForward[route[i]] <= customers[route[i]].getDueDate()) {
+                ++i;
+            } else {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+
+//funkcia rovno skontroluje aj lemma 1.1 ak nesplni tak vyberie druheho najlepsieho
+void findMinForC1() {
+
+}
+
+void findOptimumForC2() {
+
+}
+
+void insertCustomerToRoad() {
+
+}
+
+void createNewRoute() {
+
+}
 
 int main(int argc, char * argv[]) {
     std::string path;
@@ -130,31 +198,19 @@ int main(int argc, char * argv[]) {
     //std::vector<int> unvisitedCustomers;
 
     static int vehicleCapacity = 200;
+    int currentlyUsedCapacity = 0;
 
-    std::vector<double> pushForward;
-    double maxPushForward = 0;
     std::vector<double> timeWaitedAtCustomer;
+    std::vector<double> pushForward;
+    auto maxPushForward = calculateMaxPushForward(pushForward, timeWaitedAtCustomer, route);
     std::vector<double> beginingOfService;
-    std::vector<double> beginingOfServiceNew; //toto etse neviem uplne ako ale je to k c12
+    std::vector<double> beginingOfServiceNew; //toto este neviem uplne ako ale je to k c12
 
     double currentTime = 0;
     double latestTimeForReturn = customers[0].getDueDate(); //pojde prec ked sa upravi uloha
     int currentPositon = 0;
 
-    //nebude treba asi
-    //najprv najdem zakaznika s najmensim x a y a ten bude prvy v trase
-    int min = INT_MAX - 1;
-    int minIndex = 0;
-
-    //najdem najblizsieho zakaznika
-    for (int i = 0; i < customers.size(); ++i) {
-        if (!customers[i].isRouted()) {
-            if (distanceMatrix[currentPositon][i] < min) {
-                min = distanceMatrix[currentPositon][i];
-                minIndex = i;
-            }
-        }
-    }
+    auto minIndex = findCustomerWithEarliestDeadline(customers);
 
     //c11
     //distanceMatrix[currentPositon][] + distanceMatrix[][] - distanceMatrix[currentPositon][];
