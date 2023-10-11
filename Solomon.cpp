@@ -80,14 +80,17 @@ void calculateNewBeginings(std::vector<double> &pushForward, std::vector<double>
                                    std::vector<int> &route, std::vector<customer> &customers, int u, double maxPushForward,
                                    std::vector<double> &beginingOfService) {
     pushForward[u] = maxPushForward;
-    for (int i = u; i < route.size() - 1; ++i) {
-        if (pushForward[i] - timeWaitedAtCustomer[i + 1] > 0) {
-            pushForward[route[i + 1]] = pushForward[route[i]] - timeWaitedAtCustomer[route[i + 1]];
-            beginingOfService[route[i + 1]] = beginingOfService[route[i + 1]] + pushForward[route[i + 1]];
-            timeWaitedAtCustomer[route[i + 1]] = 0;
-        } else {
-            timeWaitedAtCustomer[route[i + 1]] = timeWaitedAtCustomer[route[i + 1]] - pushForward[route[i]];
-            break;
+    double epsilon = 0.00001;
+    if (route.size() > 1) {
+        for (int i = u; i < route.size() - 1; ++i) {
+            if (pushForward[i] - timeWaitedAtCustomer[i + 1] > 0 + epsilon) {
+                pushForward[route[i + 1]] = pushForward[route[i]] - timeWaitedAtCustomer[route[i + 1]];
+                beginingOfService[route[i + 1]] = beginingOfService[route[i + 1]] + pushForward[route[i + 1]];
+                timeWaitedAtCustomer[route[i + 1]] = 0;
+            } else {
+                timeWaitedAtCustomer[route[i + 1]] = timeWaitedAtCustomer[route[i + 1]] - pushForward[route[i]];
+                break;
+            }
         }
     }
 }
@@ -179,7 +182,7 @@ void insertCustomerToRoad(std::vector<int> &route, std::pair<int, int> optimalIn
     customers[optimalInsertion.second].markAsRouted();
 }
 
-std::vector<int> createNewRoute(int currentlyUsedCapacity, std::vector<std::vector<int>> &routes, std::vector<int> &route) {
+std::vector<int> createNewRoute(int &currentlyUsedCapacity, std::vector<std::vector<int>> &routes, std::vector<int> &route) {
     currentlyUsedCapacity = 0;
     routes.push_back(route);
     std::vector<int> newRoute;
@@ -282,6 +285,7 @@ int main(int argc, char * argv[]) {
     auto minIndex = findCustomerWithEarliestDeadline(customers);
     insertCustomerToRoad(route, std::make_pair(1, minIndex), beginingOfService, beginingOfServiceNew, customers, timeWaitedAtCustomer, currentlyUsedCapacity,
                          distanceMatrix, pushForward);
+    beginingOfService[1] = customers[minIndex].getReadyTime(); //dost surove uvidim ako to zmenim
     unvisitedCustomers--;
 
     while (unvisitedCustomers != 0) { //while unroute customers masti ich do ciest
@@ -297,8 +301,10 @@ int main(int argc, char * argv[]) {
             insertCustomerToRoad(route, std::make_pair(0, 0), beginingOfService, beginingOfServiceNew, customers, timeWaitedAtCustomer, currentlyUsedCapacity,
                                  distanceMatrix, pushForward);
             minIndex = findCustomerWithEarliestDeadline(customers);
-            insertCustomerToRoad(route, std::make_pair(0, minIndex), beginingOfService, beginingOfServiceNew, customers, timeWaitedAtCustomer, currentlyUsedCapacity,
+            insertCustomerToRoad(route, std::make_pair(1, minIndex), beginingOfService, beginingOfServiceNew, customers, timeWaitedAtCustomer, currentlyUsedCapacity,
                                  distanceMatrix, pushForward);
+            beginingOfService[1] = customers[minIndex].getReadyTime(); //dost surove uvidim ako to zmenim
+            unvisitedCustomers--;
         }
     }
     //zaverecny vypis
