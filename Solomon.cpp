@@ -114,9 +114,9 @@ bool lema11(std::vector<double> &beginingOfService, std::vector<double> &pushFor
             std::vector<std::vector<double>> &distanceMatrix) {
     int i = route[position];
     auto beginingOfServiceU = beginingOfService[i] + distanceMatrix[i][u];
-    std::cout << "Customer: " << u << " " << beginingOfServiceU << " " << customers[u].getDueDate() << std::endl;
+//    std::cout << "Customer: " << u << " " << beginingOfServiceU << " " << customers[u].getDueDate() << std::endl;
     if (beginingOfServiceU <= customers[u].getDueDate()) {
-        std::cout << "true" << std::endl;
+//        std::cout << "true" << std::endl;
         int j = position + 1;
         while (pushForward[route[j]] > 0 || j < route.size() - position) { //position je cislo iteracie
             if (beginingOfService[j] + pushForward[route[j]] > customers[route[j]].getDueDate()) {
@@ -129,7 +129,6 @@ bool lema11(std::vector<double> &beginingOfService, std::vector<double> &pushFor
     return false;
 }
 
-/**latest time to return... bude treba prerobit vkladanie lebo depo musi byt vlozene 2 krat uz na uvod nech kontrolujem do kedy ma prist dom*/
 std::vector<std::tuple<int, double, int>> findMinForC1(double alfa1, double alfa2, std::vector<std::vector<double>> &distanceMatrix,
                   std::vector<double> &beginingOfService, std::vector<double> &pushForward,
                   std::vector<int> &route, std::vector<customer> &customers,
@@ -137,7 +136,7 @@ std::vector<std::tuple<int, double, int>> findMinForC1(double alfa1, double alfa
     std::vector<std::tuple<int, double, int>> mnozinaC1;
     double min = INT_MAX - 1;
     int minIndex = 0;
-    for (int u = 0; u < customers.size(); ++u) {
+    for (int u = 1; u < customers.size(); ++u) {
         if (!customers[u].isRouted()
             && currentlyUsedCapacity + customers[u].getDemand() <= maxCapacity) { //kontrola kapacity vozidla
             for (int i = 0; i < route.size() - 1; ++i) {
@@ -170,15 +169,20 @@ std::vector<std::tuple<int, double, int>> findMinForC1(double alfa1, double alfa
 }
 
 std::pair<int, int> findOptimumForC2(std::vector<std::tuple<int, double, int>> &mnozinaC1, double lambda,
-                      std::vector<std::vector<double>> &distanceMatrix, std::vector<int> &route) {
+                      std::vector<std::vector<double>> &distanceMatrix, std::vector<int> &route, std::vector<customer> &customers) {
     double C2 = INT_MAX - 1;
     int maxIndex = 0;
     std::pair<int, int> optimalInsertion;
     for (int i = 0; i < mnozinaC1.size(); ++i) {
         double c2 = lambda * distanceMatrix[0][std::get<2>(mnozinaC1[i])] - std::get<1>(mnozinaC1[i]);
-        if (c2 > C2) { //sem by to chcelo este pridat kontrolu ktory vkladany prvok je lepsi na zaklade skorsieho dueto
+        if (c2 > C2) {
             C2 = c2;
             maxIndex = i;
+        } else if (c2 == C2) { //pri zhode usetrenia vyberie zakaznika ktory ma skorsi deadline
+            if (customers[i].getDueDate() < customers[maxIndex].getDueDate()) {
+                C2 = c2;
+                maxIndex = i;
+            }
         }
     }
     optimalInsertion.first = std::get<0>(mnozinaC1[maxIndex]); //i
@@ -197,7 +201,7 @@ void insertCustomerToRoad(std::vector<int> &route, std::pair<int, int> optimalIn
     if (route.size() > 1) {
         int predchodca = route[i - 1];
         route.insert(route.begin() + i, u);
-        double timeOfService = beginingOfService[predchodca] /**skontrolovat*/
+        double timeOfService = beginingOfService[predchodca]
                                + distanceMatrix[predchodca][u]
                                + customers[predchodca].getServiceTime();
         if (timeOfService < customers[u].getReadyTime()) {
@@ -207,7 +211,7 @@ void insertCustomerToRoad(std::vector<int> &route, std::pair<int, int> optimalIn
             timeWaitedAtCustomer[u] = 0;
         }
         beginingOfService.insert(beginingOfService.begin() + i, timeOfService);
-        calculateNewBeginings(pushForward, timeWaitedAtCustomer, route, customers, i, beginingOfService);
+        calculateNewBeginings(pushForward, timeWaitedAtCustomer, route, customers, i, beginingOfService); /**tento PF nezodpoveda tomu ktory bol kontrolovany pri zakaznikovy*/
         currentlyUsedCapacity += customers[u].getDemand();
         customers[u].markAsRouted();
     } else {
@@ -280,12 +284,12 @@ int main(int argc, char * argv[]) {
     for (auto & i : data) {
         if ((cell = i.find(delimiter)) != std::string::npos) {
             unsigned int id = processString(i, delimiter);
-            unsigned int x = processString(i, delimiter);
-            unsigned int y = processString(i, delimiter);
+            double x = processString(i, delimiter);
+            double y = processString(i, delimiter);
             unsigned int demand = processString(i, delimiter);
-            unsigned int readyTime = processString(i, delimiter);
-            unsigned int dueDate = processString(i, delimiter);
-            unsigned int serviceTime = processString(i, delimiter);
+            double readyTime = processString(i, delimiter);
+            double dueDate = processString(i, delimiter);
+            double serviceTime = processString(i, delimiter);
             auto customer = new class customer(id, x, y, demand, readyTime, dueDate, serviceTime);
             customers.emplace_back(*customer);
         }
@@ -293,12 +297,12 @@ int main(int argc, char * argv[]) {
 
     std::vector<std::vector<double>> distanceMatrix;
     calculateDistances(customers, distanceMatrix);
-    std::cout << "Distance matrix: " << distanceMatrix.size() << std::endl;
-        for (int i = 0; i < distanceMatrix.size(); ++i) {
-        for (int j = 0; j < distanceMatrix[i].size(); ++j) {
-            std::cout << distanceMatrix[i][j] << " ";
-        }
-    }
+//    std::cout << "Distance matrix: " << distanceMatrix.size() << std::endl;
+//        for (int i = 0; i < distanceMatrix.size(); ++i) {
+//        for (int j = 0; j < distanceMatrix[i].size(); ++j) {
+//            std::cout << distanceMatrix[i][j] << " ";
+//        }
+//    }
     std::vector<int> route;
     std::vector<std::vector<int>> routes;
 
@@ -311,13 +315,10 @@ int main(int argc, char * argv[]) {
     std::vector<double> timeWaitedAtCustomer;
     std::vector<double> pushForward;
     std::vector<double> beginingOfService;
-    //std::vector<double> beginingOfServiceNew; //bude stacit asi len obyc premenna double
     for (int i = 0; i < customers.size(); ++i) {
-    //    beginingOfServiceNew.push_back(0);
         pushForward.push_back(0);
         timeWaitedAtCustomer.push_back(0);
     }
-    double latestTimeForReturn = customers[0].getDueDate(); //pojde prec ked sa upravi uloha
 
     //zaciatok cesty
     insertCustomerToRoad(route, std::make_pair(0, 0), beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity,
@@ -334,11 +335,14 @@ int main(int argc, char * argv[]) {
         auto c1 = findMinForC1(alfa1, alfa2, distanceMatrix, beginingOfService, pushForward, route, customers,
                                currentlyUsedCapacity, vehicleCapacity, timeWaitedAtCustomer);
         if (!c1.empty()) {
-            auto c2 = findOptimumForC2(c1, lambda, distanceMatrix, route);
+            auto c2 = findOptimumForC2(c1, lambda, distanceMatrix, route, customers);
             c2.first += 1; //first je index predchodcu v ceste first + 1 je nova pozicia kam sa naj zakaznik vlozi
             insertCustomerToRoad(route, c2, beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity, distanceMatrix, pushForward);
             unvisitedCustomers--;
         } else {
+            std::cout << "Ostava zakaznikov: " << unvisitedCustomers << std::endl;
+            std::cout << "Pouzita kapacita: " << currentlyUsedCapacity << std::endl;
+            std::cout << "Cas zaciatku obsluhy posledneho zakaznika: " << beginingOfService[route[route.size() - 2]] << std::endl;
             route = createNewRoute(currentlyUsedCapacity, routes, route);
             insertCustomerToRoad(route, std::make_pair(0, 0), beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity,
                                  distanceMatrix, pushForward); //depo na zaciatku trasy
@@ -348,10 +352,12 @@ int main(int argc, char * argv[]) {
             minIndex = findCustomerWithEarliestDeadline(customers);
             insertCustomerToRoad(route, std::make_pair(1, minIndex), beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity,
                                  distanceMatrix, pushForward);
-            beginingOfService[1] = customers[minIndex].getReadyTime(); //dost surove uvidim ako to zmenim
             unvisitedCustomers--;
         }
+        std::cout << "Ostava zakaznikov: " << unvisitedCustomers << std::endl;
     }
+    routes.push_back(route);
+
     //zaverecny vypis
     for (int i = 0; i < routes.size(); ++i) {
         for (int j = 0; j < routes[i].size(); ++j) {
@@ -361,13 +367,17 @@ int main(int argc, char * argv[]) {
         std::cout << "--------------------------------" << std::endl;
     }
     int totalDistance = 0;
+    auto numberOfCustomersServed = 0;
     for (int i = 0; i < routes.size(); ++i) {
         for (int j = 0; j < routes[i].size() - 1; ++j) {
             totalDistance += distanceMatrix[routes[i][j]][routes[i][j+ 1]];
         }
+        numberOfCustomersServed += routes[i].size() - 2;
     }
+
     auto numberOfVehicles = routes.size();
     std::cout << "Total distance: " << totalDistance << std::endl;
     std::cout << "Number of vehicles: " << numberOfVehicles << std::endl;
+    std::cout << "Number of customers served: " << numberOfCustomersServed << std::endl;
     return 0;
 }
