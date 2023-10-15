@@ -73,11 +73,11 @@ void calculatePushForward(std::vector<double> &pushForward, const std::vector<do
                           std::vector<double> &timeWaitedAtCustomer, std::vector<std::vector<double>> &distanceMatrix,
                           std::vector<customer> &customers) {
     double epsilon = 0.0000001; //kvoli double
-    auto i = route[position];
-    auto j = route[position + 1];
-    pushForward[j] = distanceMatrix[i][u] + distanceMatrix[u][j] + customers[u].getServiceTime()
-            - distanceMatrix[i][j] - timeWaitedAtCustomer[j];
     if (route.size() > 2) {
+        auto i = route[position];
+        auto j = route[position + 1];
+        pushForward[j] = std::max(0.0,distanceMatrix[i][u] + distanceMatrix[u][j] + customers[u].getServiceTime() /**tu zle pocita asi som to nasiel*/
+                         - distanceMatrix[i][j] - timeWaitedAtCustomer[j]);
         for (int n = position + 2; n < route.size() - 1 - position; ++n) {
             j = route[n];
             i = route[n - 1];
@@ -114,11 +114,12 @@ bool lema11(std::vector<double> &beginingOfService, std::vector<double> &pushFor
             std::vector<std::vector<double>> &distanceMatrix) {
     int i = route[position];
     auto beginingOfServiceU = beginingOfService[i] + distanceMatrix[i][u];
-//    std::cout << "Customer: " << u << " " << beginingOfServiceU << " " << customers[u].getDueDate() << std::endl;
     if (beginingOfServiceU <= customers[u].getDueDate()) {
-//        std::cout << "true" << std::endl;
+        if (position == route.size() - 1) {
+            return false;
+        }
         int j = position + 1;
-        while (pushForward[route[j]] > 0 || j < route.size() - position) { //position je cislo iteracie
+        while (pushForward[route[j]] > 0.00000001 && j < route.size() - 1) { //position je cislo iteracie
             if (beginingOfService[j] + pushForward[route[j]] > customers[route[j]].getDueDate()) {
                 return false;
             }
@@ -211,6 +212,7 @@ void insertCustomerToRoad(std::vector<int> &route, std::pair<int, int> optimalIn
             timeWaitedAtCustomer[u] = 0;
         }
         beginingOfService.insert(beginingOfService.begin() + i, timeOfService);
+        calculatePushForward(pushForward, beginingOfService, route, u, i, timeWaitedAtCustomer, distanceMatrix, customers); /**skusil som ho sem dopisat*/
         calculateNewBeginings(pushForward, timeWaitedAtCustomer, route, customers, i, beginingOfService); /**tento PF nezodpoveda tomu ktory bol kontrolovany pri zakaznikovy*/
         currentlyUsedCapacity += customers[u].getDemand();
         customers[u].markAsRouted();
@@ -326,6 +328,7 @@ int main(int argc, char * argv[]) {
     insertCustomerToRoad(route, std::make_pair(0, 0), beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity,
                          distanceMatrix, pushForward); //depo na konci trasy navrat
     beginingOfService[1] = customers[0].getDueDate();
+    timeWaitedAtCustomer[0] = customers[0].getDueDate();
     auto minIndex = findCustomerWithEarliestDeadline(customers);
     insertCustomerToRoad(route, std::make_pair(1, minIndex), beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity,
                          distanceMatrix, pushForward);
@@ -349,6 +352,7 @@ int main(int argc, char * argv[]) {
             insertCustomerToRoad(route, std::make_pair(0, 0), beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity,
                                  distanceMatrix, pushForward); //depo na konci trasy navrat
             beginingOfService[1] = customers[0].getDueDate();
+            timeWaitedAtCustomer[0] = customers[0].getDueDate();
             minIndex = findCustomerWithEarliestDeadline(customers);
             insertCustomerToRoad(route, std::make_pair(1, minIndex), beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity,
                                  distanceMatrix, pushForward);
