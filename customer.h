@@ -17,17 +17,17 @@ private:
     unsigned int serviceTime;
     bool routedStatus = false;
 public:
-    customer(unsigned int idNum, unsigned int x, unsigned int y, unsigned int dem,
-             unsigned int rdyTime, unsigned int dueD, unsigned int serviceDuration);
+    customer(unsigned int idNum, double x, double y, unsigned int dem,
+             double rdyTime, double dueD, double serviceDuration);
     ~customer();
     void markAsRouted();
     bool isRouted() const;
-    unsigned int getXcord() const;
-    unsigned int getYcord() const;
+    double getXcord() const;
+    double getYcord() const;
     unsigned int getDemand() const;
-    unsigned int getReadyTime() const;
-    unsigned int getDueDate() const;
-    unsigned int getServiceTime() const;
+    double getReadyTime() const;
+    double getDueDate() const;
+    double getServiceTime() const;
 };
 
 

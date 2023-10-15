@@ -4,8 +4,8 @@
 
 #include "customer.h"
 
-customer::customer(unsigned int idNum,unsigned int x, unsigned int y, unsigned int dem, unsigned int rdyTime, unsigned int dueD,
-                   unsigned int serviceDuration) {
+customer::customer(unsigned int idNum, double x, double y, unsigned int dem, double rdyTime, double dueD,
+                   double serviceDuration) {
     id = idNum;
     xcord = x;
     ycord = y;
@@ -22,11 +22,11 @@ void customer::markAsRouted() {
     routedStatus = true;
 }
 
-unsigned int customer::getYcord() const {
+double customer::getYcord() const {
     return ycord;
 }
 
-unsigned int customer::getXcord() const {
+double customer::getXcord() const {
     return xcord;
 }
 
@@ -38,15 +38,15 @@ unsigned int customer::getDemand() const {
     return demand;
 }
 
-unsigned int customer::getReadyTime() const {
+double customer::getReadyTime() const {
     return readyTime;
 }
 
-unsigned int customer::getDueDate() const {
+double customer::getDueDate() const {
     return dueDate;
 }
 
-unsigned int customer::getServiceTime() const {
+double customer::getServiceTime() const {
     return serviceTime;
 }
 
