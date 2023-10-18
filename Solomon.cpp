@@ -68,6 +68,26 @@ unsigned int findCustomerWithEarliestDeadline(std::vector<customer> &customers) 
     return minIndex;
 }
 
+unsigned int findFurthestUnroutedCustomer(std::vector<std::vector<double>> &distanceMatrix, std::vector<customer> &customers) {
+    double max = 0;
+    unsigned int maxIndex = 0;
+    for (int i = 0; i < customers.size(); ++i) {
+        if (!customers[i].isRouted()
+            && distanceMatrix[0][i] > max) {
+            max = distanceMatrix[0][i];
+            maxIndex = i;
+        }
+//        else if (!customers[i].isRouted()
+//            && distanceMatrix[0][i] == max
+//            && customers[i].getDueDate() < customers[maxIndex].getDueDate()) {
+//            max = distanceMatrix[0][i];
+//            maxIndex = i;
+//        }
+    }
+    return maxIndex;
+}
+
+
 void calculatePushForward(std::vector<double> &pushForward, const std::vector<double>& beginingOfService,
                           const std::vector<int>& route, int u, int position,
                           std::vector<double> &timeWaitedAtCustomer, std::vector<std::vector<double>> &distanceMatrix,
@@ -252,8 +272,9 @@ int main(int argc, char * argv[]) {
     double lambda;
     double q;
     std::vector<customer> customers;
+    bool startingCriteria; //premenna vybera ci sa zacina s najvzdialenejsim zakaznikom alebo s najskor zaciatocnou dobou
 
-    if (argc == 6) {
+    if (argc == 7) {
         path = argv[1];
         //kvoli tomu ako sa win chova k specialnym znakom
         removeCharsFromString(path,"\"");
@@ -271,6 +292,13 @@ int main(int argc, char * argv[]) {
         double check = 0.00001; // pre pripad ze by si pocitac zmyslel podat desatinnu ciarku
         if (alfa1 + alfa2 >= 1 + check || alfa1 + alfa2 <= 1 - check) {
             std::cerr << "Not valid value of alfas" << std::endl;
+        }
+        if (atoi(argv[6])) {
+            startingCriteria = true; //condition a
+        } else if (!atoi(argv[6])) {
+            startingCriteria = false; //condition b
+        } else {
+            std::cerr << "Not valid value of starting criteria" << std::endl;
         }
     } else {
         std::cend("Nespravny pocet argumentov");
@@ -338,8 +366,13 @@ int main(int argc, char * argv[]) {
                          distanceMatrix, pushForward); //depo na konci trasy navrat
     beginingOfService[1] = customers[0].getDueDate();
     timeWaitedAtCustomer[0] = customers[0].getDueDate();
-    auto minIndex = findCustomerWithEarliestDeadline(customers);
-    insertCustomerToRoad(route, std::make_pair(1, minIndex), beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity,
+    unsigned int index;
+    if (startingCriteria) {
+        index = findFurthestUnroutedCustomer(distanceMatrix, customers);
+    } else {
+        index = findCustomerWithEarliestDeadline(customers);
+    }
+    insertCustomerToRoad(route, std::make_pair(1, index), beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity,
                          distanceMatrix, pushForward);
     unvisitedCustomers--;
 
@@ -356,7 +389,6 @@ int main(int argc, char * argv[]) {
             timeSchedule.emplace_back(previousBeginings);
             std::cout << "Ostava zakaznikov: " << unvisitedCustomers << std::endl;
             std::cout << "Pouzita kapacita: " << currentlyUsedCapacity << std::endl;
-            //std::cout << "Cas zaciatku obsluhy posledneho zakaznika: " << beginingOfService[route[route.size() - 2]] << std::endl;
             route = createNewRoute(currentlyUsedCapacity, routes, route, timeWaitedAtCustomer, customers, pushForward);
             beginingOfService.clear();
             beginingOfService.shrink_to_fit();
@@ -366,8 +398,9 @@ int main(int argc, char * argv[]) {
                                  distanceMatrix, pushForward); //depo na konci trasy navrat
             beginingOfService[1] = customers[0].getDueDate();
             timeWaitedAtCustomer[0] = customers[0].getDueDate();
-            minIndex = findCustomerWithEarliestDeadline(customers);
-            insertCustomerToRoad(route, std::make_pair(1, minIndex), beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity,
+            index = startingCriteria ? findFurthestUnroutedCustomer(distanceMatrix, customers)
+                                     : findCustomerWithEarliestDeadline(customers);
+            insertCustomerToRoad(route, std::make_pair(1, index), beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity,
                                  distanceMatrix, pushForward);
             unvisitedCustomers--;
         }
@@ -387,12 +420,15 @@ int main(int argc, char * argv[]) {
         std::cout << "--------------------------------" << std::endl;
     }
     double totalDistance = 0;
+    double totalScheduleTime = 0;
     auto numberOfCustomersServed = 0;
     for (int i = 0; i < routes.size(); ++i) {
         for (int j = 0; j < routes[i].size() - 1; ++j) {
-            totalDistance += distanceMatrix[routes[i][j]][routes[i][j+ 1]];
+            totalDistance += distanceMatrix[routes[i][j]][routes[i][j + 1]]; //tu zle ratam distance asi
         }
         numberOfCustomersServed += routes[i].size() - 2;
+        totalScheduleTime += beginingOfService[routes[i].size() - 2] + customers[routes[i][routes[i].size() - 2]].getServiceTime() +
+                             distanceMatrix[routes[i][routes[i].size() - 2]][routes[i][routes[i].size() - 1]];
     }
 
     auto numberOfVehicles = routes.size();
@@ -405,6 +441,7 @@ int main(int argc, char * argv[]) {
         std::cout << "--------------------------------------------------" << std::endl;
     }
     std::cout << "Total distance: " << totalDistance << std::endl;
+    std::cout << "Total schedule time: " << totalScheduleTime << std::endl;
     std::cout << "Number of vehicles: " << numberOfVehicles << std::endl;
     std::cout << "Number of customers served: " << numberOfCustomersServed << std::endl;
     return 0;
