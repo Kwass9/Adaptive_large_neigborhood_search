@@ -56,7 +56,7 @@ void calculateDistances(std::vector<customer> &customers, std::vector<std::vecto
 }
 
 unsigned int findCustomerWithEarliestDeadline(std::vector<customer> &customers) {
-    unsigned int min = INT_MAX - 1;
+    double min = INT_MAX - 1;
     unsigned int minIndex = 0;
     for (int i = 0; i < customers.size(); ++i) {
         if (!customers[i].isRouted()
@@ -137,7 +137,7 @@ bool lema11(std::vector<double> &beginingOfService, std::vector<double> &pushFor
 std::vector<std::tuple<int, double, int>> findMinForC1(double alfa1, double alfa2, std::vector<std::vector<double>> &distanceMatrix,
                   std::vector<double> &beginingOfService, std::vector<double> &pushForward,
                   std::vector<int> &route, std::vector<customer> &customers,
-                  int currentlyUsedCapacity, int maxCapacity, std::vector<double> &timeWaitedAtCustomer) {
+                  unsigned int currentlyUsedCapacity, int maxCapacity, std::vector<double> &timeWaitedAtCustomer) {
     std::vector<std::tuple<int, double, int>> mnozinaC1;
     int minIndex = 0;
     for (int u = 1; u < customers.size(); ++u) {
@@ -314,12 +314,6 @@ int main(int argc, char * argv[]) {
 
     std::vector<std::vector<double>> distanceMatrix;
     calculateDistances(customers, distanceMatrix);
-//    std::cout << "Distance matrix: " << distanceMatrix.size() << std::endl;
-//        for (int i = 0; i < distanceMatrix.size(); ++i) {
-//        for (int j = 0; j < distanceMatrix[i].size(); ++j) {
-//            std::cout << distanceMatrix[i][j] << " ";
-//        }
-//    }
     std::vector<int> route;
     std::vector<std::vector<int>> routes;
     std::vector<std::vector<double>> timeSchedule;
@@ -358,11 +352,11 @@ int main(int argc, char * argv[]) {
             insertCustomerToRoad(route, c2, beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity, distanceMatrix, pushForward);
             unvisitedCustomers--;
         } else {
-            //timeSchedule.emplace_back(beginingOfService);
-            /**toto zatial neurobim lebo si mazem vlastny vector neskor... upravim nabuduce*/
+            std::vector<double> previousBeginings = beginingOfService;
+            timeSchedule.emplace_back(previousBeginings);
             std::cout << "Ostava zakaznikov: " << unvisitedCustomers << std::endl;
             std::cout << "Pouzita kapacita: " << currentlyUsedCapacity << std::endl;
-            std::cout << "Cas zaciatku obsluhy posledneho zakaznika: " << beginingOfService[route[route.size() - 2]] << std::endl;
+            //std::cout << "Cas zaciatku obsluhy posledneho zakaznika: " << beginingOfService[route[route.size() - 2]] << std::endl;
             route = createNewRoute(currentlyUsedCapacity, routes, route, timeWaitedAtCustomer, customers, pushForward);
             beginingOfService.clear();
             beginingOfService.shrink_to_fit();
@@ -384,12 +378,15 @@ int main(int argc, char * argv[]) {
     //zaverecny vypis
     for (int i = 0; i < routes.size(); ++i) {
         for (int j = 0; j < routes[i].size(); ++j) {
-            std::cout << routes[i][j] << " -> ";
+            std::cout << routes[i][j];
+            if (j != routes[i].size() - 1) {
+                std::cout << " -> ";
+            }
         }
         std::cout << std::endl;
         std::cout << "--------------------------------" << std::endl;
     }
-    int totalDistance = 0;
+    double totalDistance = 0;
     auto numberOfCustomersServed = 0;
     for (int i = 0; i < routes.size(); ++i) {
         for (int j = 0; j < routes[i].size() - 1; ++j) {
@@ -405,6 +402,7 @@ int main(int argc, char * argv[]) {
             std::cout << j << " | ";
         }
         std::cout << std::endl;
+        std::cout << "--------------------------------------------------" << std::endl;
     }
     std::cout << "Total distance: " << totalDistance << std::endl;
     std::cout << "Number of vehicles: " << numberOfVehicles << std::endl;
