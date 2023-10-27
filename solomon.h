@@ -21,10 +21,10 @@ private:
     void calculatePushForward(std::vector<double> &pushForward, const std::vector<double>& beginingOfService,
                               const std::vector<int>& route, int u, int position,
                               std::vector<double> &timeWaitedAtCustomer, std::vector<std::vector<double>> &distanceMatrix,
-                              std::vector<customer> &customers);
+                              std::vector<customer> &customers, double timeOfService);
     void calculateNewBeginings(std::vector<double> &pushForward, std::vector<double> &timeWaitedAtCustomer,
                                std::vector<int> &route, const std::vector<customer>& customers, int zakaznikU,
-                               std::vector<double> &beginingOfService, double timeOfService);
+                               std::vector<double> &beginingOfService);
     bool lema11(std::vector<double> &beginingOfService, std::vector<double> &pushForward,
                 std::vector<int> &route, std::vector<customer> &customers, int u, int position,
                 std::vector<std::vector<double>> &distanceMatrix);
