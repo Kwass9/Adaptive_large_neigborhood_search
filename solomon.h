@@ -25,7 +25,7 @@ private:
     void calculateNewBeginings(std::vector<double> &pushForward, std::vector<double> &timeWaitedAtCustomer,
                                std::vector<int> &route, const std::vector<customer>& customers, int zakaznikU,
                                std::vector<double> &beginingOfService, double timeOfService,
-                               std::vector<std::vector<double>> &distanceMatrix);
+                               std::vector<std::vector<double>> &distanceMatrix, int u);
     bool lema11(std::vector<double> &beginingOfService, std::vector<double> &pushForward,
                 std::vector<int> &route, std::vector<customer> &customers, int u, int position,
                 std::vector<std::vector<double>> &distanceMatrix, double timeOfService);
@@ -41,12 +41,12 @@ private:
             ,std::vector<customer> &customers, std::vector<double> &timeWaitedAtCustomer
             ,unsigned int &currentlyUsedCapacity, std::vector<std::vector<double>> &distanceMatrix
             ,std::vector<double> &pushForward);
-    std::vector<int> createNewRoute(unsigned int &currentlyUsedCapacity, std::vector<std::vector<int>> &routes,
-                                    std::vector<int> &route, std::vector<double> &timeWaitedAtCustomer, std::vector<customer> &customers,
+    void createNewRoute(unsigned int &currentlyUsedCapacity, std::vector<std::vector<int>> &routes,
+                                    std::vector<int> &route, std::vector<double> &beginingOfService,
                                     std::vector<double> &pushForward);
     void waitingTimeMath(std::vector<double> &timeWaitedAtCustomer, std::vector<double> &beginingOfService,
                          std::vector<int> &route, const std::vector<customer> &customers, std::vector<std::vector<double>> &distanceMatrix,
-                         int index, double timeOfService);
+                         int index, double timeOfService, int u);
 };
 
 
