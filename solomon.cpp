@@ -8,6 +8,7 @@
 #include "customer.h"
 #include <cmath>
 #include <tuple>
+#include <climits>
 
 solomon::solomon(std::vector<customer> &customers, /**std::vector<std::vector<int>> &routes,*/ double alfa1, double alfa2,
                  double lambda, double q, bool startingCriteria) {
@@ -206,10 +207,10 @@ void solomon::calculatePushForward(std::vector<double> &pushForward, const std::
         if (customers[j].getDueDate() > timeOfService + customers[u].getServiceTime() + distanceMatrix[u][j]) {
             pushForward.emplace_back(std::max(0.0,distanceMatrix[i][u] + distanceMatrix[u][j] + customers[u].getServiceTime()
                                                   - distanceMatrix[i][j] - timeWaitedAtCustomer[j])); /**tu musim opravit waiting time...*/
-            if (pushForward[0] == 0) {
-                timeWaitedAtCustomer[j] -= distanceMatrix[i][u] + distanceMatrix[u][j] + customers[u].getServiceTime() - distanceMatrix[i][j];
-
-            }
+//            if (pushForward[0] == 0) {
+//                timeWaitedAtCustomer[j] -= distanceMatrix[i][u] + distanceMatrix[u][j] + customers[u].getServiceTime() - distanceMatrix[i][j]; /**toto tu byt nemoze lebo pf nie vzdy pouzijem no hoodnotu vzdy prepisem*/
+//                /**toto sa musi zamknut a niekde musi pribudnut podmienka ze ak PF 0 a vkladas musis este dopocitat raz ako sa zmeni cakanie...*/
+//            }
         }   else {
             pushForward.emplace_back(INT_MAX - 1);
         }
@@ -221,7 +222,7 @@ void solomon::calculatePushForward(std::vector<double> &pushForward, const std::
             j = route[n];
             if (pushForward[i] - timeWaitedAtCustomer[j] > 0 + epsilon) {
                 pushForward.emplace_back(pushForward[i] - timeWaitedAtCustomer[j]);
-            } else {
+            } else if (pushForward[pushForward.size() - 1] != 0) {
                 pushForward.emplace_back(0);
                 break;
             }
@@ -234,24 +235,31 @@ void solomon::calculatePushForward(std::vector<double> &pushForward, const std::
 
 void solomon::calculateNewBeginings(std::vector<double> &pushForward, std::vector<double> &timeWaitedAtCustomer,
                                     std::vector<int> &route, const std::vector<customer> &customers, int zakaznikU,
-                                    std::vector<double> &beginingOfService) {
+                                    std::vector<double> &beginingOfService, double timeOfService,
+                                    std::vector<std::vector<double>> &distanceMatrix) {
     double epsilon = 0.0000001;
     if (route.size() > 2 && route[zakaznikU] != customers.size() && pushForward[0] != 0) { //ten if pojde asi von
         //int j = route[zakaznikU];
         int pf = 0;
         beginingOfService[zakaznikU] = beginingOfService[zakaznikU] + pushForward[pf];
+        timeWaitedAtCustomer[route[zakaznikU]] = 0;
         pf++;
-        for (int n = zakaznikU + 1; n < route.size() - 1; ++n) { /**ta minus 1 sposobi ze v nejakom bode niekde neaktualizujem koniec imo*/
+        for (int n = zakaznikU + 1; n < route.size(); ++n) {
             int j = route[n];
-            if (pushForward[pf] > 0 + epsilon && pf < pushForward.size()) {
+            if (timeWaitedAtCustomer[j] - pushForward[pf] < 0 + epsilon && pf < pushForward.size()) {
                 beginingOfService[n] = beginingOfService[n] + pushForward[pf];
                 timeWaitedAtCustomer[j] = 0;
                 pf++;
             } else if (pf < pushForward.size()) {
-                timeWaitedAtCustomer[j] -= pushForward[pf];
+//                timeWaitedAtCustomer[j] -= pushForward[pf]; /**ked je pf nula neviem o kolko mam ubrat s waiting time...*/
+                waitingTimeMath(timeWaitedAtCustomer, beginingOfService, route, customers, distanceMatrix, zakaznikU,
+                                timeOfService);
                 break;
             }
         }
+    } else if (route.size() > 2 && route[zakaznikU] != customers.size() && pushForward[0] == 0) {
+        waitingTimeMath(timeWaitedAtCustomer, beginingOfService, route, customers, distanceMatrix, zakaznikU,
+                        timeOfService);
     } else if (route[route.size() - 1] == customers.size()) {
         beginingOfService[route.size() - 1] += pushForward[pushForward.size() - 1];
         timeWaitedAtCustomer[route[route.size() - 1]] = customers[0].getDueDate() - beginingOfService[route.size() - 1];
@@ -260,15 +268,18 @@ void solomon::calculateNewBeginings(std::vector<double> &pushForward, std::vecto
 
 bool solomon::lema11(std::vector<double> &beginingOfService, std::vector<double> &pushForward, std::vector<int> &route,
                      std::vector<customer> &customers, int u, int position,
-                     std::vector<std::vector<double>> &distanceMatrix) {
+                     std::vector<std::vector<double>> &distanceMatrix, double  beginingOfServiceU) {
     int i = route[position - 1];
-    auto beginingOfServiceU = beginingOfService[position - 1] + distanceMatrix[i][u] + customers[position - 1].getServiceTime();
+//    auto beginingOfServiceU = beginingOfService[position - 1] + distanceMatrix[i][u] + customers[position - 1].getServiceTime();
     if (beginingOfServiceU <= customers[u].getDueDate()) {
 //        if (position == route.size() - 1) { /**na co toto kontrolujem??*/
 //            return false;
 //        }
         int j = 0;
         while (pushForward[j] > 0.00000001 && j < route.size() - 1 && j < pushForward.size()) { //position je cislo iteracie
+            if (route[position + j] == customers.size() && beginingOfServiceU + pushForward[j] <= customers[0].getDueDate()) {
+                return true;
+            }
             if (beginingOfService[position + j] + pushForward[j] > customers[route[position + j]].getDueDate()) {
                 return false;
             }
@@ -296,11 +307,13 @@ solomon::findMinForC1(double alfa1, double alfa2, std::vector<std::vector<double
                 double timeOfService = beginingOfService[i - 1]
                                        + distanceMatrix[route[i - 1]][u]
                                        + customers[route[i - 1]].getServiceTime();
-
+                if (timeOfService < customers[u].getReadyTime()) {
+                    timeOfService = customers[u].getReadyTime();
+                }
                 calculatePushForward(pushForward, beginingOfService, route, u, i, timeWaitedAtCustomer,
                                      distanceMatrix, customers, timeOfService);
                 //podmienky lemma 1.1
-                if (lema11(beginingOfService, pushForward, route, customers, u, i, distanceMatrix)) {
+                if (lema11(beginingOfService, pushForward, route, customers, u, i, distanceMatrix, timeOfService)) {
                     double c11 = 0;
                     double c12 = 0;
                     if (route.size() > 1) {
@@ -368,7 +381,7 @@ void solomon::insertCustomerToRoad(std::vector<int> &route, std::pair<int, int> 
         pushForward.clear();
 //        pushForward.shrink_to_fit();
         calculatePushForward(pushForward, beginingOfService, route, u, i, timeWaitedAtCustomer, distanceMatrix, customers, timeOfService);
-        calculateNewBeginings(pushForward, timeWaitedAtCustomer, route, customers, i, beginingOfService);
+        calculateNewBeginings(pushForward, timeWaitedAtCustomer, route, customers, i, beginingOfService, timeOfService, distanceMatrix);
         route.insert(route.begin() + i, u);
         beginingOfService.insert(beginingOfService.begin() + i, timeOfService);
         currentlyUsedCapacity += customers[u].getDemand();
@@ -384,11 +397,38 @@ std::vector<int> solomon::createNewRoute(unsigned int &currentlyUsedCapacity, st
                                          std::vector<int> &route, std::vector<double> &timeWaitedAtCustomer,
                                          std::vector<customer> &customers, std::vector<double> &pushForward) {
     currentlyUsedCapacity = 0;
-    for (int i = 0; i < customers.size(); ++i) {
-        pushForward[i] = 0;
-        timeWaitedAtCustomer[i] = 0;
-    }
+    pushForward.clear();
+    timeWaitedAtCustomer.clear();
+//    for (int i = 0; i < customers.size(); ++i) {
+//        pushForward[i] = 0;
+//        timeWaitedAtCustomer[i] = 0;
+//    }
     routes.push_back(route);
     std::vector<int> newRoute;
     return newRoute;
+}
+
+void solomon::waitingTimeMath(std::vector<double> &timeWaitedAtCustomer, std::vector<double> &beginingOfService,
+                              std::vector<int> &route, const std::vector<customer> &customers,
+                              std::vector<std::vector<double>> &distanceMatrix, int index, double timeOfServicePrevious) {
+    auto orderInRoute = route[index];
+    auto nextInRoute = route[index + 1];
+    auto timeWaitedNext = timeWaitedAtCustomer[nextInRoute];
+    int j = nextInRoute;
+    if (nextInRoute == customers.size()) {
+        int j = 0;
+        auto distance = distanceMatrix[orderInRoute][j];
+        auto serviceTime = customers[index].getServiceTime();
+        auto startOfServicePrev = beginingOfService[index];
+//        auto startNext = beginingOfService[route.size() - 1];
+        beginingOfService[index + 1] = startOfServicePrev + distance + serviceTime;
+        timeWaitedAtCustomer[nextInRoute] = customers[0].getDueDate() - beginingOfService[index + 1];
+    } else {
+        auto distance = distanceMatrix[orderInRoute][j];
+        auto serviceTime = customers[index].getServiceTime();
+        auto startOfServicePrev = beginingOfService[index];
+        auto startNext = beginingOfService[index + 1];
+        timeWaitedAtCustomer[j] = startNext - (startOfServicePrev + distance + serviceTime);
+        beginingOfService[index + 1] = timeOfServicePrevious + distance + serviceTime + timeWaitedNext;
+    }
 }
