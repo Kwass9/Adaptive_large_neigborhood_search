@@ -20,7 +20,7 @@ private:
     unsigned int findFurthestUnroutedCustomer(std::vector<std::vector<double>> &distanceMatrix, std::vector<customer> &customers);
     void calculatePushForward(std::vector<double> &pushForward, const std::vector<int>& route, int u, int position,
                               std::vector<double> &timeWaitedAtCustomer, std::vector<std::vector<double>> &distanceMatrix,
-                              std::vector<customer> &customers, double timeOfService, double waitingTime);
+                              std::vector<customer> &customers, double timeOfService, double waitingTime, std::vector<double> &beginingOfService);
     void calculateNewBeginings(std::vector<double> &pushForward, std::vector<double> &timeWaitedAtCustomer,
                                std::vector<int> &route, const std::vector<customer>& customers, int zakaznikU,
                                std::vector<double> &beginingOfService, double timeOfService,
