@@ -94,18 +94,22 @@ solomon::solomon(std::vector<customer> &customers, double alfa1, double alfa2,
     double totalScheduleTime = 0;
     double waitingTimeInSchedule = 0;
     auto numberOfCustomersServed = 0;
-    for (auto & route : routes) {
-        for (int j = 0; j < route.size() - 1; ++j) {
-            totalDistance += distanceMatrix[route[j]][route[j + 1]];
+    for (int i = 0; i < routes.size(); ++i) {
+        for (int j = 0; j < routes[i].size() - 2; ++j) {
+            totalDistance += distanceMatrix[routes[i][j]][routes[i][j + 1]];
         }
-        for (int j = 0; j < route.size() - 2; ++j) {
-            waitingTimeInSchedule += timeWaitedAtCustomer[route[j + 1]];
-        }
-        numberOfCustomersServed += route.size() - 2;
-        totalScheduleTime += beginingOfService[route.size() - 2] + customers[route[route.size() - 2]].getServiceTime() +
-                             distanceMatrix[route[route.size() - 2]][route[route.size() - 1]];
+        totalDistance += distanceMatrix[route[route.size() - 2]][0];
+        numberOfCustomersServed += routes[i].size() - 2;
+        int j = routes[i].size() - 1;
+    }
+    for (int i = 0; i < timeSchedule.size(); ++i) {
+        auto t = timeSchedule[i].size() - 1;
+        totalScheduleTime += timeSchedule[i][t];
     }
 
+    for (int i = 1; i < timeWaitedAtCustomer.size() - 1; ++i) {
+        waitingTimeInSchedule += timeWaitedAtCustomer[i];
+    }
     auto numberOfVehicles = routes.size();
     std::cout << "Time schedule: " << std::endl;
     for (auto & i : timeSchedule) {
@@ -197,10 +201,9 @@ void solomon::calculatePushForward(std::vector<double> &pushForward, const std::
                 break;
             }
         }
-    } else if (j == customers.size()) { /**tu mam nejaku b*/
+    } else if (j == customers.size()) {
         auto newbegin = timeOfService + customers[u].getServiceTime() + distanceMatrix[u][0];
         pushForward.emplace_back(newbegin - beginingOfService[beginingOfService.size() - 1]);
-        //pushForward.emplace_back(std::max(0.0, timeOfService + distanceMatrix[u][0] + customers[u].getServiceTime());
     }
 }
 
