@@ -78,6 +78,7 @@ solomon::solomon(std::vector<customer> &customers, double alfa1, double alfa2,
         std::cout << "Ostava zakaznikov: " << unvisitedCustomers << std::endl;
     }
     routes.push_back(route);
+    timeSchedule.emplace_back(beginingOfService);
 
     //zaverecny vypis
     for (auto & route : routes) {
@@ -97,14 +98,16 @@ solomon::solomon(std::vector<customer> &customers, double alfa1, double alfa2,
     for (int i = 0; i < routes.size(); ++i) {
         for (int j = 0; j < routes[i].size() - 2; ++j) {
             totalDistance += distanceMatrix[routes[i][j]][routes[i][j + 1]];
+            std::cout << distanceMatrix[routes[i][j]][routes[i][j + 1]] << " | ";
         }
+        std::cout << distanceMatrix[routes[i][routes[i].size() - 2]][0] << std::endl;
         totalDistance += distanceMatrix[route[route.size() - 2]][0];
         numberOfCustomersServed += routes[i].size() - 2;
         int j = routes[i].size() - 1;
     }
     for (int i = 0; i < timeSchedule.size(); ++i) {
         auto t = timeSchedule[i].size() - 1;
-        totalScheduleTime += timeSchedule[i][t];
+        totalScheduleTime += (timeSchedule[i][t]);
     }
 
     for (int i = 1; i < timeWaitedAtCustomer.size() - 1; ++i) {
@@ -214,15 +217,15 @@ void solomon::calculateNewBeginings(std::vector<double> &pushForward, std::vecto
     double epsilon = 0.0000001;
     if (route.size() > 2 && route[zakaznikU] != customers.size() && pushForward[0] != 0) {
         int pf = 0;
-        beginingOfService[zakaznikU] = beginingOfService[zakaznikU] + pushForward[pf];
+        beginingOfService[zakaznikU] += pushForward[pf];
         timeWaitedAtCustomer[route[zakaznikU]] = 0;
         pf++;
         for (int n = zakaznikU + 1; n < route.size(); ++n) {
             int j = route[n];
             u = route[n - 1];
             timeOfService = beginingOfService[n - 1];
-            if (timeWaitedAtCustomer[j] - pushForward[pf] < 0 + epsilon && pf < pushForward.size()) {
-                beginingOfService[n] = beginingOfService[n] + pushForward[pf];
+            if (pushForward[pf] > 0 + epsilon && pf < pushForward.size()) {
+                beginingOfService[n] += pushForward[pf];
                 timeWaitedAtCustomer[j] = 0;
                 pf++;
             } else if (pf < pushForward.size()) {
