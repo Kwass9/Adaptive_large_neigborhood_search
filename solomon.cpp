@@ -101,7 +101,7 @@ solomon::solomon(std::vector<customer> &customers, double alfa1, double alfa2,
             std::cout << distanceMatrix[routes[i][j]][routes[i][j + 1]] << " | ";
         }
         std::cout << distanceMatrix[routes[i][routes[i].size() - 2]][0] << std::endl;
-        totalDistance += distanceMatrix[route[route.size() - 2]][0];
+        totalDistance += distanceMatrix[routes[i][routes[i].size() - 2]][0];
         numberOfCustomersServed += routes[i].size() - 2;
         int j = routes[i].size() - 1;
     }
