@@ -21,6 +21,7 @@ public:
              double rdyTime, double dueD, double serviceDuration);
     ~customer();
     void markAsRouted();
+    void markAsUnrouted();
     bool isRouted() const;
     double getXcord() const;
     double getYcord() const;
