@@ -2,6 +2,7 @@
 // Created by andrej on 15.11.2023.
 //
 
+#include <valarray>
 #include "SimulatedAnealing.h"
 
 
@@ -12,18 +13,6 @@ SimulatedAnealing::SimulatedAnealing(double temperature, double coolingRate) : t
 
 double SimulatedAnealing::getTemperature() const {
     return temperature;
-}
-
-void SimulatedAnealing::setTemperature(double temperature) {
-    SimulatedAnealing::temperature = temperature;
-}
-
-double SimulatedAnealing::getCoolingRate() const {
-    return coolingRate;
-}
-
-void SimulatedAnealing::setCoolingRate(double coolingRate) {
-    SimulatedAnealing::coolingRate = coolingRate;
 }
 
 double SimulatedAnealing::getBestSolution() const {
@@ -64,5 +53,32 @@ const std::vector<std::vector<int>> &SimulatedAnealing::getNewRoutes() const {
 
 void SimulatedAnealing::setNewRoutes(const std::vector<std::vector<int>> &newRoutes) {
     SimulatedAnealing::newRoutes = newRoutes;
+}
+
+void SimulatedAnealing::updateTemperature() {
+    temperature *= coolingRate;
+}
+
+void SimulatedAnealing::tryToAcceptNewSolution(std::vector<std::vector<int>> &routes,
+                                               std::vector<std::vector<double>> &timeSchedule,
+                                               double distance) {
+    if (distance < currentSolution) {
+        currentSolution = distance;
+        currentRoutes = routes;
+        currentTimeSchedule = timeSchedule;
+        if (distance < bestSolution) {
+            bestSolution = distance;
+            bestRoutes = routes;
+            bestTimeSchedule = timeSchedule;
+        }
+    } else {
+        double probability = exp((currentSolution - distance) / temperature);
+        double random = (double) rand() / RAND_MAX;
+        if (random < probability) {
+            currentSolution = distance;
+            currentRoutes = routes;
+        }
+    }
+    updateTemperature();
 }
 

@@ -80,7 +80,7 @@ solomon::solomon(std::vector<customer> &customers, double alfa1, double alfa2,
     routes.push_back(route);
     timeSchedule.emplace_back(beginingOfService);
 
-    //zaverecny vypis
+    //zaverecny finalPrint
     for (auto & route : routes) {
         for (int j = 0; j < route.size(); ++j) {
             std::cout << route[j];

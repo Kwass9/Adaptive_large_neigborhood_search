@@ -7,6 +7,7 @@
 
 
 #include <vector>
+#include "customer.h"
 
 class SimulatedAnealing {
 private:
@@ -14,14 +15,13 @@ private:
     double coolingRate;
     double bestSolution;
     double currentSolution;
+    std::vector<std::vector<double>> bestTimeSchedule;
+    std::vector<std::vector<double>> currentTimeSchedule;
     std::vector<std::vector<int>> bestRoutes;
     std::vector<std::vector<int>> currentRoutes;
     std::vector<std::vector<int>> newRoutes;
 public:
-    SimulatedAnealing();
     SimulatedAnealing(double temperature, double coolingRate);
-    double getCoolingRate() const;
-    void setCoolingRate(double coolingRate);
     double getBestSolution() const;
     void setBestSolution(double bestSolution);
     double getCurrentSolution() const;
@@ -33,8 +33,9 @@ public:
     const std::vector<std::vector<int>> &getNewRoutes() const;
     void setNewRoutes(const std::vector<std::vector<int>> &newRoutes);
     double getTemperature() const;
-    void setTemperature(double temperature);
-
+    void updateTemperature();
+    void tryToAcceptNewSolution(std::vector<std::vector<int>> &routes, std::vector<std::vector<double>> &timeSchedule,
+                                double distance);
 };
 
 
