@@ -3,4 +3,4 @@ project(Solomon)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(Solomon main.cpp customer.h customer.cpp solomon.h solomon.cpp)
+add_executable(Solomon main.cpp customer.h customer.cpp solomon.h solomon.cpp SimulatedAnealing.cpp SimulatedAnealing.h Removal.cpp Removal.h Data.cpp Data.h)
