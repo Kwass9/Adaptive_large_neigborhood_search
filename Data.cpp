@@ -117,8 +117,7 @@ void Data::calculateDistances(std::vector<customer> &customers, std::vector<std:
     }
 }
 
-void Data::finalPrint(std::vector<std::vector<int>> &routes, std::vector<std::vector<double>> &timeSchedule, double distance,
-                      std::vector<double> &timeWaitedAtCustomer) {
+void Data::finalPrint() {
     for (auto & route : routes) {
         for (int j = 0; j < route.size(); ++j) {
             std::cout << route[j];
@@ -129,27 +128,16 @@ void Data::finalPrint(std::vector<std::vector<int>> &routes, std::vector<std::ve
         std::cout << std::endl;
         std::cout << "--------------------------------" << std::endl;
     }
-    double totalDistance = 0;
     double totalScheduleTime = 0;
     double waitingTimeInSchedule = 0;
     auto numberOfCustomersServed = 0;
-    for (int i = 0; i < routes.size(); ++i) {
-        for (int j = 0; j < routes[i].size() - 2; ++j) {
-            totalDistance += distanceMatrix[routes[i][j]][routes[i][j + 1]];
-            std::cout << distanceMatrix[routes[i][j]][routes[i][j + 1]] << " | ";
-        }
-        std::cout << distanceMatrix[routes[i][routes[i].size() - 2]][0] << std::endl;
-        totalDistance += distanceMatrix[routes[i][routes[i].size() - 2]][0];
-        numberOfCustomersServed += routes[i].size() - 2;
-        int j = routes[i].size() - 1;
-    }
-    for (int i = 0; i < timeSchedule.size(); ++i) {
-        auto t = timeSchedule[i].size() - 1;
-        totalScheduleTime += (timeSchedule[i][t]);
+    for (auto & i : timeSchedule) {
+        auto t = i.size() - 1;
+        totalScheduleTime += (i[t]);
     }
 
-    for (int i = 1; i < timeWaitedAtCustomer.size() - 1; ++i) {
-        waitingTimeInSchedule += timeWaitedAtCustomer[i];
+    for (int i = 1; i < waitingTime.size() - 1; ++i) {
+        waitingTimeInSchedule += waitingTime[i];
     }
     auto numberOfVehicles = routes.size();
     std::cout << "Time schedule: " << std::endl;
@@ -160,7 +148,7 @@ void Data::finalPrint(std::vector<std::vector<int>> &routes, std::vector<std::ve
         std::cout << std::endl;
         std::cout << "--------------------------------------------------" << std::endl;
     }
-    std::cout << "Total distance: " << totalDistance << std::endl;
+    std::cout << "Total distance: " << distance << std::endl;
     std::cout << "Total schedule time: " << totalScheduleTime << std::endl;
     std::cout << "Number of vehicles: " << numberOfVehicles << std::endl;
     std::cout << "Waiting time at customers: " << waitingTimeInSchedule << std::endl;
@@ -205,4 +193,32 @@ double Data::getAtributeForCustomer(std::string &str, const std::string &delimit
 double Data::processString(std::string &str, const std::string &delimiter) {
     removeDelimiters(str, delimiter);
     return getAtributeForCustomer(str, delimiter);
+}
+
+double Data::getAlfa1() const {
+    return alfa1;
+}
+
+double Data::getAlfa2() const {
+    return alfa2;
+}
+
+double Data::getLambda() const {
+    return lambda;
+}
+
+double Data::getQ() const {
+    return q;
+}
+
+const std::vector<customer> &Data::getCustomers() const {
+    return customers;
+}
+
+bool Data::isStartingCriteria() const {
+    return startingCriteria;
+}
+
+double Data::getVehicleCapacity() const {
+    return vehicleCapacity;
 }

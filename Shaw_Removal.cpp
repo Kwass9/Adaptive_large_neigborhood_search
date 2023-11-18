@@ -3,16 +3,21 @@
 //
 
 #include <random>
+#include <algorithm>
 #include "Shaw_Removal.h"
 
-Shaw_Removal::Shaw_Removal(double f, double ch, double p, double o, int qve) : fi(f), chi(ch), psi(p), omega(o), q(qve) {}
+Shaw_Removal::Shaw_Removal(double f, double ch, double p, double o, int qve, std::vector<customer> &customers) : fi(f), chi(ch), psi(p), omega(o), q(qve) {
+    R.resize(customers.size());
+    for (int i = 0; i < customers.size(); ++i) {
+        R[i].resize(customers.size());
+    }
+}
 
 std::vector<int> Shaw_Removal::calculateRelatedness(std::vector<std::vector<double>> &distanceMatrix,
                                                     std::vector<customer> &customers,
                                                     std::vector<std::vector<int>> &routes,
                                                     std::vector<std::vector<double>> &timeSchedule,
                                                     int r) {
-
         /**tieto for loopy sa daju napisat lepsie len mi to akurat nenapada... neist cez zakaznikov ale cez cesty*/
         for (int j = 0; j < customers.size(); ++j) {
             if (r != j) {
@@ -77,11 +82,11 @@ void Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatr
     while (D.size() < q) {
         r = D[rand() % D.size()];
         //calculate relatedness here
+        calculateRelatedness(distanceMatrix, customers, routes, timeSchedule, r);
+
         //sort L by relatedness (pozriet ako to je v knihe ale asi staci len lambda funkcia)
-
-
-
-        auto y = rand() % L.size(); /**pozriet ako dostanem cislo v rozsahu 0-1*/
+        std::sort(L.begin(), L.end(), [&](int a, int b) { return R[r][a] < R[r][b]; });
+        auto y = (double)rand() / RAND_MAX;
         D.emplace_back(L[std::pow(y, p) * (L.size() - 1)]);
         L.erase(L.begin() + std::pow(y, p) * (L.size() - 1));
     }

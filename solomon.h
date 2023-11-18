@@ -7,15 +7,24 @@
 
 #include <vector>
 #include "customer.h"
-
+#include "Data.h"
 
 class solomon {
 
 public:
-    solomon(std::vector<customer> &customers, /**std::vector<std::vector<int>> &routes,*/ double alfa1, double alfa2,
-            double lambda, double q, bool startingCriteria);
+    solomon(class Data *data);
+    std::vector<std::vector<double>> &getSchedule();
+    std::vector<std::vector<int>> &getRoutes();
+    std::vector<double> &getWaitingTime();
+    double &getDistance();
 private:
-    void calculateDistances(std::vector<customer> &customers, std::vector<std::vector<double>> &distanceMatrix);
+    std::vector<int> route;
+    std::vector<std::vector<int>> routes;
+    std::vector<std::vector<double>> timeSchedule;
+    std::vector<double> timeWaitedAtCustomer;
+    std::vector<double> pushForward;
+    std::vector<double> beginingOfService;
+    double distance;
     unsigned int findCustomerWithEarliestDeadline(std::vector<customer> &customers);
     unsigned int findFurthestUnroutedCustomer(std::vector<std::vector<double>> &distanceMatrix, std::vector<customer> &customers);
     void calculatePushForward(std::vector<double> &pushForward, const std::vector<int>& route, int u, int position,

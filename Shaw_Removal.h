@@ -18,7 +18,7 @@ private:
     double omega;
     int q;
 public:
-    Shaw_Removal(double fi, double chi, double psi, double omega, int q);
+    Shaw_Removal(double fi, double chi, double psi, double omega, int q, std::vector<customer> &customers);
     std::vector<int> calculateRelatedness(std::vector<std::vector<double>> &distanceMatrix,
                                           std::vector<customer> &customers,
                                           std::vector<std::vector<int>> &routes,

@@ -2,14 +2,14 @@
 // Created by andrej on 15.11.2023.
 //
 
-#ifndef SOLOMON_SIMULATEDANEALING_H
-#define SOLOMON_SIMULATEDANEALING_H
+#ifndef SOLOMON_SIMULATEDANNEALING_H
+#define SOLOMON_SIMULATEDANNEALING_H
 
 
 #include <vector>
 #include "customer.h"
 
-class SimulatedAnealing {
+class SimulatedAnnealing {
 private:
     double temperature;
     double coolingRate;
@@ -21,17 +21,12 @@ private:
     std::vector<std::vector<int>> currentRoutes;
     std::vector<std::vector<int>> newRoutes;
 public:
-    SimulatedAnealing(double temperature, double coolingRate);
+    SimulatedAnnealing(class Data *data, double temperature, double coolingRate);
     double getBestSolution() const;
-    void setBestSolution(double bestSolution);
     double getCurrentSolution() const;
-    void setCurrentSolution(double currentSolution);
     const std::vector<std::vector<int>> &getBestRoutes() const;
-    void setBestRoutes(const std::vector<std::vector<int>> &bestRoutes);
     const std::vector<std::vector<int>> &getCurrentRoutes() const;
-    void setCurrentRoutes(const std::vector<std::vector<int>> &currentRoutes);
     const std::vector<std::vector<int>> &getNewRoutes() const;
-    void setNewRoutes(const std::vector<std::vector<int>> &newRoutes);
     double getTemperature() const;
     void updateTemperature();
     void tryToAcceptNewSolution(std::vector<std::vector<int>> &routes, std::vector<std::vector<double>> &timeSchedule,
@@ -39,4 +34,4 @@ public:
 };
 
 
-#endif //SOLOMON_SIMULATEDANEALING_H
+#endif //SOLOMON_SIMULATEDANNEALING_H

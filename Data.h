@@ -16,18 +16,34 @@ private:
     std::vector<std::vector<int>> routes;
     std::vector<double> waitingTime;
     double distance;
+    double alfa1;
+    double alfa2;
+    double lambda;
+    double q;
+    std::vector<customer> customers;
+    bool startingCriteria;
+    double vehicleCapacity = 200;
 public:
-    Data(int argc, char * argv[]); /**toto asi bude od mainu potrebovat poslat path k suboru a budem to tu zut*/
+    double getVehicleCapacity() const;
+
+private:
     void removeCharsFromString(std::string &str, char* charsToRemove);
     void removeDelimiters(std::string &str, const std::string& delimiter);
     double getAtributeForCustomer(std::string &str, const std::string& delimiter);
     double processString(std::string &str, const std::string& delimiter);
     void calculateDistances(std::vector<customer> &customers, std::vector<std::vector<double>> &distanceMatrix);
-    void finalPrint(std::vector<std::vector<int>> &routes, std::vector<std::vector<double>> &timeSchedule, double distance,
-                    std::vector<double> &timeWaitedAtCustomer);
+public:
+    Data(int argc, char * argv[]);
+    void finalPrint();
     void retrieveData(std::vector<std::vector<double>> &schedule, std::vector<std::vector<int>> &routes_,
-                      std::vector<double> &waiting, double &dist);
+                      std::vector<double> &waiting, double &distance);
     std::vector<std::vector<double>> &getDistanceMatrix();
+    double getAlfa1() const;
+    double getAlfa2() const;
+    double getLambda() const;
+    double getQ() const;
+    const std::vector<customer> &getCustomers() const;
+    bool isStartingCriteria() const;
 };
 
 
