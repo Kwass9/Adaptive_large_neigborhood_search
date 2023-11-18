@@ -6,7 +6,7 @@
 #include "SimulatedAnnealing.h"
 
 
-SimulatedAnnealing::SimulatedAnnealing(class Data *data ,double temperature, double coolingRate) : temperature(temperature),
+SimulatedAnnealing::SimulatedAnnealing(double temperature, double coolingRate) : temperature(temperature),
                                                                                  coolingRate(coolingRate) {
 }
 
@@ -18,46 +18,54 @@ double SimulatedAnnealing::getBestSolution() const {
     return bestSolution;
 }
 
-double SimulatedAnnealing::getCurrentSolution() const {
-    return currentSolution;
-}
-
 const std::vector<std::vector<int>> &SimulatedAnnealing::getBestRoutes() const {
     return bestRoutes;
 }
 
-const std::vector<std::vector<int>> &SimulatedAnnealing::getCurrentRoutes() const {
-    return currentRoutes;
+const std::vector<std::vector<double>> &SimulatedAnnealing::getBestTimeSchedule() const {
+    return bestTimeSchedule;
 }
 
-const std::vector<std::vector<int>> &SimulatedAnnealing::getNewRoutes() const {
-    return newRoutes;
+const std::vector<double> &SimulatedAnnealing::getBestWaitingTime() const {
+    return bestWaitingTime;
 }
 
 void SimulatedAnnealing::updateTemperature() {
     temperature *= coolingRate;
 }
 
-void SimulatedAnnealing::tryToAcceptNewSolution(std::vector<std::vector<int>> &routes,
+bool SimulatedAnnealing::tryToAcceptNewSolution(std::vector<std::vector<int>> &routes,
                                                 std::vector<std::vector<double>> &timeSchedule,
+                                                std::vector<double> &waitingTime,
                                                 double distance) {
     if (distance < currentSolution) {
         currentSolution = distance;
         currentRoutes = routes;
         currentTimeSchedule = timeSchedule;
+        currentWaitingTime = waitingTime;
         if (distance < bestSolution) {
             bestSolution = distance;
             bestRoutes = routes;
             bestTimeSchedule = timeSchedule;
+            bestWaitingTime = waitingTime;
+            updateTemperature();
+            return true;
         }
     } else {
-        double probability = exp((currentSolution - distance) / temperature);
-        double random = (double) rand() / RAND_MAX;
+        double probability = std::exp(std::abs(currentSolution - distance) / temperature);
+        double random = (double)rand() / RAND_MAX;
         if (random < probability) {
             currentSolution = distance;
             currentRoutes = routes;
+            currentTimeSchedule = timeSchedule;
+            currentWaitingTime = waitingTime;
+            updateTemperature();
+            return true;
+        } else {
+            return false;
         }
     }
     updateTemperature();
+    return true;
 }
 

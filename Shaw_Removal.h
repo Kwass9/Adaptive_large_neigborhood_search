@@ -28,8 +28,8 @@ public:
                         std::vector<std::vector<int>> &routes, std::vector<std::vector<double>> &timeSchedule,
                         int p);
 
-    template<typename T>
-    void quickSort(std::vector<int> &relatedness, int min, int max, std::function<bool(const T &, const T &)> compare);
+//    template<typename T>
+//    void quickSort(std::vector<int> &relatedness, int min, int max, std::function<bool(const T &, const T &)> compare);
 };
 
 

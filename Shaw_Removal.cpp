@@ -105,26 +105,26 @@ void Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatr
     }
 }
 
-template<typename T>
-void Shaw_Removal::quickSort(std::vector<int> &relatedness, int min, int max,
-                             std::function<bool(const T&, const T&)> compare) {
-    auto pivot = max;
-    auto currentIndex = min;
-    auto swapMarker = min - 1;
-    while (currentIndex <= max) {
-        bool result = compare(relatedness[currentIndex], pivot);
-        if (result) {
-            swapMarker++;
-            if (currentIndex > swapMarker) {
-                std::swap(relatedness[currentIndex], relatedness[swapMarker]);
-            }
-        }
-        currentIndex++;
-    }
-    if (swapMarker > min) {
-        quick(relatedness, compare, min, swapMarker - 1);
-    }
-    if (swapMarker < max) {
-        quick(relatedness, compare, swapMarker + 1, max);
-    }
-}
+//template<typename T>
+//void Shaw_Removal::quickSort(std::vector<int> &relatedness, int min, int max,
+//                             std::function<bool(const T&, const T&)> compare) {
+//    auto pivot = max;
+//    auto currentIndex = min;
+//    auto swapMarker = min - 1;
+//    while (currentIndex <= max) {
+//        bool result = compare(relatedness[currentIndex], pivot);
+//        if (result) {
+//            swapMarker++;
+//            if (currentIndex > swapMarker) {
+//                std::swap(relatedness[currentIndex], relatedness[swapMarker]);
+//            }
+//        }
+//        currentIndex++;
+//    }
+//    if (swapMarker > min) {
+//        quick(relatedness, compare, min, swapMarker - 1);
+//    }
+//    if (swapMarker < max) {
+//        quick(relatedness, compare, swapMarker + 1, max);
+//    }
+//}

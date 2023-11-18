@@ -3,6 +3,7 @@
 //
 
 #include <climits>
+#include <utility>
 #include <valarray>
 #include <iostream>
 #include <cstring>
@@ -10,11 +11,6 @@
 #include "Data.h"
 
 Data::Data(int argc, char * argv[]) {
-    std::string path;
-    double alfa1;
-    double alfa2;
-    double lambda;
-    double q;
     std::vector<customer> customers;
     bool startingCriteria; //premenna vybera ci sa zacina s najvzdialenejsim zakaznikom alebo s najskor zaciatocnou dobou
 
@@ -155,15 +151,15 @@ void Data::finalPrint() {
     std::cout << "Number of customers served: " << numberOfCustomersServed << std::endl;
 }
 
-void Data::retrieveData(std::vector<std::vector<double>> &schedule, std::vector<std::vector<int>> &routes_,
-                        std::vector<double> &waiting, double &dist) {
-    timeSchedule = schedule;
-    routes = routes_;
-    waitingTime = waiting;
+void Data::retrieveData(std::vector<std::vector<double>> schedule, std::vector<std::vector<int>> routes_,
+                        std::vector<double> waiting, double dist) {
+    timeSchedule = std::move(schedule);
+    routes = std::move(routes_);
+    waitingTime = std::move(waiting);
     distance = dist;
 }
 
-std::vector<std::vector<double>> &Data::getDistanceMatrix() {
+std::vector<std::vector<double>> Data::getDistanceMatrix() const {
     return distanceMatrix;
 }
 
@@ -180,19 +176,19 @@ void Data::removeDelimiters(std::string &str, const std::string &delimiter) {
     }
 }
 
-double Data::getAtributeForCustomer(std::string &str, const std::string &delimiter) {
+double Data::getAtributeForCustomer(std::string &path, const std::string &delimiter) {
     size_t cell;
     std::string word;
-    if ((cell = str.find(delimiter)) != std::string::npos) {
-        word = str.substr(0, cell);
-        str.erase(0, cell + delimiter.length());
+    if ((cell = path.find(delimiter)) != std::string::npos) {
+        word = path.substr(0, cell);
+        path.erase(0, cell + delimiter.length());
     }
     return std::stoi(word);
 }
 
-double Data::processString(std::string &str, const std::string &delimiter) {
-    removeDelimiters(str, delimiter);
-    return getAtributeForCustomer(str, delimiter);
+double Data::processString(std::string &path, const std::string &delimiter) {
+    removeDelimiters(path, delimiter);
+    return getAtributeForCustomer(path, delimiter);
 }
 
 double Data::getAlfa1() const {
@@ -211,7 +207,7 @@ double Data::getQ() const {
     return q;
 }
 
-const std::vector<customer> &Data::getCustomers() const {
+std::vector<customer> Data::getCustomers() const {
     return customers;
 }
 
