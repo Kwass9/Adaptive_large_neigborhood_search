@@ -12,11 +12,7 @@
 class Data {
 private:
     std::vector<std::vector<double>> distanceMatrix;
-    std::vector<std::vector<double>> timeSchedule;
-    std::vector<std::vector<int>> routes;
-    std::vector<double> waitingTime;
     std::string path;
-    double distance;
     double alfa1;
     double alfa2;
     double lambda;
@@ -31,9 +27,6 @@ private:
     void calculateDistances(std::vector<customer> &customers, std::vector<std::vector<double>> &distanceMatrix);
 public:
     Data(int argc, char * argv[]);
-    void finalPrint();
-    void retrieveData(std::vector<std::vector<double>> schedule, std::vector<std::vector<int>> routes_,
-                      std::vector<double> waiting, double distance);
     std::vector<std::vector<double>> getDistanceMatrix() const;
     double getAlfa1() const;
     double getAlfa2() const;

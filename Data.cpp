@@ -113,52 +113,6 @@ void Data::calculateDistances(std::vector<customer> &customers, std::vector<std:
     }
 }
 
-void Data::finalPrint() {
-    for (auto & route : routes) {
-        for (int j = 0; j < route.size(); ++j) {
-            std::cout << route[j];
-            if (j != route.size() - 1) {
-                std::cout << " -> ";
-            }
-        }
-        std::cout << std::endl;
-        std::cout << "--------------------------------" << std::endl;
-    }
-    double totalScheduleTime = 0;
-    double waitingTimeInSchedule = 0;
-    auto numberOfCustomersServed = 0;
-    for (auto & i : timeSchedule) {
-        auto t = i.size() - 1;
-        totalScheduleTime += (i[t]);
-    }
-
-    for (int i = 1; i < waitingTime.size() - 1; ++i) {
-        waitingTimeInSchedule += waitingTime[i];
-    }
-    auto numberOfVehicles = routes.size();
-    std::cout << "Time schedule: " << std::endl;
-    for (auto & i : timeSchedule) {
-        for (double j : i) {
-            std::cout << j << " | ";
-        }
-        std::cout << std::endl;
-        std::cout << "--------------------------------------------------" << std::endl;
-    }
-    std::cout << "Total distance: " << distance << std::endl;
-    std::cout << "Total schedule time: " << totalScheduleTime << std::endl;
-    std::cout << "Number of vehicles: " << numberOfVehicles << std::endl;
-    std::cout << "Waiting time at customers: " << waitingTimeInSchedule << std::endl;
-    std::cout << "Number of customers served: " << numberOfCustomersServed << std::endl;
-}
-
-void Data::retrieveData(std::vector<std::vector<double>> schedule, std::vector<std::vector<int>> routes_,
-                        std::vector<double> waiting, double dist) {
-    timeSchedule = std::move(schedule);
-    routes = std::move(routes_);
-    waitingTime = std::move(waiting);
-    distance = dist;
-}
-
 std::vector<std::vector<double>> Data::getDistanceMatrix() const {
     return distanceMatrix;
 }

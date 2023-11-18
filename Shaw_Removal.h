@@ -8,6 +8,8 @@
 #include <vector>
 #include <functional>
 #include "customer.h"
+#include "Solution.h"
+#include "Data.h"
 
 class Shaw_Removal {
 private:
@@ -18,15 +20,13 @@ private:
     double omega;
     int q;
 public:
-    Shaw_Removal(double fi, double chi, double psi, double omega, int q, std::vector<customer> &customers);
+    Shaw_Removal(double fi, double chi, double psi, double omega, int q, std::vector<customer> customers);
     std::vector<int> calculateRelatedness(std::vector<std::vector<double>> &distanceMatrix,
                                           std::vector<customer> &customers,
                                           std::vector<std::vector<int>> &routes,
                                           std::vector<std::vector<double>> &timeSchedule,
                                           int r);
-    void removeRequests(std::vector<std::vector<double>> &distanceMatrix, std::vector<customer> &customers,
-                        std::vector<std::vector<int>> &routes, std::vector<std::vector<double>> &timeSchedule,
-                        int p);
+    void removeRequests(Data *data ,Solution *solution, int p);
 
 //    template<typename T>
 //    void quickSort(std::vector<int> &relatedness, int min, int max, std::function<bool(const T &, const T &)> compare);

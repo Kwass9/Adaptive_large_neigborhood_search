@@ -15,24 +15,18 @@ private:
     double temperature;
     double coolingRate;
     /**ak budes lokalne inicializovat solution nezabudni ho deletnut*/
-    double bestSolution;
-    double currentSolution;
-    std::vector<std::vector<double>> bestTimeSchedule;
-    std::vector<std::vector<double>> currentTimeSchedule;
-    std::vector<std::vector<int>> bestRoutes;
-    std::vector<std::vector<int>> currentRoutes;
-    std::vector<double> bestWaitingTime;
-    std::vector<double> currentWaitingTime;
+    Solution currentSolution;
+    Solution bestSolution;
 public:
-    SimulatedAnnealing(double temperature, double coolingRate, std::vector<std::vector<int>> &routes, std::vector<std::vector<double>> &scheduleTime, std::vector<double> &waitingTime, double distance);
+    SimulatedAnnealing(double temperature, double coolingRate, Solution &solution);
+    ~SimulatedAnnealing();
     double getBestSolution() const;
     const std::vector<std::vector<int>> &getBestRoutes() const;
     const std::vector<std::vector<double>> &getBestTimeSchedule() const;
     const std::vector<double> &getBestWaitingTime() const;
     double getTemperature() const;
     void updateTemperature();
-    bool tryToAcceptNewSolution(std::vector<std::vector<int>> &routes, std::vector<std::vector<double>> &timeSchedule,
-                                std::vector<double> &waitingTime, double distance);
+    bool tryToAcceptNewSolution(Solution &solution);
 };
 
 

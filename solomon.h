@@ -8,15 +8,17 @@
 #include <vector>
 #include "customer.h"
 #include "Data.h"
+#include "Solution.h"
 
 class solomon {
 
 public:
-    solomon(class Data *data);
+    solomon(class Data *data, class Solution *solution);
     std::vector<std::vector<double>> &getSchedule();
     std::vector<std::vector<int>> &getRoutes();
     std::vector<double> &getWaitingTime();
     double &getDistance();
+    void run(class Data *data, class Solution *solution);
 private:
     std::vector<int> route;
     std::vector<std::vector<int>> routes;

@@ -6,7 +6,7 @@
 #include <algorithm>
 #include "Shaw_Removal.h"
 
-Shaw_Removal::Shaw_Removal(double f, double ch, double p, double o, int qve, std::vector<customer> &customers) : fi(f), chi(ch), psi(p), omega(o), q(qve) {
+Shaw_Removal::Shaw_Removal(double f, double ch, double p, double o, int qve, std::vector<customer> customers) : fi(f), chi(ch), psi(p), omega(o), q(qve) {
     R.resize(customers.size());
     for (int i = 0; i < customers.size(); ++i) {
         R[i].resize(customers.size());
@@ -67,9 +67,11 @@ std::vector<int> Shaw_Removal::calculateRelatedness(std::vector<std::vector<doub
     return std::vector<int>();
 }
 
-void Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatrix, std::vector<customer> &customers,
-                                  std::vector<std::vector<int>> &routes, std::vector<std::vector<double>> &timeSchedule,
-                                  int p) {
+void Shaw_Removal::removeRequests(Data *data ,Solution *solution, int p) {
+    auto distanceMatrix = data->getDistanceMatrix();
+    auto customers = data->getCustomers();
+    auto routes = solution->getRoutes();
+    auto timeSchedule = solution->getTimeSchedule();
     int r = rand() % routes.size();
     std::vector<int> D; //randomly selected requests to be removed
     D.emplace_back(r);

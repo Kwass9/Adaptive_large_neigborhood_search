@@ -9,16 +9,8 @@
 #include <tuple>
 #include <climits>
 
-solomon::solomon(class Data *data) {
+solomon::solomon(class Data *data, class Solution *solution) {
     auto customers = data->getCustomers();
-    auto distanceMatrix = data->getDistanceMatrix();
-    auto alfa1 = data->getAlfa1();
-    auto alfa2 = data->getAlfa2();
-    auto lambda = data->getLambda();
-    auto maxCapacity = data->getVehicleCapacity();
-
-    auto unvisitedCustomers = customers.size();
-    unsigned int currentlyUsedCapacity = 0;
     for (int i = 0; i <= customers.size(); ++i) {
         timeWaitedAtCustomer.push_back(0);
     }
@@ -29,6 +21,19 @@ solomon::solomon(class Data *data) {
     beginingOfService.emplace_back(0);
     beginingOfService.emplace_back(0);
     timeWaitedAtCustomer[route[1]] = customers[0].getDueDate();
+    run(data, solution);
+}
+
+void solomon::run(class Data *data, class Solution *solution) {
+    auto customers = data->getCustomers();
+    auto distanceMatrix = data->getDistanceMatrix();
+    auto alfa1 = data->getAlfa1();
+    auto alfa2 = data->getAlfa2();
+    auto lambda = data->getLambda();
+    auto maxCapacity = data->getVehicleCapacity();
+
+    auto unvisitedCustomers = customers.size();
+    unsigned int currentlyUsedCapacity = 0;
     unsigned int index;
     index = data->isStartingCriteria() ? findFurthestUnroutedCustomer(distanceMatrix, customers)
                                        : findCustomerWithEarliestDeadline(customers);
@@ -59,7 +64,7 @@ solomon::solomon(class Data *data) {
             beginingOfService.emplace_back(0);
             timeWaitedAtCustomer[route[1]] = customers[0].getDueDate();
             index = data->isStartingCriteria() ? findFurthestUnroutedCustomer(distanceMatrix, customers)
-                                     : findCustomerWithEarliestDeadline(customers);
+                                               : findCustomerWithEarliestDeadline(customers);
             insertCustomerToRoad(route, std::make_pair(1, index), beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity,
                                  distanceMatrix, pushForward);
             unvisitedCustomers--;
@@ -78,6 +83,7 @@ solomon::solomon(class Data *data) {
         distance += distanceMatrix[routes[i][routes[i].size() - 2]][0];
         int j = routes[i].size() - 1; /**toto je tu zbitocne asi neviem co som vymyslal ked som to sem dal*/
     }
+    /**naplnit solution*/
 }
 
 unsigned int solomon::findCustomerWithEarliestDeadline(std::vector<customer> &customers) {
