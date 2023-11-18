@@ -6,9 +6,11 @@
 #include "SimulatedAnnealing.h"
 
 
-SimulatedAnnealing::SimulatedAnnealing(double temperature, double coolingRate) : temperature(temperature),
-                                                                                 coolingRate(coolingRate) {
-}
+SimulatedAnnealing::SimulatedAnnealing(double temperature, double coolingRate, std::vector<std::vector<int>> &routes,
+                                       std::vector<std::vector<double>> &scheduleTime, std::vector<double> &waitingTime, double distance)
+                                       : temperature(temperature), coolingRate(coolingRate), bestSolution(distance), currentSolution(distance),
+                                       bestTimeSchedule(scheduleTime), currentTimeSchedule(scheduleTime), bestRoutes(routes), currentRoutes(routes),
+                                       bestWaitingTime(waitingTime), currentWaitingTime(waitingTime) {}
 
 double SimulatedAnnealing::getTemperature() const {
     return temperature;
