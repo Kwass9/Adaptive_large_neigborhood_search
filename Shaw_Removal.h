@@ -13,7 +13,7 @@
 
 class Shaw_Removal {
 private:
-    std::vector<std::vector<double>> R;
+    std::vector<double> R; /**asi bude nejak treba povedat pre ktore r sa to pocitalo*/
     double fi;
     double chi;
     double psi;
@@ -21,12 +21,13 @@ private:
     int q;
 public:
     Shaw_Removal(double fi, double chi, double psi, double omega, int q, std::vector<customer> customers);
-    std::vector<int> calculateRelatedness(std::vector<std::vector<double>> &distanceMatrix,
+    std::vector<double> calculateRelatedness(std::vector<std::vector<double>> &distanceMatrix,
                                           std::vector<customer> &customers,
                                           std::vector<std::vector<int>> &routes,
                                           std::vector<std::vector<double>> &timeSchedule,
                                           int r);
     void removeRequests(Data *data ,Solution *solution, int p);
+    void editSolution(Solution *solution, std::vector<int> &D, Data *data);
 
 //    template<typename T>
 //    void quickSort(std::vector<int> &relatedness, int min, int max, std::function<bool(const T &, const T &)> compare);

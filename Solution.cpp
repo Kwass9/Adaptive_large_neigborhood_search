@@ -113,3 +113,11 @@ int Solution::getUnvisitedCustomers() const {
 void Solution::setUnvisitedCustomers(int unvisitedCustomers) {
     Solution::unvisitedCustomers = unvisitedCustomers;
 }
+
+void Solution::setUsedCapacityAt(int index, int value) {
+    Solution::usedCapacity[index] = value;
+}
+
+void Solution::setWaitingTimeAt(int index, double value) {
+    Solution::waitingTime[index] = value;
+}

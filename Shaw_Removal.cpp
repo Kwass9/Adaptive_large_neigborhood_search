@@ -8,63 +8,37 @@
 
 Shaw_Removal::Shaw_Removal(double f, double ch, double p, double o, int qve, std::vector<customer> customers) : fi(f), chi(ch), psi(p), omega(o), q(qve) {
     R.resize(customers.size());
-    for (int i = 0; i < customers.size(); ++i) {
-        R[i].resize(customers.size());
-    }
 }
 
-std::vector<int> Shaw_Removal::calculateRelatedness(std::vector<std::vector<double>> &distanceMatrix,
-                                                    std::vector<customer> &customers,
-                                                    std::vector<std::vector<int>> &routes,
+std::vector<double> Shaw_Removal::calculateRelatedness(std::vector<std::vector<double>> &distanceMatrix,
+                                                    std::vector<customer> &customers,std::vector<std::vector<int>> &routes,
                                                     std::vector<std::vector<double>> &timeSchedule,
                                                     int r) {
-        /**tieto for loopy sa daju napisat lepsie len mi to akurat nenapada... neist cez zakaznikov ale cez cesty*/
-        for (int j = 0; j < customers.size(); ++j) {
-            if (r != j) {
-                int nasledovnik_r = - 1;
-                int index_r = - 1;
-                int index_j = - 1;
-                int index_nasledovnik_r = - 1;
-                int index_nasledovnik_j = - 1;
-                int nasledovnik_j = - 1;
-                int route_number_r = - 1;
-                int route_number_j = - 1;
-                for (int i = 0; i < routes.size(); ++i) {
-                    for (int k = 0; k < routes[i].size(); ++k) {
-                        if (routes[i][k] == r) {
-                            nasledovnik_r = routes[i][k +1];
-                            index_r = k;
-                            index_nasledovnik_r = k + 1;
-                            route_number_r = i;
-                        }
-                        if (routes[i][k] == j) {
-                            nasledovnik_j = routes[i][k +1];
-                            index_j = k;
-                            index_nasledovnik_j = k + 1;
-                            route_number_j = i;
-                        }
-                        if (r != -1 && j != -1) {
-                            break;
-                        }
-                    }
-                }
-                for (int i = 0; i < routes.size(); ++i) {
-                    for (int k = 0; k < routes[i].size(); ++k) {
-                        if (routes[i][k] == j) {
-                            nasledovnik_j = routes[i][k +1];
-                        }
-                    }
-                }
-                R[r][j] = fi * (distanceMatrix[r][nasledovnik_r] + distanceMatrix[j][nasledovnik_j])
-                        + chi * (std::abs(timeSchedule[route_number_r][index_r] - timeSchedule[route_number_r][index_nasledovnik_r])
-                        + std::abs(timeSchedule[route_number_j][index_j] - timeSchedule[route_number_j][index_nasledovnik_j]))
-                        + psi * (customers[r].getDemand() - customers[j].getDemand()); /**pozriet ci to bolo demand*/
+    int nasledovnik_r;
+    int route_number_r;
+    int index_r;
+    for (int i = 0; i < routes.size(); ++i) {
+        for (int j = 0; j < routes[i].size(); ++j) {
+            if (routes[i][j] == r) {
+                nasledovnik_r = routes[i][j + 1];
+                route_number_r = i;
+                index_r = j;
+            }
+        }
+    }
+    for (int i = 0; i < routes.size(); ++i) {
+        for (int j = 0; j < routes[i].size(); ++j) {
+            if (index_r != j && i != route_number_r) {
+                R[j] = fi * (distanceMatrix[r][nasledovnik_r] + distanceMatrix[routes[i][j]][routes[i][j + 1]])
+                       + chi * (std::abs(timeSchedule[route_number_r][index_r] - timeSchedule[route_number_r][routes[route_number_r][index_r + 1]])
+                                + std::abs(timeSchedule[i][j] - timeSchedule[i][j + 1]))
+                       + psi * (customers[r].getDemand() - customers[j].getDemand()); /**pozriet ci to bolo demand*/
                         //+ omega * (1 - () / std::min(,));
                         /**ktore vozidla vedia obsluzit zakaznika*/
             }
+        }
     }
-
-    return std::vector<int>();
+    return R;
 }
 
 void Shaw_Removal::removeRequests(Data *data ,Solution *solution, int p) {
@@ -83,24 +57,37 @@ void Shaw_Removal::removeRequests(Data *data ,Solution *solution, int p) {
     }
     while (D.size() < q) {
         r = D[rand() % D.size()];
-        //calculate relatedness here
         calculateRelatedness(distanceMatrix, customers, routes, timeSchedule, r);
-
-        //sort L by relatedness (pozriet ako to je v knihe ale asi staci len lambda funkcia)
-        std::sort(L.begin(), L.end(), [&](int a, int b) { return R[r][a] < R[r][b]; });
+        std::sort(L.begin(), L.end(), [&](int a, int b) { return R[a] < R[b]; });
         auto y = (double)rand() / RAND_MAX;
         D.emplace_back(L[std::pow(y, p) * (L.size() - 1)]);
         L.erase(L.begin() + std::pow(y, p) * (L.size() - 1));
     }
-    for (int i = 0; i < D.size(); ++i) {
-        customers[D[i]].markAsUnrouted();
+    editSolution(solution, D, data);
+}
+
+void Shaw_Removal::editSolution(Solution *solution, std::vector<int> &D, Data *data) {
+    auto timeSchedule = solution->getTimeSchedule();
+    auto routes = solution->getRoutes();
+    for (int i : D) {
+        data->getCustomers()[i].markAsUnrouted();
     }
-    for (int i = 0; i < timeSchedule.size(); ++i) {
-        for (int j = 0; j < timeSchedule[i].size(); ++j) {
-            for (int k = 0; k < D.size(); ++k) {
-                if (routes[i][j] == D[k]) {
+    solution->setUnvisitedCustomers(data->getCustomers().size() - D.size());
+    for (int i = 0; i < solution->getTimeSchedule().size(); ++i) {
+        for (int j = 0; j < solution->getTimeSchedule()[i].size(); ++j) {
+            for (int k : D) {
+                if (solution->getRoutes()[i][j] == k) {
+                    solution->setWaitingTimeAt(k, 0);
+                    auto wait = solution->getTimeSchedule()[i][j + 1] -
+                    solution->getTimeSchedule()[i][j - 1] + data->getCustomers()[solution->getRoutes()[i][j]].getDemand() + data->getDistanceMatrix()[routes[i][j - 1]][routes[i][j + 1]];
+                    auto indexNasledovnik = routes[i][j + 1];
+                    solution->setWaitingTimeAt(indexNasledovnik, wait);
+                    auto newUsedCapacity = solution->getUsedCapacity()[j] - data->getCustomers()[k].getDemand();
+                    solution->setUsedCapacityAt(k, newUsedCapacity);
                     timeSchedule[i].erase(timeSchedule[i].begin() + j);
                     routes[i].erase(routes[i].begin() + j);
+                    solution->setTimeSchedule(timeSchedule);
+                    solution->setRoutes(routes);
                 }
             }
         }

@@ -33,8 +33,10 @@ public:
     void setRoutes(const std::vector<std::vector<int>> &routes);
     const std::vector<double> &getWaitingTime() const;
     void setWaitingTime(const std::vector<double> &waitingTime);
+    void setWaitingTimeAt(int index, double value);
     const std::vector<int> &getUsedCapacity() const;
     void setUsedCapacity(const std::vector<int> &usedCapacity);
+    void setUsedCapacityAt(int index, int value);
     int getUnvisitedCustomers() const;
     void setUnvisitedCustomers(int unvisitedCustomers);
 };
