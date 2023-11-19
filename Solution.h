@@ -14,7 +14,8 @@ private:
     std::vector<std::vector<double>> timeSchedule;
     std::vector<std::vector<int>> routes;
     std::vector<double> waitingTime;
-    /**pouzita kapacita este*/
+    std::vector<int> usedCapacity;
+    int unvisitedCustomers;
 
 public:
     Solution();
@@ -32,6 +33,10 @@ public:
     void setRoutes(const std::vector<std::vector<int>> &routes);
     const std::vector<double> &getWaitingTime() const;
     void setWaitingTime(const std::vector<double> &waitingTime);
+    const std::vector<int> &getUsedCapacity() const;
+    void setUsedCapacity(const std::vector<int> &usedCapacity);
+    int getUnvisitedCustomers() const;
+    void setUnvisitedCustomers(int unvisitedCustomers);
 };
 
 

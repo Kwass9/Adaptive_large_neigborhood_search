@@ -20,7 +20,16 @@ public:
     double &getDistance();
     void run(class Data *data, class Solution *solution);
 private:
+    std::vector<customer> customers;
+    int alfa1;
+    int alfa2;
+    int lambda;
+    int maxCapacity;
+    std::vector<std::vector<double>> distanceMatrix;
+    unsigned int index;
     std::vector<int> route;
+    std::vector<int> usedCapacity;
+    unsigned int currentlyUsedCapacity;
     std::vector<std::vector<int>> routes;
     std::vector<std::vector<double>> timeSchedule;
     std::vector<double> timeWaitedAtCustomer;

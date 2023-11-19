@@ -72,7 +72,7 @@ bool SimulatedAnnealing::tryToAcceptNewSolution(Solution &solution) {
 }
 
 SimulatedAnnealing::~SimulatedAnnealing() {
-    delete bestSolution;
-    delete currentSolution;
+    delete &bestSolution;
+    delete &currentSolution;
 }
 

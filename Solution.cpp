@@ -5,11 +5,20 @@
 #include <iostream>
 #include "Solution.h"
 
-Solution::Solution() {}
+Solution::Solution() {
+    distance = 0;
+    timeSchedule = std::vector<std::vector<double>>();
+    routes = std::vector<std::vector<int>>();
+    waitingTime = std::vector<double>();
+    usedCapacity = std::vector<int>();
+    unvisitedCustomers = 0;
+}
 
 Solution::Solution(double d, const std::vector<std::vector<double>> timeSchedule, const std::vector<std::vector<int>> routes,
                    const std::vector<double> waitingTime) : distance(d), timeSchedule(timeSchedule), routes(routes),
                                                             waitingTime(waitingTime) {}
+
+Solution::~Solution() {}
 
 void Solution::finalPrint() {
     for (auto & route : routes) {
@@ -89,4 +98,18 @@ void Solution::setWaitingTime(const std::vector<double> &waitingTime) {
     Solution::waitingTime = waitingTime;
 }
 
-Solution::~Solution() {}
+const std::vector<int> &Solution::getUsedCapacity() const {
+    return usedCapacity;
+}
+
+void Solution::setUsedCapacity(const std::vector<int> &usedCapacity) {
+    Solution::usedCapacity = usedCapacity;
+}
+
+int Solution::getUnvisitedCustomers() const {
+    return unvisitedCustomers;
+}
+
+void Solution::setUnvisitedCustomers(int unvisitedCustomers) {
+    Solution::unvisitedCustomers = unvisitedCustomers;
+}
