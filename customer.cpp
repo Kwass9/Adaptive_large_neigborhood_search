@@ -2,6 +2,7 @@
 // Created by Andrej on 07/10/2023.
 //
 
+#include <iostream>
 #include "customer.h"
 
 customer::customer(unsigned int idNum, double x, double y, unsigned int dem, double rdyTime, double dueD,
@@ -15,8 +16,13 @@ customer::customer(unsigned int idNum, double x, double y, unsigned int dem, dou
     serviceTime = serviceDuration;
 }
 
+customer::customer(const customer &other) :id(other.id), xcord(other.xcord), ycord(other.ycord), demand(other.demand),
+                                            readyTime(other.readyTime), dueDate(other.dueDate),
+                                            serviceTime(other.serviceTime), routedStatus(other.routedStatus) {}
 
-customer::~customer() = default;
+customer::~customer() {
+    std::cout << "Customer " << id << " destroyed" << std::endl;
+};
 
 void customer::markAsRouted() {
     routedStatus = true;
@@ -52,5 +58,13 @@ double customer::getServiceTime() const {
 
 void customer::markAsUnrouted() {
     routedStatus = false;
+}
+
+unsigned int customer::getId() const {
+    return id;
+}
+
+bool customer::isRoutedStatus() const {
+    return routedStatus;
 }
 

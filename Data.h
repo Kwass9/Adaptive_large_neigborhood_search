@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 #include "customer.h"
 
 class Data {
@@ -17,6 +18,7 @@ private:
     double alfa2;
     double lambda;
     double q;
+//    std::unique_ptr<std::vector<customer>> customers;
     std::vector<customer> customers;
     bool startingCriteria;
     double vehicleCapacity = 200;
@@ -27,12 +29,14 @@ private:
     void calculateDistances(std::vector<customer> &customers, std::vector<std::vector<double>> &distanceMatrix);
 public:
     Data(int argc, char * argv[]);
+    ~Data();
+    Data(Data &data);
     std::vector<std::vector<double>> getDistanceMatrix() const;
     double getAlfa1() const;
     double getAlfa2() const;
     double getLambda() const;
     double getQ() const;
-    std::vector<customer>getCustomers() const;
+    std::vector<customer> getCustomers() const;
     bool isStartingCriteria() const;
     double getVehicleCapacity() const;
 };

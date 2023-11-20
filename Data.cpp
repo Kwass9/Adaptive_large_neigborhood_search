@@ -83,11 +83,20 @@ Data::Data(int argc, char * argv[]) {
             double dueDate = processString(i, delimiter);
             double serviceTime = processString(i, delimiter);
             auto customer = new class customer(id, x, y, demand, readyTime, dueDate, serviceTime);
-            customers.emplace_back(*customer);
+            customers.emplace_back(*customer); /**pre nejaky dovod sa tu dokrokujem k destruktoru*/
         }
     }
     calculateDistances(customers, distanceMatrix);
 }
+
+Data::~Data() {
+
+}
+
+Data::Data(Data &data) :vehicleCapacity(data.getVehicleCapacity()),
+                         lambda(data.getLambda()), q(data.getQ()), alfa1(data.getAlfa1()), alfa2(data.getAlfa2()),
+                         distanceMatrix(data.getDistanceMatrix()), startingCriteria(data.isStartingCriteria()),
+                         customers(data.getCustomers()) {}
 
 void Data::calculateDistances(std::vector<customer> &customers, std::vector<std::vector<double>> &distanceMatrix) {
     for (int i = 0; i <= customers.size(); ++i) {

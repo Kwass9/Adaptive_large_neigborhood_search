@@ -36,8 +36,8 @@ private:
     std::vector<double> pushForward;
     std::vector<double> beginingOfService;
     double distance;
-    unsigned int findCustomerWithEarliestDeadline(std::vector<customer> &customers);
-    unsigned int findFurthestUnroutedCustomer(std::vector<std::vector<double>> &distanceMatrix, std::vector<customer> &customers);
+    unsigned int findCustomerWithEarliestDeadline(std::vector<customer> customers);
+    unsigned int findFurthestUnroutedCustomer(std::vector<std::vector<double>> &distanceMatrix, std::vector<customer> customers);
     void calculatePushForward(std::vector<double> &pushForward, const std::vector<int>& route, int u, int position,
                               std::vector<double> &timeWaitedAtCustomer, std::vector<std::vector<double>> &distanceMatrix,
                               std::vector<customer> &customers, double timeOfService, double waitingTime, std::vector<double> &beginingOfService);
@@ -55,10 +55,10 @@ private:
     std::pair<int, int> findOptimumForC2(std::vector<std::tuple<int, double, int>> &mnozinaC1, double lambda,
                                          std::vector<std::vector<double>> &distanceMatrix, std::vector<customer> &customers);
     void insertCustomerToRoad(std::vector<int> &route, std::pair<int, int> optimalInsertion
-            ,std::vector<double> &beginingOfService
-            ,std::vector<customer> &customers, std::vector<double> &timeWaitedAtCustomer
-            ,unsigned int &currentlyUsedCapacity, std::vector<std::vector<double>> &distanceMatrix
-            ,std::vector<double> &pushForward);
+            , std::vector<double> &beginingOfService
+            , std::vector<customer> customers, std::vector<double> &timeWaitedAtCustomer
+            , unsigned int &currentlyUsedCapacity, std::vector<std::vector<double>> &distanceMatrix
+            , std::vector<double> &pushForward);
     void createNewRoute(unsigned int &currentlyUsedCapacity, std::vector<std::vector<int>> &routes,
                                     std::vector<int> &route, std::vector<double> &beginingOfService,
                                     std::vector<double> &pushForward);

@@ -20,6 +20,7 @@ public:
     customer(unsigned int idNum, double x, double y, unsigned int dem,
              double rdyTime, double dueD, double serviceDuration);
     ~customer();
+    customer(const customer &other);
     void markAsRouted();
     void markAsUnrouted();
     bool isRouted() const;
@@ -29,6 +30,8 @@ public:
     double getReadyTime() const;
     double getDueDate() const;
     double getServiceTime() const;
+    unsigned int getId() const;
+    bool isRoutedStatus() const;
 };
 
 
