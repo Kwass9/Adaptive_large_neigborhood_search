@@ -3,7 +3,6 @@
 //
 
 #include <climits>
-#include <utility>
 #include <valarray>
 #include <iostream>
 #include <cstring>
@@ -11,9 +10,6 @@
 #include "Data.h"
 
 Data::Data(int argc, char * argv[]) {
-    std::vector<customer> customers;
-    bool startingCriteria; //premenna vybera ci sa zacina s najvzdialenejsim zakaznikom alebo s najskor zaciatocnou dobou
-
     if (argc == 7) {
         path = argv[1];
         //kvoli tomu ako sa win chova k specialnym znakom

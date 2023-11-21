@@ -15,8 +15,8 @@ private:
     double temperature;
     double coolingRate;
     /**ak budes lokalne inicializovat solution nezabudni ho deletnut*/
-    Solution currentSolution;
-    Solution bestSolution;
+    Solution currentSolution = Solution(0);
+    Solution bestSolution = Solution(0);
 public:
     SimulatedAnnealing(double temperature, double coolingRate, Solution &solution);
     ~SimulatedAnnealing();

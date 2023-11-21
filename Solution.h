@@ -18,7 +18,7 @@ private:
     int unvisitedCustomers;
 
 public:
-    Solution();
+    Solution(int problemSize);
     ~Solution();
     Solution(double d, std::vector<std::vector<double>> t, std::vector<std::vector<int>> r,
              std::vector<double> w);

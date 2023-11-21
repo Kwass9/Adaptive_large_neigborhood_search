@@ -5,13 +5,14 @@
 #include <iostream>
 #include "Solution.h"
 
-Solution::Solution() {
+Solution::Solution(int problemSize) {
     distance = 0;
     timeSchedule = std::vector<std::vector<double>>();
     routes = std::vector<std::vector<int>>();
     waitingTime = std::vector<double>();
+    waitingTime.resize(problemSize);
     usedCapacity = std::vector<int>();
-    unvisitedCustomers = 0;
+    unvisitedCustomers = problemSize - 1;
 }
 
 Solution::Solution(double d, const std::vector<std::vector<double>> timeSchedule, const std::vector<std::vector<int>> routes,

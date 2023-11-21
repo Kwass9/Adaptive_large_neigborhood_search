@@ -21,7 +21,8 @@ customer::customer(const customer &other) :id(other.id), xcord(other.xcord), yco
                                             serviceTime(other.serviceTime), routedStatus(other.routedStatus) {}
 
 customer::~customer() {
-    std::cout << "Customer " << id << " destroyed" << std::endl;
+    /**sem sa este pozriem lebo asi robim zbytocne realokacie*/
+    //    std::cout << "Customer " << id << " destroyed" << std::endl;
 };
 
 void customer::markAsRouted() {
