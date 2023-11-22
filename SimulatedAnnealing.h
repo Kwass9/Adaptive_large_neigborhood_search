@@ -7,7 +7,7 @@
 
 
 #include <vector>
-#include "customer.h"
+#include "Customer.h"
 #include "Solution.h"
 
 class SimulatedAnnealing {
@@ -20,6 +20,7 @@ private:
 public:
     SimulatedAnnealing(double temperature, double coolingRate, Solution &solution);
     ~SimulatedAnnealing();
+    SimulatedAnnealing(SimulatedAnnealing &simulatedAnnealing);
     double getBestSolution() const;
     const std::vector<std::vector<int>> &getBestRoutes() const;
     const std::vector<std::vector<double>> &getBestTimeSchedule() const;

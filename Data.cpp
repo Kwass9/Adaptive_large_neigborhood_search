@@ -78,15 +78,16 @@ Data::Data(int argc, char * argv[]) {
             double readyTime = processString(i, delimiter);
             double dueDate = processString(i, delimiter);
             double serviceTime = processString(i, delimiter);
-            auto customer = new class customer(id, x, y, demand, readyTime, dueDate, serviceTime);
-            customers.emplace_back(*customer); /**pre nejaky dovod sa tu dokrokujem k destruktoru*/
+            Customer customer(id, x, y, demand, readyTime, dueDate, serviceTime);
+            customers.emplace_back(customer); /**pre nejaky dovod sa tu dokrokujem k destruktoru*/
         }
     }
     calculateDistances(customers, distanceMatrix);
 }
 
 Data::~Data() {
-
+    distanceMatrix.clear();
+    customers.clear();
 }
 
 Data::Data(Data &data) :vehicleCapacity(data.getVehicleCapacity()),
@@ -94,13 +95,10 @@ Data::Data(Data &data) :vehicleCapacity(data.getVehicleCapacity()),
                          distanceMatrix(data.getDistanceMatrix()), startingCriteria(data.isStartingCriteria()),
                          customers(data.getCustomers()) {}
 
-void Data::calculateDistances(std::vector<customer> &customers, std::vector<std::vector<double>> &distanceMatrix) {
-    for (int i = 0; i <= customers.size(); ++i) {
-        auto distVec = new std::vector<double>;
-        for (int j = 0; j < customers.size(); ++j) {
-            distVec->push_back(INT_MAX - 1);
-        }
-        distanceMatrix.emplace_back(*distVec);
+void Data::calculateDistances(std::vector<Customer> &customers, std::vector<std::vector<double>> &distanceMatrix) {
+    for (size_t i = 0; i <= customers.size(); ++i) {
+        std::vector<double> distVec(customers.size(), INT_MAX - 1);
+        distanceMatrix.push_back(distVec);
     }
     for (int i = 0; i < customers.size(); ++i) {
         for (int j = 0; j < customers.size(); ++j) {
@@ -166,7 +164,7 @@ double Data::getQ() const {
     return q;
 }
 
-std::vector<customer> Data::getCustomers() const {
+std::vector<Customer> Data::getCustomers() const {
     return customers;
 }
 
@@ -178,6 +176,6 @@ double Data::getVehicleCapacity() const {
     return vehicleCapacity;
 }
 
-void Data::setCustomers(std::vector<customer> &customers) {
+void Data::setCustomers(std::vector<Customer> &customers) {
     Data::customers = customers;
 }

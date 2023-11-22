@@ -35,11 +35,11 @@ int main(int argc, char * argv[]) {
 
     auto *simulatedAnnealing = new class SimulatedAnnealing(temperature, coolingRate, *solution);
     auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, q, Data->getCustomers()); /**pridat init parametrov asi by som ich dal do data poslal data a vytiahol co treba*/
-    while (simulatedAnnealing->getTemperature() > optimum + 0.1 * optimum) {
-        shawRemoval->removeRequests(Data, solution, p);
-        solomon->run(Data, solution);
-        simulatedAnnealing->tryToAcceptNewSolution(*solution);
-    }
+//    while (simulatedAnnealing->getTemperature() > optimum + 0.1 * optimum) {
+//        shawRemoval->removeRequests(Data, solution, p);
+//        solomon->run(Data, solution);
+//        simulatedAnnealing->tryToAcceptNewSolution(*solution);
+//    }
     solution->retrieveData(simulatedAnnealing->getBestTimeSchedule(), simulatedAnnealing->getBestRoutes(),
                            simulatedAnnealing->getBestWaitingTime(), simulatedAnnealing->getBestSolution());
     solution->finalPrint();

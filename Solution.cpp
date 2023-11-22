@@ -81,6 +81,7 @@ const std::vector<std::vector<double>> &Solution::getTimeSchedule() const {
 }
 
 void Solution::setTimeSchedule(const std::vector<std::vector<double>> &timeSchedule) {
+    Solution::timeSchedule.clear();
     Solution::timeSchedule = timeSchedule;
 }
 

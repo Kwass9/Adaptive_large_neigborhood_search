@@ -6,14 +6,14 @@
 #include <algorithm>
 #include "Shaw_Removal.h"
 
-Shaw_Removal::Shaw_Removal(double f, double ch, double p, double o, int qve, std::vector<customer> customers) : fi(f), chi(ch), psi(p), omega(o), q(qve) {
+Shaw_Removal::Shaw_Removal(double f, double ch, double p, double o, int qve, std::vector<Customer> customers) : fi(f), chi(ch), psi(p), omega(o), q(qve) {
     R.resize(customers.size());
 }
 
 std::vector<double> Shaw_Removal::calculateRelatedness(std::vector<std::vector<double>> &distanceMatrix,
-                                                    std::vector<customer> &customers,std::vector<std::vector<int>> &routes,
-                                                    std::vector<std::vector<double>> &timeSchedule,
-                                                    int r) {
+                                                       std::vector<Customer> &customers, std::vector<std::vector<int>> &routes,
+                                                       std::vector<std::vector<double>> &timeSchedule,
+                                                       int r) {
     int nasledovnik_r;
     int route_number_r;
     int index_r;

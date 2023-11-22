@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 #include <memory>
-#include "customer.h"
+#include "Customer.h"
 
 class Data {
 private:
@@ -18,14 +18,14 @@ private:
     double alfa2;
     double lambda;
     double q;
-    std::vector<customer> customers;
+    std::vector<Customer> customers;
     bool startingCriteria;
     double vehicleCapacity = 200;
     void removeCharsFromString(std::string &path, char* charsToRemove);
     void removeDelimiters(std::string &path, const std::string& delimiter);
     double getAtributeForCustomer(std::string &path, const std::string& delimiter);
     double processString(std::string &path, const std::string& delimiter);
-    void calculateDistances(std::vector<customer> &customers, std::vector<std::vector<double>> &distanceMatrix);
+    void calculateDistances(std::vector<Customer> &customers, std::vector<std::vector<double>> &distanceMatrix);
 public:
     Data(int argc, char * argv[]);
     ~Data();
@@ -35,8 +35,8 @@ public:
     double getAlfa2() const;
     double getLambda() const;
     double getQ() const;
-    std::vector<customer> getCustomers() const;
-    void setCustomers(std::vector<customer> &customers);
+    std::vector<Customer> getCustomers() const;
+    void setCustomers(std::vector<Customer> &customers);
     bool isStartingCriteria() const;
     double getVehicleCapacity() const;
 };

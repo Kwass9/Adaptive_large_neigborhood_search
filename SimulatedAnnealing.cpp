@@ -7,8 +7,17 @@
 
 SimulatedAnnealing::SimulatedAnnealing(double temperature, double coolingRate, Solution &solution)
                                        : temperature(temperature), coolingRate(coolingRate) {
-    bestSolution = *new Solution(solution.getDistance(), solution.getTimeSchedule(), solution.getRoutes(), solution.getWaitingTime());
-    currentSolution = *new Solution(solution.getDistance(), solution.getTimeSchedule(), solution.getRoutes(), solution.getWaitingTime());
+    bestSolution = Solution(solution.getDistance(), solution.getTimeSchedule(), solution.getRoutes(), solution.getWaitingTime());
+    currentSolution = Solution(solution.getDistance(), solution.getTimeSchedule(), solution.getRoutes(), solution.getWaitingTime());
+}
+
+SimulatedAnnealing::~SimulatedAnnealing() = default;
+
+SimulatedAnnealing::SimulatedAnnealing(SimulatedAnnealing &simulatedAnnealing) {
+    temperature = simulatedAnnealing.getTemperature();
+    coolingRate = simulatedAnnealing.coolingRate;
+    bestSolution = simulatedAnnealing.getBestSolution();
+    currentSolution = simulatedAnnealing.getBestSolution();
 }
 
 double SimulatedAnnealing::getTemperature() const {
@@ -69,10 +78,5 @@ bool SimulatedAnnealing::tryToAcceptNewSolution(Solution &solution) {
     }
     updateTemperature();
     return true;
-}
-
-SimulatedAnnealing::~SimulatedAnnealing() {
-    delete &bestSolution;
-    delete &currentSolution;
 }
 

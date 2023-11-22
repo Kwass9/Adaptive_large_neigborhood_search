@@ -3,9 +3,9 @@
 //
 
 #include <iostream>
-#include "customer.h"
+#include "Customer.h"
 
-customer::customer(unsigned int idNum, double x, double y, unsigned int dem, double rdyTime, double dueD,
+Customer::Customer(unsigned int idNum, double x, double y, unsigned int dem, double rdyTime, double dueD,
                    double serviceDuration) {
     id = idNum;
     xcord = x;
@@ -16,56 +16,56 @@ customer::customer(unsigned int idNum, double x, double y, unsigned int dem, dou
     serviceTime = serviceDuration;
 }
 
-customer::customer(const customer &other) :id(other.id), xcord(other.xcord), ycord(other.ycord), demand(other.demand),
+Customer::Customer(const Customer &other) : id(other.id), xcord(other.xcord), ycord(other.ycord), demand(other.demand),
                                             readyTime(other.readyTime), dueDate(other.dueDate),
                                             serviceTime(other.serviceTime), routedStatus(other.routedStatus) {}
 
-customer::~customer() {
+Customer::~Customer() {
     /**sem sa este pozriem lebo asi robim zbytocne realokacie*/
     //    std::cout << "Customer " << id << " destroyed" << std::endl;
 };
 
-void customer::markAsRouted() {
+void Customer::markAsRouted() {
     routedStatus = true;
 }
 
-double customer::getYcord() const {
+double Customer::getYcord() const {
     return ycord;
 }
 
-double customer::getXcord() const {
+double Customer::getXcord() const {
     return xcord;
 }
 
-bool customer::isRouted() const {
+bool Customer::isRouted() const {
     return routedStatus;
 }
 
-unsigned int customer::getDemand() const {
+unsigned int Customer::getDemand() const {
     return demand;
 }
 
-double customer::getReadyTime() const {
+double Customer::getReadyTime() const {
     return readyTime;
 }
 
-double customer::getDueDate() const {
+double Customer::getDueDate() const {
     return dueDate;
 }
 
-double customer::getServiceTime() const {
+double Customer::getServiceTime() const {
     return serviceTime;
 }
 
-void customer::markAsUnrouted() {
+void Customer::markAsUnrouted() {
     routedStatus = false;
 }
 
-unsigned int customer::getId() const {
+unsigned int Customer::getId() const {
     return id;
 }
 
-bool customer::isRoutedStatus() const {
+bool Customer::isRoutedStatus() const {
     return routedStatus;
 }
 

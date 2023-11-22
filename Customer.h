@@ -6,7 +6,7 @@
 #define SOLOMON_CUSTOMER_H
 
 
-class customer {
+class Customer {
 private:
     unsigned int id;
     unsigned int xcord;
@@ -17,10 +17,10 @@ private:
     unsigned int serviceTime;
     bool routedStatus = false;
 public:
-    customer(unsigned int idNum, double x, double y, unsigned int dem,
+    Customer(unsigned int idNum, double x, double y, unsigned int dem,
              double rdyTime, double dueD, double serviceDuration);
-    ~customer();
-    customer(const customer &other);
+    ~Customer();
+    Customer(const Customer &other);
     void markAsRouted();
     void markAsUnrouted();
     bool isRouted() const;

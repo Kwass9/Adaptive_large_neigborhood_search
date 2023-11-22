@@ -7,7 +7,7 @@
 
 #include <vector>
 #include <functional>
-#include "customer.h"
+#include "Customer.h"
 #include "Solution.h"
 #include "Data.h"
 
@@ -20,9 +20,9 @@ private:
     double omega;
     int q;
 public:
-    Shaw_Removal(double fi, double chi, double psi, double omega, int q, std::vector<customer> customers);
+    Shaw_Removal(double fi, double chi, double psi, double omega, int q, std::vector<Customer> customers);
     std::vector<double> calculateRelatedness(std::vector<std::vector<double>> &distanceMatrix,
-                                          std::vector<customer> &customers,
+                                          std::vector<Customer> &customers,
                                           std::vector<std::vector<int>> &routes,
                                           std::vector<std::vector<double>> &timeSchedule,
                                           int r);
