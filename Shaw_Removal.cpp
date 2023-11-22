@@ -72,7 +72,7 @@ void Shaw_Removal::editSolution(Solution *solution, std::vector<int> &D, Data *d
     for (int i : D) {
         data->getCustomers()[i].markAsUnrouted();
     }
-    solution->setUnvisitedCustomers(data->getCustomers().size() - D.size());
+    solution->setUnvisitedCustomersCount(data->getCustomers().size() - D.size());
     for (int i = 0; i < solution->getTimeSchedule().size(); ++i) {
         for (int j = 0; j < solution->getTimeSchedule()[i].size(); ++j) {
             for (int k : D) {

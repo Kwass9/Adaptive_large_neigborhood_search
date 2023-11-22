@@ -37,8 +37,8 @@ public:
     const std::vector<int> &getUsedCapacity() const;
     void setUsedCapacity(const std::vector<int> &usedCapacity);
     void setUsedCapacityAt(int index, int value);
-    int getUnvisitedCustomers() const;
-    void setUnvisitedCustomers(int unvisitedCustomers);
+    int getUnvisitedCustomersCount() const;
+    void setUnvisitedCustomersCount(int unvisitedCustomers);
 };
 
 

@@ -12,6 +12,7 @@ Solution::Solution(int problemSize) {
     waitingTime = std::vector<double>();
     waitingTime.resize(problemSize);
     usedCapacity = std::vector<int>();
+    usedCapacity.resize(1);
     unvisitedCustomers = problemSize - 1;
 }
 
@@ -107,11 +108,11 @@ void Solution::setUsedCapacity(const std::vector<int> &usedCapacity) {
     Solution::usedCapacity = usedCapacity;
 }
 
-int Solution::getUnvisitedCustomers() const {
+int Solution::getUnvisitedCustomersCount() const {
     return unvisitedCustomers;
 }
 
-void Solution::setUnvisitedCustomers(int unvisitedCustomers) {
+void Solution::setUnvisitedCustomersCount(int unvisitedCustomers) {
     Solution::unvisitedCustomers = unvisitedCustomers;
 }
 

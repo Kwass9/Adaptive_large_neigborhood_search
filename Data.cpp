@@ -177,3 +177,7 @@ bool Data::isStartingCriteria() const {
 double Data::getVehicleCapacity() const {
     return vehicleCapacity;
 }
+
+void Data::setCustomers(std::vector<customer> &customers) {
+    Data::customers = customers;
+}

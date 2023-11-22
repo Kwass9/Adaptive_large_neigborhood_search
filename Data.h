@@ -18,7 +18,6 @@ private:
     double alfa2;
     double lambda;
     double q;
-//    std::unique_ptr<std::vector<customer>> customers;
     std::vector<customer> customers;
     bool startingCriteria;
     double vehicleCapacity = 200;
@@ -37,6 +36,7 @@ public:
     double getLambda() const;
     double getQ() const;
     std::vector<customer> getCustomers() const;
+    void setCustomers(std::vector<customer> &customers);
     bool isStartingCriteria() const;
     double getVehicleCapacity() const;
 };
