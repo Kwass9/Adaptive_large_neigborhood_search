@@ -30,12 +30,12 @@ public:
     Data(int argc, char * argv[]);
     ~Data();
     Data(Data &data);
-    std::vector<std::vector<double>> getDistanceMatrix() const;
+    std::vector<std::vector<double>>& getDistanceMatrix();
     double getAlfa1() const;
     double getAlfa2() const;
     double getLambda() const;
     double getQ() const;
-    std::vector<Customer> getCustomers() const;
+    std::vector<Customer>& getCustomers();
     void setCustomers(std::vector<Customer> &customers);
     bool isStartingCriteria() const;
     double getVehicleCapacity() const;

@@ -32,6 +32,7 @@ int main(int argc, char * argv[]) {
     auto Data = new class Data(argc, argv);
     auto *solution = new class Solution(Data->getCustomers().size());
     auto *solomon = new class solomon(Data, solution);
+    solomon->run(Data, solution);
 
     auto *simulatedAnnealing = new class SimulatedAnnealing(temperature, coolingRate, *solution);
     auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, q, Data->getCustomers()); /**pridat init parametrov asi by som ich dal do data poslal data a vytiahol co treba*/

@@ -116,9 +116,9 @@ void Data::calculateDistances(std::vector<Customer> &customers, std::vector<std:
     }
 }
 
-std::vector<std::vector<double>> Data::getDistanceMatrix() const {
-    return distanceMatrix;
-}
+//std::vector<std::vector<double>> Data::getDistanceMatrix() const {
+//    return distanceMatrix;
+//}
 
 void Data::removeCharsFromString(std::string &str, char *charsToRemove) {
     for (unsigned int i = 0; i < strlen(charsToRemove); ++i) {
@@ -164,9 +164,9 @@ double Data::getQ() const {
     return q;
 }
 
-std::vector<Customer> Data::getCustomers() const {
-    return customers;
-}
+//std::vector<Customer>& Data::getCustomers() const {
+//    return customers;
+//}
 
 bool Data::isStartingCriteria() const {
     return startingCriteria;
@@ -179,3 +179,12 @@ double Data::getVehicleCapacity() const {
 void Data::setCustomers(std::vector<Customer> &customers) {
     Data::customers = customers;
 }
+
+std::vector<std::vector<double>>& Data::getDistanceMatrix() {
+    return distanceMatrix;
+}
+
+std::vector<Customer>& Data::getCustomers() {
+    return customers;
+}
+
