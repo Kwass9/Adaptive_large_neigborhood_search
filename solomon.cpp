@@ -20,7 +20,10 @@ solomon::solomon(std::vector<customer> &customers, double alfa1, double alfa2,
     this->lambda = lambda;
     this->q = q;
     this->startingCriteria = startingCriteria;
-    run(customers);
+    for (int i = 0; i <= customers.size(); ++i) {
+        timeWaitedAtCustomer.push_back(0);
+    }
+    run(customers, unvisitedCustomers);
 }
 
 solomon::~solomon() = default;
@@ -293,31 +296,28 @@ void solomon::waitingTimeMath(std::vector<double> &timeWaitedAtCustomer, std::ve
     }
 }
 
-void solomon::run(std::vector<customer> &customers) {
+void solomon::run(std::vector<customer> &customers, int numberOfUnvisitedCustomers) {
     std::vector<int> route;
     static int vehicleCapacity = 200; /**prerobit na nacitanie zo suboru*/
-
-    std::vector<double> pushForward;
-    std::vector<double> beginingOfService;
-    for (int i = 0; i <= customers.size(); ++i) {
-        timeWaitedAtCustomer.push_back(0);
-    }
-
-    //zaciatok cesty
-    route.emplace_back(0);
-    route.emplace_back(customers.size());
-    beginingOfService.emplace_back(0);
-    beginingOfService.emplace_back(0);
-    timeWaitedAtCustomer[route[1]] = customers[0].getDueDate();
+    unvisitedCustomers = numberOfUnvisitedCustomers;
+    int routeIndex = 0;
     unsigned int index;
-    if (startingCriteria) {
-        index = findFurthestUnroutedCustomer(distanceMatrix, customers);
+
+    if (routes.empty()) {
+        //zaciatok cesty
+        route.emplace_back(0);
+        route.emplace_back(customers.size());
+        beginingOfService.emplace_back(0);
+        beginingOfService.emplace_back(0);
+        timeWaitedAtCustomer[route[1]] = customers[0].getDueDate();
+        index = startingCriteria ? findFurthestUnroutedCustomer(distanceMatrix, customers)
+                                 : findCustomerWithEarliestDeadline(customers);
+        insertCustomerToRoad(route, std::make_pair(1, index), beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity,
+                             distanceMatrix, pushForward);
+        unvisitedCustomers--;
     } else {
-        index = findCustomerWithEarliestDeadline(customers);
+        route = routes[routeIndex];
     }
-    insertCustomerToRoad(route, std::make_pair(1, index), beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity,
-                         distanceMatrix, pushForward);
-    unvisitedCustomers--;
 
     /**------------------------------------------------------------------------------------------------------------*/
 
@@ -328,14 +328,19 @@ void solomon::run(std::vector<customer> &customers) {
             auto c2 = findOptimumForC2(c1, lambda, distanceMatrix, customers);
             insertCustomerToRoad(route, c2, beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity, distanceMatrix, pushForward);
             unvisitedCustomers--;
-        } else {
+        } else if (routeIndex >= routes.size()) { /**toto by sa malo pustit len pri vytvarani novej cesty teraz sa mi to pusta zakazdy ked upravim cestu... napr reinsertol zakaznika nas5
+ * a cesta sa volila druhy krat do zoznamu ciest navyse zakaznik tam bol dvakrat*/
             for (int i = 0; i < route.size(); ++i) {
                 std::cout << route[i] << " (" << beginingOfService[i] << ") | ";
             }
-            timeSchedule.emplace_back(beginingOfService);
-            std::cout << "Ostava zakaznikov: " << unvisitedCustomers << std::endl;
-            std::cout << "Pouzita kapacita: " << currentlyUsedCapacity << std::endl;
-            createNewRoute(currentlyUsedCapacity, routes, route, beginingOfService, pushForward);
+            if (!route.empty()) {
+                timeSchedule.emplace_back(beginingOfService);
+                std::cout << "Ostava zakaznikov: " << unvisitedCustomers << std::endl;
+                std::cout << "Pouzita kapacita: " << currentlyUsedCapacity << std::endl;
+                createNewRoute(currentlyUsedCapacity, routes, route, beginingOfService, pushForward);
+            } else {
+                beginingOfService.clear();
+            }
             route.emplace_back(0);
             route.emplace_back(customers.size());
             beginingOfService.emplace_back(0);
@@ -346,12 +351,21 @@ void solomon::run(std::vector<customer> &customers) {
             insertCustomerToRoad(route, std::make_pair(1, index), beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity,
                                  distanceMatrix, pushForward);
             unvisitedCustomers--;
+            routeIndex++;
+        } else {
+            routeIndex++;
+            if (routeIndex <= routes.size() - 1) {
+                route = routes[routeIndex];
+            } else {
+                route.clear();
+            }
         }
         std::cout << "Ostava zakaznikov: " << unvisitedCustomers << std::endl;
     }
     routes.push_back(route);
     timeSchedule.emplace_back(beginingOfService);
 
+    /**------------------------------------------------------------------------------------------------------------*/
     //zaverecny vypis
     for (auto & route : routes) {
         for (int j = 0; j < route.size(); ++j) {

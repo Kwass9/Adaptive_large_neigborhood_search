@@ -119,7 +119,7 @@ int main(int argc, char * argv[]) {
         }
     }
 
-    double temperature = 10000;
+    double temperature = 1815;
     double coolingRate = 0.997;
     double optimum = 1637.7;
 
@@ -155,7 +155,7 @@ int main(int argc, char * argv[]) {
 
     while (simulatedAnnealing->getTemperature() > optimum + 0.1 * optimum) {
         auto numberOfRemoved = shawRemoval->removeRequests(distanceMatrix,customers,routes,schedule,p,waitingTime,usedCapacity);
-        solomon->run(customers); /**number of removed este nezohladnene v solomonovi*/
+        solomon->run(customers, numberOfRemoved);
         simulatedAnnealing->tryToAcceptNewSolution(distance, routes, schedule, waitingTime);
     }
 

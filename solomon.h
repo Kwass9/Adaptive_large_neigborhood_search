@@ -15,7 +15,7 @@ public:
     solomon(std::vector<customer> &customers, double alfa1, double alfa2,
             double lambda, double q, bool startingCriteria);
     ~solomon();
-    void run(std::vector<customer>& customers);
+    void run(std::vector<customer>& customers, int numberOfUnvisitedCustomers);
     double getDistance();
     std::vector<std::vector<int>> &getRoutes();
     std::vector<std::vector<double>> &getTimeSchedule();
