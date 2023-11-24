@@ -12,9 +12,36 @@
 class solomon {
 
 public:
-    solomon(std::vector<customer> &customers, /**std::vector<std::vector<int>> &routes,*/ double alfa1, double alfa2,
+    solomon(std::vector<customer> &customers, double alfa1, double alfa2,
             double lambda, double q, bool startingCriteria);
+    ~solomon();
+    void run(std::vector<customer>& customers);
+    double getDistance();
+    std::vector<std::vector<int>> &getRoutes();
+    std::vector<std::vector<double>> &getTimeSchedule();
+    std::vector<double> &getWaitingTime();
+    const std::vector<std::vector<double>> &getDistanceMatrix() const;
+    std::vector<double> &getUsedCapacity();
+
 private:
+    std::vector<std::vector<double>> distanceMatrix;
+    std::vector<std::vector<int>> routes;
+    std::vector<std::vector<double>> timeSchedule;
+    std::vector<double> waitingTime;
+    std::vector<double> beginingOfService;
+    std::vector<double> pushForward;
+    std::vector<double> timeWaitedAtCustomer;
+    std::vector<customer> customers;
+    std::vector<double> usedCapacity;
+    int unvisitedCustomers;
+    unsigned int currentlyUsedCapacity;
+    double alfa1;
+    double alfa2;
+    double lambda;
+    double q;
+    bool startingCriteria;
+    double totalDistance;
+
     void calculateDistances(std::vector<customer> &customers, std::vector<std::vector<double>> &distanceMatrix);
     unsigned int findCustomerWithEarliestDeadline(std::vector<customer> &customers);
     unsigned int findFurthestUnroutedCustomer(std::vector<std::vector<double>> &distanceMatrix, std::vector<customer> &customers);

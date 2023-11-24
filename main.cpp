@@ -6,6 +6,8 @@
 #include <tuple>
 #include "Customer.h"
 #include "solomon.h"
+#include "SimulatedAnnealing.h"
+#include "ShawRemoval.h"
 
 void removeCharsFromString( std::string &str, char* charsToRemove ) {
     for (unsigned int i = 0; i < strlen(charsToRemove); ++i) {
@@ -116,7 +118,49 @@ int main(int argc, char * argv[]) {
             customers.emplace_back(*customer);
         }
     }
+
+    double temperature = 10000;
+    double coolingRate = 0.997;
+    double optimum = 1637.7;
+
+    double fi = 9;
+    double chi = 3;
+    double psi = 2;
+    double omega = 5;
+    double p = 6;
+    double pWorst = 3;
+    double w = 0.05;
+    double c = 0.99975;
+    double sigma1 = 33;
+    double sigma2 = 9;
+    double sigma3 = 13;
+    double r = 0.1;
+    double eta = 0.025;
+    double ksi = 0.4;
+//    int q;
+
+
     auto *solomon = new class solomon(customers, alfa1, alfa2, lambda, q, startingCriteria);
+
+    auto distance = solomon->getDistance();
+    auto waitingTime = solomon->getWaitingTime();
+    auto schedule = solomon->getTimeSchedule();
+    auto routes = solomon->getRoutes();
+    auto distanceMatrix = solomon->getDistanceMatrix();
+    auto usedCapacity = solomon->getUsedCapacity();
+
+    auto *simulatedAnnealing = new class SimulatedAnnealing(temperature, coolingRate);
+    simulatedAnnealing->tryToAcceptNewSolution(distance, routes, schedule, waitingTime);
+    auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, q, customers.size());
+
+    while (simulatedAnnealing->getTemperature() > optimum + 0.1 * optimum) {
+        auto numberOfRemoved = shawRemoval->removeRequests(distanceMatrix,customers,routes,schedule,p,waitingTime,usedCapacity);
+        solomon->run(customers); /**number of removed este nezohladnene v solomonovi*/
+        simulatedAnnealing->tryToAcceptNewSolution(distance, routes, schedule, waitingTime);
+    }
+
     delete solomon;
+    delete simulatedAnnealing;
+    delete shawRemoval;
     return 0;
 }

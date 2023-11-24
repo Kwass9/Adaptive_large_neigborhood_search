@@ -28,6 +28,7 @@ public:
     double getReadyTime() const;
     double getDueDate() const;
     double getServiceTime() const;
+    void markAsUnrouted();
 };
 
 

@@ -49,3 +49,7 @@ double customer::getDueDate() const {
 double customer::getServiceTime() const {
     return serviceTime;
 }
+
+void customer::markAsUnrouted() {
+    routedStatus = false;
+}
