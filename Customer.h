@@ -6,7 +6,7 @@
 #define SOLOMON_CUSTOMER_H
 
 
-class Customer {
+class customer {
 private:
     unsigned int id;
     unsigned int xcord;
@@ -17,12 +17,10 @@ private:
     unsigned int serviceTime;
     bool routedStatus = false;
 public:
-    Customer(unsigned int idNum, double x, double y, unsigned int dem,
+    customer(unsigned int idNum, double x, double y, unsigned int dem,
              double rdyTime, double dueD, double serviceDuration);
-    ~Customer();
-    Customer(const Customer &other);
+    ~customer();
     void markAsRouted();
-    void markAsUnrouted();
     bool isRouted() const;
     double getXcord() const;
     double getYcord() const;
@@ -30,8 +28,6 @@ public:
     double getReadyTime() const;
     double getDueDate() const;
     double getServiceTime() const;
-    unsigned int getId() const;
-    bool isRoutedStatus() const;
 };
 
 

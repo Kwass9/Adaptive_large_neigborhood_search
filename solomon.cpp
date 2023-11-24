@@ -5,116 +5,72 @@
 #include "solomon.h"
 #include <vector>
 #include <iostream>
-#include "Customer.h"
+#include "customer.h"
+#include <cmath>
 #include <tuple>
 #include <climits>
 
-solomon::solomon(class Data *data, class Solution *solution) {
-//    auto customers = data->getCustomers();
-//    auto distanceMatrix = data->getDistanceMatrix();
-    alfa1 = data->getAlfa1();
-    alfa2 = data->getAlfa2();
-    lambda = data->getLambda();
-    maxCapacity = data->getVehicleCapacity();
-//    auto timeWaitedAtCustomer = solution->getWaitingTime();
-//
-//    //zaciatok cesty
-//    route.emplace_back(0);
-//    route.emplace_back(customers.size());
-//    routes.emplace_back(route); //
-//
-//    beginingOfService.emplace_back(0);
-//    beginingOfService.emplace_back(0);
-//    auto timeScheduleSolomon = solution->getTimeSchedule();
-//    timeScheduleSolomon.emplace_back(beginingOfService);
-//    solution->setTimeSchedule(timeScheduleSolomon);
-//    timeWaitedAtCustomer[route[1]] = customers[0].getDueDate();
-//
-//    auto unvisitedCustomers = solution->getUnvisitedCustomersCount(); /**toto bude potrebovat resetovat shaw*/
-//    unsigned int currentlyUsedCapacity = 0;
-//    auto usedCapacity = solution->getUsedCapacity();
-//    usedCapacity.emplace_back(currentlyUsedCapacity);
-//
-//    index = data->isStartingCriteria() ? findFurthestUnroutedCustomer(distanceMatrix, customers)
-//                                       : findCustomerWithEarliestDeadline(customers);
-//    insertCustomerToRoad(route, std::make_pair(1, index), beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity,
-//                         distanceMatrix, pushForward);
-//    unvisitedCustomers--;
-//    solution->setUnvisitedCustomersCount(unvisitedCustomers);
-//    run(data, solution);
-}
+solomon::solomon(std::vector<customer> &customers, double alfa1, double alfa2,
+                 double lambda, double q, bool startingCriteria) {
 
-void solomon::run(class Data *data, class Solution *solution) {
-    auto distanceMatrix = data->getDistanceMatrix();
-    auto timeWaitedAtCustomer = solution->getWaitingTime();
-    auto customers = data->getCustomers();
-//    auto route = solution->getRoutes()[0];
-    auto unvisitedCustomers = solution->getUnvisitedCustomersCount();
-    auto routes = solution->getRoutes();
-    auto timeScheduleSolomon = solution->getTimeSchedule();
-    auto usedCapacity = solution->getUsedCapacity();
-    auto waitingTime = solution->getWaitingTime();
-    int routeIndex = 0;
-    if (unvisitedCustomers == customers.size() - 1) {
-        auto timeWaitedAtCustomer = solution->getWaitingTime();
+    std::vector<std::vector<double>> distanceMatrix;
+    calculateDistances(customers, distanceMatrix);
+    std::vector<int> route;
+    std::vector<std::vector<int>> routes;
+    std::vector<std::vector<double>> timeSchedule;
 
-        //zaciatok cesty
-        route.emplace_back(0);
-        route.emplace_back(customers.size());
-        routes.emplace_back(route); //
+    auto unvisitedCustomers = customers.size() - 1;
 
-        beginingOfService.emplace_back(0);
-        beginingOfService.emplace_back(0);
-        auto timeScheduleSolomon = solution->getTimeSchedule();
-        timeScheduleSolomon.emplace_back(beginingOfService);
-        solution->setTimeSchedule(timeScheduleSolomon);
-        timeWaitedAtCustomer[route[1]] = customers[0].getDueDate();
+    static int vehicleCapacity = 200; /**prerobit na nacitanie zo suboru*/
+    unsigned int currentlyUsedCapacity = 0;
 
-        auto unvisitedCustomers = solution->getUnvisitedCustomersCount(); /**toto bude potrebovat resetovat shaw*/
-        unsigned int currentlyUsedCapacity = 0;
-        auto usedCapacity = solution->getUsedCapacity();
-        usedCapacity.emplace_back(currentlyUsedCapacity);
-
-        index = data->isStartingCriteria() ? findFurthestUnroutedCustomer(distanceMatrix, customers)
-                                           : findCustomerWithEarliestDeadline(customers);
-        insertCustomerToRoad(route, std::make_pair(1, index), beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity,
-                             distanceMatrix, pushForward);
-        unvisitedCustomers--;
-        solution->setUnvisitedCustomersCount(unvisitedCustomers);
+    std::vector<double> timeWaitedAtCustomer;
+    std::vector<double> pushForward;
+    std::vector<double> beginingOfService;
+    for (int i = 0; i <= customers.size(); ++i) {
+        timeWaitedAtCustomer.push_back(0);
     }
 
-    /**-------------------------------------------------------------------------------------------------*/
+    //zaciatok cesty
+    route.emplace_back(0);
+    route.emplace_back(customers.size());
+    beginingOfService.emplace_back(0);
+    beginingOfService.emplace_back(0);
+    timeWaitedAtCustomer[route[1]] = customers[0].getDueDate();
+    unsigned int index;
+    if (startingCriteria) {
+        index = findFurthestUnroutedCustomer(distanceMatrix, customers);
+    } else {
+        index = findCustomerWithEarliestDeadline(customers);
+    }
+    insertCustomerToRoad(route, std::make_pair(1, index), beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity,
+                         distanceMatrix, pushForward);
+    unvisitedCustomers--;
+
+    /**------------------------------------------------------------------------------------------------------------*/
 
     while (unvisitedCustomers != 0) {
-        unsigned int currentlyUsedCapacity = usedCapacity[routeIndex];
         auto c1 = findMinForC1(alfa1, alfa2, distanceMatrix, beginingOfService, pushForward, route, customers,
-                               currentlyUsedCapacity, maxCapacity, timeWaitedAtCustomer, unvisitedCustomers);
+                               currentlyUsedCapacity, vehicleCapacity, timeWaitedAtCustomer, unvisitedCustomers);
         if (!c1.empty()) {
             auto c2 = findOptimumForC2(c1, lambda, distanceMatrix, customers);
-            insertCustomerToRoad(route, c2, beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity,
-                                 distanceMatrix, pushForward);
+            insertCustomerToRoad(route, c2, beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity, distanceMatrix, pushForward);
             unvisitedCustomers--;
-        } else if (routeIndex < routes.size() - 1 && !routes.empty()) {
-            routeIndex++;
-            route = routes[routeIndex]; //
-        } else { /**asi bude potrebne zmenit na else if ak nepotrebujem vytvarat ale posunut sa na dalsiu cestu do ktorej doplnam*/
+        } else {
             for (int i = 0; i < route.size(); ++i) {
                 std::cout << route[i] << " (" << beginingOfService[i] << ") | ";
             }
-            timeScheduleSolomon.emplace_back(beginingOfService);
-            usedCapacity.emplace_back(currentlyUsedCapacity);
-            solution->setUsedCapacity(usedCapacity);
+            timeSchedule.emplace_back(beginingOfService);
             std::cout << "Ostava zakaznikov: " << unvisitedCustomers << std::endl;
             std::cout << "Pouzita kapacita: " << currentlyUsedCapacity << std::endl;
             createNewRoute(currentlyUsedCapacity, routes, route, beginingOfService, pushForward);
             route.emplace_back(0);
-            route.emplace_back(data->getCustomers().size());
+            route.emplace_back(customers.size());
             beginingOfService.emplace_back(0);
             beginingOfService.emplace_back(0);
             timeWaitedAtCustomer[route[1]] = customers[0].getDueDate();
-            routeIndex++;
-            index = data->isStartingCriteria() ? findFurthestUnroutedCustomer(distanceMatrix, customers)
-                                               : findCustomerWithEarliestDeadline(customers);
+            index = startingCriteria ? findFurthestUnroutedCustomer(distanceMatrix, customers)
+                                     : findCustomerWithEarliestDeadline(customers);
             insertCustomerToRoad(route, std::make_pair(1, index), beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity,
                                  distanceMatrix, pushForward);
             unvisitedCustomers--;
@@ -122,27 +78,82 @@ void solomon::run(class Data *data, class Solution *solution) {
         std::cout << "Ostava zakaznikov: " << unvisitedCustomers << std::endl;
     }
     routes.push_back(route);
-    timeScheduleSolomon.emplace_back(beginingOfService);
+    timeSchedule.emplace_back(beginingOfService);
 
-    distance = 0;
+    //zaverecny vypis
+    for (auto & route : routes) {
+        for (int j = 0; j < route.size(); ++j) {
+            std::cout << route[j];
+            if (j != route.size() - 1) {
+                std::cout << " -> ";
+            }
+        }
+        std::cout << std::endl;
+        std::cout << "--------------------------------" << std::endl;
+    }
+    double totalDistance = 0;
+    double totalScheduleTime = 0;
+    double waitingTimeInSchedule = 0;
+    auto numberOfCustomersServed = 0;
     for (int i = 0; i < routes.size(); ++i) {
         for (int j = 0; j < routes[i].size() - 2; ++j) {
-            distance += distanceMatrix[routes[i][j]][routes[i][j + 1]];
+            totalDistance += distanceMatrix[routes[i][j]][routes[i][j + 1]];
             std::cout << distanceMatrix[routes[i][j]][routes[i][j + 1]] << " | ";
         }
         std::cout << distanceMatrix[routes[i][routes[i].size() - 2]][0] << std::endl;
-        distance += distanceMatrix[routes[i][routes[i].size() - 2]][0];
+        totalDistance += distanceMatrix[routes[i][routes[i].size() - 2]][0];
+        numberOfCustomersServed += routes[i].size() - 2;
+        int j = routes[i].size() - 1;
     }
-//    solution->setRoutes(routes);
-//    solution->setTimeSchedule(timeScheduleSolomon);
-//    solution->setDistance(distance);
-//    solution->setWaitingTime(timeWaitedAtCustomer);
-//    solution->setUnvisitedCustomersCount(unvisitedCustomers);
-//    solution->setUsedCapacity(usedCapacity);
-//    data->setCustomers(this->customers);
+    for (int i = 0; i < timeSchedule.size(); ++i) {
+        auto t = timeSchedule[i].size() - 1;
+        totalScheduleTime += (timeSchedule[i][t]);
+    }
+
+    for (int i = 1; i < timeWaitedAtCustomer.size() - 1; ++i) {
+        waitingTimeInSchedule += timeWaitedAtCustomer[i];
+    }
+    auto numberOfVehicles = routes.size();
+    std::cout << "Time schedule: " << std::endl;
+    for (auto & i : timeSchedule) {
+        for (double j : i) {
+            std::cout << j << " | ";
+        }
+        std::cout << std::endl;
+        std::cout << "--------------------------------------------------" << std::endl;
+    }
+    std::cout << "Total distance: " << totalDistance << std::endl;
+    std::cout << "Total schedule time: " << totalScheduleTime << std::endl;
+    std::cout << "Number of vehicles: " << numberOfVehicles << std::endl;
+    std::cout << "Waiting time at customers: " << waitingTimeInSchedule << std::endl;
+    std::cout << "Number of customers served: " << numberOfCustomersServed << std::endl;
 }
 
-unsigned int solomon::findCustomerWithEarliestDeadline(std::vector<Customer>& customers) {
+void solomon::calculateDistances(std::vector<customer> &customers, std::vector<std::vector<double>> &distanceMatrix) {
+    for (int i = 0; i <= customers.size(); ++i) {
+        auto distVec = new std::vector<double>;
+        for (int j = 0; j < customers.size(); ++j) {
+            distVec->push_back(INT_MAX - 1);
+        }
+        distanceMatrix.emplace_back(*distVec);
+    }
+    for (int i = 0; i < customers.size(); ++i) {
+        for (int j = 0; j < customers.size(); ++j) {
+            if (i == j) {
+                distanceMatrix[i][j] = 0;
+            } else {
+                distanceMatrix[i][j] = sqrt(pow(customers[i].getXcord() - customers[j].getXcord(), 2) +
+                                            pow(customers[i].getYcord() - customers[j].getYcord(), 2));
+            }
+        }
+    }
+    for (int i = 0; i < customers.size(); ++i) {
+        distanceMatrix[customers.size()][i] = sqrt(pow(customers[0].getXcord() - customers[i].getXcord(), 2) +
+                                                   pow(customers[0].getYcord() - customers[i].getYcord(), 2));
+    }
+}
+
+unsigned int solomon::findCustomerWithEarliestDeadline(std::vector<customer> &customers) {
     double min = INT_MAX - 1;
     unsigned int minIndex = 0;
     for (int i = 0; i < customers.size(); ++i) {
@@ -156,7 +167,7 @@ unsigned int solomon::findCustomerWithEarliestDeadline(std::vector<Customer>& cu
 }
 
 unsigned int solomon::findFurthestUnroutedCustomer(std::vector<std::vector<double>> &distanceMatrix,
-                                                   std::vector<Customer>& customers) {
+                                                   std::vector<customer> &customers) {
     double max = 0;
     unsigned int maxIndex = 0;
     for (int i = 0; i < customers.size(); ++i) {
@@ -171,7 +182,7 @@ unsigned int solomon::findFurthestUnroutedCustomer(std::vector<std::vector<doubl
 
 void solomon::calculatePushForward(std::vector<double> &pushForward, const std::vector<int> &route, int u, int position,
                                    std::vector<double> &timeWaitedAtCustomer,
-                                   std::vector<std::vector<double>> &distanceMatrix, std::vector<Customer> &customers,
+                                   std::vector<std::vector<double>> &distanceMatrix, std::vector<customer> &customers,
                                    double timeOfService, double waitingTime, std::vector<double> &beginingOfService) {
     double epsilon = 0.0000001; //kvoli double
     auto i = route[position - 1];
@@ -200,7 +211,7 @@ void solomon::calculatePushForward(std::vector<double> &pushForward, const std::
 }
 
 void solomon::calculateNewBeginings(std::vector<double> &pushForward, std::vector<double> &timeWaitedAtCustomer,
-                                    std::vector<int> &route, const std::vector<Customer> &customers, int zakaznikU,
+                                    std::vector<int> &route, const std::vector<customer> &customers, int zakaznikU,
                                     std::vector<double> &beginingOfService, double timeOfService,
                                     std::vector<std::vector<double>> &distanceMatrix, int u) {
     double epsilon = 0.0000001;
@@ -233,7 +244,7 @@ void solomon::calculateNewBeginings(std::vector<double> &pushForward, std::vecto
 }
 
 bool solomon::lema11(std::vector<double> &beginingOfService, std::vector<double> &pushForward, std::vector<int> &route,
-                     std::vector<Customer> &customers, int u, int position, double  beginingOfServiceU) {
+                     std::vector<customer> &customers, int u, int position, double  beginingOfServiceU) {
     if (beginingOfServiceU <= customers[u].getDueDate()) {
         int j = 0;
         while (pushForward[j] > 0.00000001 && j < route.size() - 1 && j < pushForward.size()) {
@@ -253,7 +264,7 @@ bool solomon::lema11(std::vector<double> &beginingOfService, std::vector<double>
 std::vector<std::tuple<int, double, int>>
 solomon::findMinForC1(double alfa1, double alfa2, std::vector<std::vector<double>> &distanceMatrix,
                       std::vector<double> &beginingOfService, std::vector<double> &pushForward, std::vector<int> &route,
-                      std::vector<Customer> &customers, unsigned int currentlyUsedCapacity, int maxCapacity,
+                      std::vector<customer> &customers, unsigned int currentlyUsedCapacity, int maxCapacity,
                       std::vector<double> &timeWaitedAtCustomer, int unvisitedCustomers) {
     std::vector<std::tuple<int, double, int>> mnozinaC1;
     int minIndex = 0;
@@ -300,7 +311,7 @@ solomon::findMinForC1(double alfa1, double alfa2, std::vector<std::vector<double
 
 std::pair<int, int> solomon::findOptimumForC2(std::vector<std::tuple<int, double, int>> &mnozinaC1, double lambda,
                                               std::vector<std::vector<double>> &distanceMatrix,
-                                              std::vector<Customer> &customers) {
+                                              std::vector<customer> &customers) {
     double C2 = 0;
     int maxIndex = 0;
     std::pair<int, int> optimalInsertion;
@@ -322,7 +333,7 @@ std::pair<int, int> solomon::findOptimumForC2(std::vector<std::tuple<int, double
 }
 
 void solomon::insertCustomerToRoad(std::vector<int> &route, std::pair<int, int> optimalInsertion,
-                                   std::vector<double> &beginingOfService, std::vector<Customer>& customers,
+                                   std::vector<double> &beginingOfService, std::vector<customer> &customers,
                                    std::vector<double> &timeWaitedAtCustomer, unsigned int &currentlyUsedCapacity,
                                    std::vector<std::vector<double>> &distanceMatrix, std::vector<double> &pushForward) {
     int i = optimalInsertion.first;
@@ -353,8 +364,8 @@ void solomon::insertCustomerToRoad(std::vector<int> &route, std::pair<int, int> 
 }
 
 void solomon::createNewRoute(unsigned int &currentlyUsedCapacity, std::vector<std::vector<int>> &routes,
-                                         std::vector<int> &route, std::vector<double> &beginingOfService,
-                                         std::vector<double> &pushForward) {
+                             std::vector<int> &route, std::vector<double> &beginingOfService,
+                             std::vector<double> &pushForward) {
     currentlyUsedCapacity = 0;
     pushForward.clear();
     std::vector<int> newRoute;
@@ -365,7 +376,7 @@ void solomon::createNewRoute(unsigned int &currentlyUsedCapacity, std::vector<st
 }
 
 void solomon::waitingTimeMath(std::vector<double> &timeWaitedAtCustomer, std::vector<double> &beginingOfService,
-                              std::vector<int> &route, const std::vector<Customer> &customers,
+                              std::vector<int> &route, const std::vector<customer> &customers,
                               std::vector<std::vector<double>> &distanceMatrix, int index, double timeOfServicePrevious,
                               int u) {
     auto nextInRoute = route[index];
@@ -382,20 +393,4 @@ void solomon::waitingTimeMath(std::vector<double> &timeWaitedAtCustomer, std::ve
         auto startNext = beginingOfService[index];
         timeWaitedAtCustomer[j] = startNext - (timeOfServicePrevious + distance + serviceTime);
     }
-}
-
-//std::vector<std::vector<double>> &solomon::getSchedule() {
-//    return timeScheduleSolomon;
-//}
-
-std::vector<std::vector<int>> &solomon::getRoutes() {
-    return routes;
-}
-
-//std::vector<double> &solomon::getWaitingTime() {
-//    return timeWaitedAtCustomer;
-//}
-
-double &solomon::getDistance() {
-    return distance;
 }
