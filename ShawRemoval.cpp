@@ -5,6 +5,7 @@
 #include <random>
 #include <algorithm>
 #include <iostream>
+#include <climits>
 #include "ShawRemoval.h"
 
 Shaw_Removal::Shaw_Removal(double f, double ch, double p, double o, int qve, int problemSize) : fi(f), chi(ch), psi(p), omega(o), q(qve) {
@@ -30,17 +31,34 @@ std::vector<double> Shaw_Removal::calculateRelatedness(std::vector<std::vector<d
         }
     }
     for (int i = 0; i < routes.size(); ++i) {
-        for (int j = 0; j < routes[i].size(); ++j) {
+        for (int j = 0; j < routes[i].size() - 1; ++j) {
             if (index_r != j && i != route_number_r) {
-                R[j] = fi * (distanceMatrix[r][nasledovnik_r] + distanceMatrix[routes[i][j]][routes[i][j + 1]])
+//                std::cout << fi * (distanceMatrix[r][nasledovnik_r] + distanceMatrix[routes[i][j]][routes[i][j + 1]])
+//                             + chi * (std::abs(timeSchedule[route_number_r][index_r] - timeSchedule[route_number_r][routes[route_number_r][index_r + 1]])
+//                                      + std::abs(timeSchedule[i][j] - timeSchedule[i][j + 1]))
+//                             + psi * (customers[r].getDemand() - customers[j].getDemand()) << std::endl;
+//
+//                std::cout << fi * (distanceMatrix[r][nasledovnik_r] + distanceMatrix[routes[i][j]][routes[i][j + 1]]) << " | "
+//                << chi * (std::abs(timeSchedule[route_number_r][index_r] - timeSchedule[route_number_r][routes[route_number_r][index_r + 1]])
+//                          + std::abs(timeSchedule[i][j] - timeSchedule[i][j + 1])) << " | "
+//                << psi * std::abs(customers[r].getDemand() - customers[j].getDemand()) << std::endl;
+
+                R[routes[i][j]] = fi * (distanceMatrix[r][nasledovnik_r] + distanceMatrix[routes[i][j]][routes[i][j + 1]])
                        + chi * (std::abs(timeSchedule[route_number_r][index_r] - timeSchedule[route_number_r][routes[route_number_r][index_r + 1]])
                                 + std::abs(timeSchedule[i][j] - timeSchedule[i][j + 1]))
-                       + psi * (customers[r].getDemand() - customers[j].getDemand()); /**pozriet ci to bolo demand*/
+                       + psi * std::abs(customers[r].getDemand() - customers[j].getDemand());
                 //+ omega * (1 - () / std::min(,));
-                /**ktore vozidla vedia obsluzit zakaznika*/
+                /**kolko vozidiel vie obsluzit zakaznika - netusim ako to uplne robit no...*/
             }
         }
     }
+    R[r] = 0;
+    R[0] = INT_MAX - 1;
+//    for (int i = 0; i < R.size(); ++i) {
+//        if (R[i] == 0) {
+//            std::cout << i << std::endl;
+//        }
+//    }
     return R;
 }
 
@@ -54,18 +72,18 @@ int Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatri
 //    unsigned long r = 33; /**pre ucel testovania*/
 //    randomly selected requests to be removed
     D.emplace_back(r);
-    std::vector<int> L; //requests
-    for (int i = 0; i < customers.size(); ++i) {
-        if (i != r) {
-            L.emplace_back(i);
-        }
-    }
+    std::vector<std::pair<int, double>> L;
     while (D.size() < p) {
         r = D[rand() % D.size()];
         calculateRelatedness(distanceMatrix, customers, routes, timeSchedule, r);
-        std::sort(L.begin(), L.end(), [&](int a, int b) { return R[a] < R[b]; });
+        for (int i = 1; i < customers.size(); ++i) {
+            if (i != r && std::find(D.begin(), D.end(), i) == D.end()) {
+                L.emplace_back(i, R[i]);
+            }
+        }
+        std::sort(L.begin(), L.end(), [&](std::pair<int, double> a, std::pair<int, double> b) { return a.second < b.second; });
         auto y = (double)rand() / RAND_MAX;
-        D.emplace_back(L[std::pow(y, p) * (L.size() - 1)]);
+        D.emplace_back(L[std::pow(y, p) * (L.size() - 1)].first); /**vo vypisoch vidim dvakrat vlozenu 9tku*/
         L.erase(L.begin() + std::pow(y, p) * (L.size() - 1));
     }
     editSolution(distanceMatrix,customers,routes,timeSchedule, D, waitingTime, usedCapacity);

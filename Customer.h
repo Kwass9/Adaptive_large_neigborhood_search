@@ -24,7 +24,7 @@ public:
     bool isRouted() const;
     double getXcord() const;
     double getYcord() const;
-    unsigned int getDemand() const;
+    double getDemand() const;
     double getReadyTime() const;
     double getDueDate() const;
     double getServiceTime() const;

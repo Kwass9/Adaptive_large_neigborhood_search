@@ -34,7 +34,7 @@ bool customer::isRouted() const {
     return routedStatus;
 }
 
-unsigned int customer::getDemand() const {
+double customer::getDemand() const {
     return demand;
 }
 
