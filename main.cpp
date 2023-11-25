@@ -142,21 +142,21 @@ int main(int argc, char * argv[]) {
 
     auto *solomon = new class solomon(customers, alfa1, alfa2, lambda, q, startingCriteria);
 
-    auto distance = solomon->getDistance();
-    auto waitingTime = solomon->getWaitingTime();
-    auto schedule = solomon->getTimeSchedule();
-    auto routes = solomon->getRoutes();
+//    auto distance = solomon->getDistance();
+//    auto waitingTime = solomon->getWaitingTime();
+//    auto schedule = solomon->getTimeSchedule();
+//    auto routes = solomon->getRoutes();
     auto distanceMatrix = solomon->getDistanceMatrix();
-    auto usedCapacity = solomon->getUsedCapacity();
+//    auto usedCapacity = solomon->getUsedCapacity();
 
     auto *simulatedAnnealing = new class SimulatedAnnealing(temperature, coolingRate);
-    simulatedAnnealing->tryToAcceptNewSolution(distance, routes, schedule, waitingTime);
+    simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime()); /**nemusim posielat ako &*/
     auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, q, customers.size());
 
     while (simulatedAnnealing->getTemperature() > optimum + 0.1 * optimum) {
-        auto numberOfRemoved = shawRemoval->removeRequests(distanceMatrix,customers,routes,schedule,p,waitingTime,usedCapacity);
+        auto numberOfRemoved = shawRemoval->removeRequests(distanceMatrix,customers, solomon->getRoutes(), solomon->getTimeSchedule(), p, solomon->getWaitingTime(), solomon->getUsedCapacity());
         solomon->run(customers, numberOfRemoved);
-        simulatedAnnealing->tryToAcceptNewSolution(distance, routes, schedule, waitingTime);
+        simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime());
     }
 
     delete solomon;

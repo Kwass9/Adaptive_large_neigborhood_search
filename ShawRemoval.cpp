@@ -74,7 +74,7 @@ int Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatri
 void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix,
                                 std::vector<customer> &customers, std::vector<std::vector<int>> &routes,
                                 std::vector<std::vector<double>> &timeSchedule,
-                                std::vector<int> &D, std::vector<double> waitingTime, std::vector<double> usedCapacity) {
+                                std::vector<int> &D, std::vector<double>& waitingTime, std::vector<double>& usedCapacity) {
     for (int i : D) {
         std::cout << i << " vyhodeny zakaznik" << std::endl;
     }
@@ -91,7 +91,7 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
                     timeSchedule[i].erase(timeSchedule[i].begin() + j);
                     routes[i].erase(routes[i].begin() + j);
                     if (routes[i].size() == 2) {
-                        routes.erase(routes.begin() + i); /**tento erase nefunguje spravne asi... mal by to byt dovod pre co mam chhyby v solomonovi*/
+                        routes.erase(routes.begin() + i);
                         timeSchedule.erase(timeSchedule.begin() + i);
                         usedCapacity.erase(usedCapacity.begin() + i);
                     }
@@ -101,5 +101,4 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
             }
         }
     }
-
 }

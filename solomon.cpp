@@ -297,11 +297,12 @@ void solomon::waitingTimeMath(std::vector<double> &timeWaitedAtCustomer, std::ve
 }
 
 void solomon::run(std::vector<customer> &customers, int numberOfUnvisitedCustomers) {
-    std::vector<int> route;
-    static int vehicleCapacity = 200; /**prerobit na nacitanie zo suboru*/
+    std::vector<int> route; /**upravujem iba lokalku nie cestu v roude*/
+    static int vehicleCapacity = 200;
     unvisitedCustomers = numberOfUnvisitedCustomers;
     int routeIndex = 0;
     unsigned int index;
+    bool alreadyIn = false;
 
     if (routes.empty()) {
         //zaciatok cesty
@@ -317,6 +318,7 @@ void solomon::run(std::vector<customer> &customers, int numberOfUnvisitedCustome
         unvisitedCustomers--;
     } else {
         route = routes[routeIndex];
+        alreadyIn = true;
     }
 
     /**------------------------------------------------------------------------------------------------------------*/
@@ -328,19 +330,20 @@ void solomon::run(std::vector<customer> &customers, int numberOfUnvisitedCustome
             auto c2 = findOptimumForC2(c1, lambda, distanceMatrix, customers);
             insertCustomerToRoad(route, c2, beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity, distanceMatrix, pushForward);
             unvisitedCustomers--;
-        } else if (routeIndex >= routes.size()) { /**toto by sa malo pustit len pri vytvarani novej cesty teraz sa mi to pusta zakazdy ked upravim cestu... napr reinsertol zakaznika nas5
+        } else if (routeIndex >= routes.size() && !alreadyIn) { /**toto by sa malo pustit len pri vytvarani novej cesty teraz sa mi to pusta zakazdy ked upravim cestu... napr reinsertol zakaznika nas5
  * a cesta sa volila druhy krat do zoznamu ciest navyse zakaznik tam bol dvakrat*/
-            for (int i = 0; i < route.size(); ++i) {
-                std::cout << route[i] << " (" << beginingOfService[i] << ") | ";
-            }
+//            for (int i = 0; i < route.size(); ++i) {
+//                std::cout << route[i] << " (" << beginingOfService[i] << ") | ";
+//            }
             if (!route.empty()) {
                 timeSchedule.emplace_back(beginingOfService);
-                std::cout << "Ostava zakaznikov: " << unvisitedCustomers << std::endl;
-                std::cout << "Pouzita kapacita: " << currentlyUsedCapacity << std::endl;
+//                std::cout << "Ostava zakaznikov: " << unvisitedCustomers << std::endl;
+//                std::cout << "Pouzita kapacita: " << currentlyUsedCapacity << std::endl;
                 createNewRoute(currentlyUsedCapacity, routes, route, beginingOfService, pushForward);
             } else {
                 beginingOfService.clear();
             }
+            alreadyIn = false;
             route.emplace_back(0);
             route.emplace_back(customers.size());
             beginingOfService.emplace_back(0);
@@ -353,17 +356,24 @@ void solomon::run(std::vector<customer> &customers, int numberOfUnvisitedCustome
             unvisitedCustomers--;
             routeIndex++;
         } else {
+            if (alreadyIn) {
+                routes[routeIndex] = route;
+            }
             routeIndex++;
             if (routeIndex <= routes.size() - 1) {
                 route = routes[routeIndex];
+                alreadyIn = true;
             } else {
                 route.clear();
+                alreadyIn = false;
             }
         }
-        std::cout << "Ostava zakaznikov: " << unvisitedCustomers << std::endl;
+//        std::cout << "Ostava zakaznikov: " << unvisitedCustomers << std::endl;
     }
-    routes.push_back(route);
-    timeSchedule.emplace_back(beginingOfService);
+    if (!alreadyIn) {
+        routes.push_back(route);
+        timeSchedule.emplace_back(beginingOfService);
+    }
 
     /**------------------------------------------------------------------------------------------------------------*/
     //zaverecny vypis
@@ -384,9 +394,9 @@ void solomon::run(std::vector<customer> &customers, int numberOfUnvisitedCustome
     for (int i = 0; i < routes.size(); ++i) {
         for (int j = 0; j < routes[i].size() - 2; ++j) {
             totalDistance += distanceMatrix[routes[i][j]][routes[i][j + 1]];
-            std::cout << distanceMatrix[routes[i][j]][routes[i][j + 1]] << " | ";
+//            std::cout << distanceMatrix[routes[i][j]][routes[i][j + 1]] << " | ";
         }
-        std::cout << distanceMatrix[routes[i][routes[i].size() - 2]][0] << std::endl;
+//        std::cout << distanceMatrix[routes[i][routes[i].size() - 2]][0] << std::endl;
         totalDistance += distanceMatrix[routes[i][routes[i].size() - 2]][0];
         numberOfCustomersServed += routes[i].size() - 2;
         int j = routes[i].size() - 1;
@@ -400,14 +410,14 @@ void solomon::run(std::vector<customer> &customers, int numberOfUnvisitedCustome
         waitingTimeInSchedule += timeWaitedAtCustomer[i];
     }
     auto numberOfVehicles = routes.size();
-    std::cout << "Time schedule: " << std::endl;
-    for (auto & i : timeSchedule) {
-        for (double j : i) {
-            std::cout << j << " | ";
-        }
-        std::cout << std::endl;
-        std::cout << "--------------------------------------------------" << std::endl;
-    }
+//    std::cout << "Time schedule: " << std::endl;
+//    for (auto & i : timeSchedule) {
+//        for (double j : i) {
+//            std::cout << j << " | ";
+//        }
+//        std::cout << std::endl;
+//        std::cout << "--------------------------------------------------" << std::endl;
+//    }
     std::cout << "Total distance: " << totalDistance << std::endl;
     std::cout << "Total schedule time: " << totalScheduleTime << std::endl;
     std::cout << "Number of vehicles: " << numberOfVehicles << std::endl;

@@ -33,7 +33,7 @@ public:
     void editSolution(std::vector<std::vector<double>> &distanceMatrix,
                       std::vector<customer> &customers, std::vector<std::vector<int>> &routes,
                       std::vector<std::vector<double>> &timeSchedule, std::vector<int> &D,
-                      std::vector<double> waitingTime, std::vector<double> usedCapacity);
+                      std::vector<double>& waitingTime, std::vector<double>& usedCapacity);
 };
 
 
