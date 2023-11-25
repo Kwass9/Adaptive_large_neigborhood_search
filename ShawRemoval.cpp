@@ -33,16 +33,6 @@ std::vector<double> Shaw_Removal::calculateRelatedness(std::vector<std::vector<d
     for (int i = 0; i < routes.size(); ++i) {
         for (int j = 0; j < routes[i].size() - 1; ++j) {
             if (index_r != j && i != route_number_r) {
-//                std::cout << fi * (distanceMatrix[r][nasledovnik_r] + distanceMatrix[routes[i][j]][routes[i][j + 1]])
-//                             + chi * (std::abs(timeSchedule[route_number_r][index_r] - timeSchedule[route_number_r][routes[route_number_r][index_r + 1]])
-//                                      + std::abs(timeSchedule[i][j] - timeSchedule[i][j + 1]))
-//                             + psi * (customers[r].getDemand() - customers[j].getDemand()) << std::endl;
-//
-//                std::cout << fi * (distanceMatrix[r][nasledovnik_r] + distanceMatrix[routes[i][j]][routes[i][j + 1]]) << " | "
-//                << chi * (std::abs(timeSchedule[route_number_r][index_r] - timeSchedule[route_number_r][routes[route_number_r][index_r + 1]])
-//                          + std::abs(timeSchedule[i][j] - timeSchedule[i][j + 1])) << " | "
-//                << psi * std::abs(customers[r].getDemand() - customers[j].getDemand()) << std::endl;
-
                 R[routes[i][j]] = fi * (distanceMatrix[r][nasledovnik_r] + distanceMatrix[routes[i][j]][routes[i][j + 1]])
                        + chi * (std::abs(timeSchedule[route_number_r][index_r] - timeSchedule[route_number_r][routes[route_number_r][index_r + 1]])
                                 + std::abs(timeSchedule[i][j] - timeSchedule[i][j + 1]))
@@ -52,13 +42,6 @@ std::vector<double> Shaw_Removal::calculateRelatedness(std::vector<std::vector<d
             }
         }
     }
-    R[r] = 0;
-    R[0] = INT_MAX - 1;
-//    for (int i = 0; i < R.size(); ++i) {
-//        if (R[i] == 0) {
-//            std::cout << i << std::endl;
-//        }
-//    }
     return R;
 }
 
@@ -83,8 +66,11 @@ int Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatri
         }
         std::sort(L.begin(), L.end(), [&](std::pair<int, double> a, std::pair<int, double> b) { return a.second < b.second; });
         auto y = (double)rand() / RAND_MAX;
-        D.emplace_back(L[std::pow(y, p) * (L.size() - 1)].first); /**vo vypisoch vidim dvakrat vlozenu 9tku*/
-        L.erase(L.begin() + std::pow(y, p) * (L.size() - 1));
+        if (std::find(D.begin(), D.end(), L[std::pow(y, p) * (L.size() - 1)].first) == D.end()) {
+            D.emplace_back(L[std::pow(y, p) * (L.size() - 1)].first);
+            auto pokus = L.begin() + round(std::pow(y, p) * (L.size() - 1));
+            L.erase(L.begin() + std::pow(y, p) * (L.size() - 1));
+        }
     }
     editSolution(distanceMatrix,customers,routes,timeSchedule, D, waitingTime, usedCapacity);
     return D.size();
