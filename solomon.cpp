@@ -362,9 +362,11 @@ void solomon::run(std::vector<customer> &customers, int numberOfUnvisitedCustome
             routeIndex++;
             if (routeIndex <= routes.size() - 1) {
                 route = routes[routeIndex];
+                beginingOfService = timeSchedule[routeIndex];
                 alreadyIn = true;
             } else {
                 route.clear();
+                beginingOfService.clear();
                 alreadyIn = false;
             }
         }
@@ -373,6 +375,9 @@ void solomon::run(std::vector<customer> &customers, int numberOfUnvisitedCustome
     if (!alreadyIn) {
         routes.push_back(route);
         timeSchedule.emplace_back(beginingOfService);
+    } else {
+        routes[routeIndex] = route;
+        timeSchedule[routeIndex] = beginingOfService;
     }
 
     /**------------------------------------------------------------------------------------------------------------*/

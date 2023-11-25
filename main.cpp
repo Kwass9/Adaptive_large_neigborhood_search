@@ -151,7 +151,7 @@ int main(int argc, char * argv[]) {
 
     auto *simulatedAnnealing = new class SimulatedAnnealing(temperature, coolingRate);
     simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime()); /**nemusim posielat ako &*/
-    auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, q, customers.size());
+    auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, customers.size());
 
     while (simulatedAnnealing->getTemperature() > optimum + 0.1 * optimum) {
         auto numberOfRemoved = shawRemoval->removeRequests(distanceMatrix,customers, solomon->getRoutes(), solomon->getTimeSchedule(), p, solomon->getWaitingTime(), solomon->getUsedCapacity());

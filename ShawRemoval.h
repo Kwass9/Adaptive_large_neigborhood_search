@@ -19,7 +19,7 @@ private:
     int q;
     std::vector<int> D;
 public:
-    Shaw_Removal(double fi, double chi, double psi, double omega, int q, int problemSize);
+    Shaw_Removal(double fi, double chi, double psi, double omega, int p, int problemSize);
     ~Shaw_Removal();
     std::vector<double> calculateRelatedness(std::vector<std::vector<double>> &distanceMatrix,
                                              std::vector<customer> &customers,

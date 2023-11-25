@@ -51,7 +51,8 @@ int Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatri
     D.clear();
     srand((unsigned)time(nullptr));
     auto r = rand() % customers.size();
-    //randomly selected requests to be removed
+//    unsigned long r = 33; /**pre ucel testovania*/
+//    randomly selected requests to be removed
     D.emplace_back(r);
     std::vector<int> L; //requests
     for (int i = 0; i < customers.size(); ++i) {
@@ -59,7 +60,7 @@ int Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatri
             L.emplace_back(i);
         }
     }
-    while (D.size() < q) {
+    while (D.size() < p) {
         r = D[rand() % D.size()];
         calculateRelatedness(distanceMatrix, customers, routes, timeSchedule, r);
         std::sort(L.begin(), L.end(), [&](int a, int b) { return R[a] < R[b]; });
