@@ -16,7 +16,7 @@ public:
             double lambda, double q, bool startingCriteria);
     ~solomon();
     void run(std::vector<customer>& customers, int numberOfUnvisitedCustomers);
-    double getDistance();
+    double getDistance() const;
     std::vector<std::vector<int>> &getRoutes();
     std::vector<std::vector<double>> &getTimeSchedule();
     std::vector<double> &getWaitingTime();

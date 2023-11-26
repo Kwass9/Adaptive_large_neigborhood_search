@@ -16,6 +16,17 @@ customer::customer(unsigned int idNum, double x, double y, unsigned int dem, dou
 }
 
 
+customer::customer(const customer &customer) {
+    id = customer.id;
+    xcord = customer.xcord;
+    ycord = customer.ycord;
+    demand = customer.demand;
+    readyTime = customer.readyTime;
+    dueDate = customer.dueDate;
+    serviceTime = customer.serviceTime;
+    routedStatus = customer.routedStatus;
+}
+
 customer::~customer() = default;
 
 void customer::markAsRouted() {

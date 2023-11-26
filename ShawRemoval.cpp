@@ -5,7 +5,6 @@
 #include <random>
 #include <algorithm>
 #include <iostream>
-#include <climits>
 #include "ShawRemoval.h"
 
 Shaw_Removal::Shaw_Removal(double f, double ch, double p, double o, int qve, int problemSize) : fi(f), chi(ch), psi(p), omega(o), q(qve) {

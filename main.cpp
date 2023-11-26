@@ -114,8 +114,8 @@ int main(int argc, char * argv[]) {
             double readyTime = processString(i, delimiter);
             double dueDate = processString(i, delimiter);
             double serviceTime = processString(i, delimiter);
-            auto customer = new class customer(id, x, y, demand, readyTime, dueDate, serviceTime);
-            customers.emplace_back(*customer);
+            customer customer(id, x, y, demand, readyTime, dueDate, serviceTime);
+            customers.emplace_back(customer);
         }
     }
 
@@ -139,15 +139,8 @@ int main(int argc, char * argv[]) {
     double ksi = 0.4;
 //    int q;
 
-
     auto *solomon = new class solomon(customers, alfa1, alfa2, lambda, q, startingCriteria);
-
-//    auto distance = solomon->getDistance();
-//    auto waitingTime = solomon->getWaitingTime();
-//    auto schedule = solomon->getTimeSchedule();
-//    auto routes = solomon->getRoutes();
     auto distanceMatrix = solomon->getDistanceMatrix();
-//    auto usedCapacity = solomon->getUsedCapacity();
 
     auto *simulatedAnnealing = new class SimulatedAnnealing(temperature, coolingRate);
     simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime()); /**nemusim posielat ako &*/

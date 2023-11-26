@@ -20,6 +20,7 @@ public:
     customer(unsigned int idNum, double x, double y, unsigned int dem,
              double rdyTime, double dueD, double serviceDuration);
     ~customer();
+    customer(customer const &customer);
     void markAsRouted();
     bool isRouted() const;
     double getXcord() const;
