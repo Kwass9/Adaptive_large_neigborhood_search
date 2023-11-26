@@ -17,8 +17,8 @@ std::vector<double> Shaw_Removal::calculateRelatedness(std::vector<std::vector<d
                                                        std::vector<customer> &customers, std::vector<std::vector<int>> &routes,
                                                        std::vector<std::vector<double>> &timeSchedule,
                                                        int r) {
-    int nasledovnik_r;
-    int route_number_r;
+    int nasledovnik_r = 0;
+    int route_number_r = 0;
     int index_r;
     for (int i = 0; i < routes.size(); ++i) {
         for (int j = 0; j < routes[i].size(); ++j) {

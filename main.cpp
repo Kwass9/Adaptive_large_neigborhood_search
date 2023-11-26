@@ -118,8 +118,10 @@ int main(int argc, char * argv[]) {
             customers.emplace_back(customer);
         }
     }
+//    customers.emplace_back(customers[0]); //falosny vrchol na konci
 
-    double temperature = 1815;
+//    double temperature = 1815;
+    double temperature = 1000;
     double coolingRate = 0.997;
     double optimum = 1637.7;
 
@@ -151,7 +153,6 @@ int main(int argc, char * argv[]) {
         solomon->run(customers, numberOfRemoved);
         simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime());
     }
-
     delete solomon;
     delete simulatedAnnealing;
     delete shawRemoval;
