@@ -8,17 +8,21 @@
 
 #include <vector>
 #include "Customer.h"
-#include "Solution.h"
 
 class SimulatedAnnealing {
 private:
     double temperature;
     double coolingRate;
-    /**ak budes lokalne inicializovat solution nezabudni ho deletnut*/
-    Solution currentSolution = Solution(0);
-    Solution bestSolution = Solution(0);
+    double bestSolution;
+    std::vector<std::vector<int>> bestRoutes;
+    std::vector<std::vector<double>> bestTimeSchedule;
+    std::vector<double> bestWaitingTime;
+    double currentSolution;
+    std::vector<std::vector<int>> currentRoutes;
+    std::vector<std::vector<double>> currentTimeSchedule;
+    std::vector<double> currentWaitingTime;
 public:
-    SimulatedAnnealing(double temperature, double coolingRate, Solution &solution);
+    SimulatedAnnealing(double temperature, double coolingRate);
     ~SimulatedAnnealing();
     SimulatedAnnealing(SimulatedAnnealing &simulatedAnnealing);
     double getBestSolution() const;
@@ -27,7 +31,9 @@ public:
     const std::vector<double> &getBestWaitingTime() const;
     double getTemperature() const;
     void updateTemperature();
-    bool tryToAcceptNewSolution(Solution &solution);
+    bool tryToAcceptNewSolution(double newSolution, std::vector<std::vector<int>> &newRoutes,
+                                std::vector<std::vector<double>> &newTimeSchedule,
+                                std::vector<double> &newWaitingTime);
 };
 
 

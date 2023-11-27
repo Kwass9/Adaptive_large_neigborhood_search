@@ -2,10 +2,9 @@
 // Created by Andrej on 07/10/2023.
 //
 
-#include <iostream>
 #include "Customer.h"
 
-Customer::Customer(unsigned int idNum, double x, double y, unsigned int dem, double rdyTime, double dueD,
+customer::customer(unsigned int idNum, double x, double y, unsigned int dem, double rdyTime, double dueD,
                    double serviceDuration) {
     id = idNum;
     xcord = x;
@@ -16,56 +15,52 @@ Customer::Customer(unsigned int idNum, double x, double y, unsigned int dem, dou
     serviceTime = serviceDuration;
 }
 
-Customer::Customer(const Customer &other) : id(other.id), xcord(other.xcord), ycord(other.ycord), demand(other.demand),
-                                            readyTime(other.readyTime), dueDate(other.dueDate),
-                                            serviceTime(other.serviceTime), routedStatus(other.routedStatus) {}
 
-Customer::~Customer() {
-    /**sem sa este pozriem lebo asi robim zbytocne realokacie*/
-    //    std::cout << "Customer " << id << " destroyed" << std::endl;
-};
+customer::customer(const customer &customer) {
+    id = customer.id;
+    xcord = customer.xcord;
+    ycord = customer.ycord;
+    demand = customer.demand;
+    readyTime = customer.readyTime;
+    dueDate = customer.dueDate;
+    serviceTime = customer.serviceTime;
+    routedStatus = customer.routedStatus;
+}
 
-void Customer::markAsRouted() {
+customer::~customer() = default;
+
+void customer::markAsRouted() {
     routedStatus = true;
 }
 
-double Customer::getYcord() const {
+double customer::getYcord() const {
     return ycord;
 }
 
-double Customer::getXcord() const {
+double customer::getXcord() const {
     return xcord;
 }
 
-bool Customer::isRouted() const {
+bool customer::isRouted() const {
     return routedStatus;
 }
 
-unsigned int Customer::getDemand() const {
+double customer::getDemand() const {
     return demand;
 }
 
-double Customer::getReadyTime() const {
+double customer::getReadyTime() const {
     return readyTime;
 }
 
-double Customer::getDueDate() const {
+double customer::getDueDate() const {
     return dueDate;
 }
 
-double Customer::getServiceTime() const {
+double customer::getServiceTime() const {
     return serviceTime;
 }
 
-void Customer::markAsUnrouted() {
+void customer::markAsUnrouted() {
     routedStatus = false;
 }
-
-unsigned int Customer::getId() const {
-    return id;
-}
-
-bool Customer::isRoutedStatus() const {
-    return routedStatus;
-}
-
