@@ -120,10 +120,10 @@ int main(int argc, char * argv[]) {
     }
 //    customers.emplace_back(customers[0]); //falosny vrchol na konci
 
-//    double temperature = 10000;
+    double temperature = 1000000;
 //    double temperature = 5000;
 //    double temperature = 2000;
-    double temperature = 1815;
+//    double temperature = 1815;
 //    double temperature = 1000;
     double coolingRate = 0.997;
     double optimum = 1637.7;
@@ -133,15 +133,17 @@ int main(int argc, char * argv[]) {
     double psi = 2;
     double omega = 5;
     double p = 6;
-    double pWorst = 3;
-    double w = 0.05;
-    double c = 0.99975;
-    double sigma1 = 33;
+    double pWorst = 3; //len pre worst removal
+    double w = 0.05; //vysledok horsi o w percent od aktualneho ma sancu na akceptovanie 0.5
+    double c = 0.99975; //cooling rate
+    double sigma1 = 33; //adaptive weight adjustment
     double sigma2 = 9;
     double sigma3 = 13;
     double r = 0.1;
-    double eta = 0.025;
-    double ksi = 0.4;
+    double eta = 0.025; //kontrola mnozstva hluku /noise control
+    double ksi = 0.4; //parameter na kontrolu kolko requestov bude removnutych
+    double tau;
+    double ro; //number of reguest removed in iteraton
 //    int q;
 
     auto *solomon = new class solomon(customers, alfa1, alfa2, lambda, q, startingCriteria);
@@ -150,12 +152,43 @@ int main(int argc, char * argv[]) {
     auto *simulatedAnnealing = new class SimulatedAnnealing(temperature, coolingRate);
     simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime()); /**nemusim posielat ako &*/
     auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, customers.size());
-
+    int i = 0;
     while (simulatedAnnealing->getTemperature() > optimum + 0.1 * optimum) {
         auto numberOfRemoved = shawRemoval->removeRequests(distanceMatrix,customers, solomon->getRoutes(), solomon->getTimeSchedule(), p, solomon->getWaitingTime(), solomon->getUsedCapacity());
         solomon->run(customers, numberOfRemoved);
-        simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime());
+        if (!simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime())) {
+            solomon->setDistance(simulatedAnnealing->getBestSolution());
+        }
+        i++;
     }
+    auto bestSchedule = simulatedAnnealing->getBestTimeSchedule();
+    auto bestDistance = simulatedAnnealing->getBestSolution();
+    auto bestWaitingTime = simulatedAnnealing->getBestWaitingTime();
+    auto bestRoutes = simulatedAnnealing->getBestRoutes();
+
+    std::cout << "BestSchedule" << std::endl;
+    for (auto & i : bestSchedule) {
+        for (double j : i) {
+            std::cout << j << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "BestRoutes" << std::endl;
+    for (auto & i : bestRoutes) {
+        for (double j : i) {
+            std::cout << j << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "BestWaitingTime" << std::endl;
+    for (double i : bestWaitingTime) {
+        std::cout << i << " ";
+    }
+    std::cout << std::endl;
+    std::cout << "BestDistance" << std::endl;
+    std::cout << bestDistance << std::endl;
+    std::cout << i << std::endl;
+
     delete solomon;
     delete simulatedAnnealing;
     delete shawRemoval;

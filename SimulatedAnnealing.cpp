@@ -4,12 +4,14 @@
 
 #include <valarray>
 #include <limits>
+#include <iostream>
 #include "SimulatedAnnealing.h"
 
 SimulatedAnnealing::SimulatedAnnealing(double temperature, double coolingRate)
         : temperature(temperature), coolingRate(coolingRate) {
     bestSolution = std::numeric_limits<double>::max();
     currentSolution = std::numeric_limits<double>::max();
+    srand((unsigned)time(nullptr));
 }
 
 SimulatedAnnealing::~SimulatedAnnealing() = default;
@@ -48,37 +50,44 @@ void SimulatedAnnealing::updateTemperature() {
 bool SimulatedAnnealing::tryToAcceptNewSolution(double newSolution, std::vector<std::vector<int>> &newRoutes,
                                                 std::vector<std::vector<double>> &newTimeSchedule,
                                                 std::vector<double> &newWaitingTime) {
-    auto distance = newSolution;
-    const auto& routes = newRoutes;
-    const auto& timeSchedule = newTimeSchedule;
-    const auto& waitingTime = newWaitingTime;
-    if (distance < currentSolution) {
-        currentSolution = distance;
-        currentRoutes = routes;
-        currentTimeSchedule = timeSchedule;
-        currentWaitingTime = waitingTime;
-        if (distance < bestSolution) {
-            bestSolution = distance;
-            bestRoutes = routes;
-            bestTimeSchedule = timeSchedule;
-            bestWaitingTime = waitingTime;
-            updateTemperature();
-            return true;
+    if (newSolution < currentSolution - 0.0001) {
+        currentSolution = newSolution;
+        currentRoutes.clear();
+        currentRoutes = newRoutes;
+        currentTimeSchedule.clear();
+        currentTimeSchedule = newTimeSchedule;
+        currentWaitingTime.clear();
+        currentWaitingTime = newWaitingTime;
+        if (newSolution < bestSolution) {
+            bestSolution = newSolution;
+            bestRoutes.clear();
+            bestRoutes = newRoutes;
+            bestTimeSchedule.clear();
+            bestTimeSchedule = newTimeSchedule;
+            bestWaitingTime.clear();
+            bestWaitingTime = newWaitingTime;
         }
+        updateTemperature(); //toto bude treba dat po kazdej iteracii asik
     } else {
-        double probability = std::exp(std::abs(currentSolution - distance) / temperature);
-        double random = (double)rand() / RAND_MAX;
+        double probability = std::exp(std::abs(currentSolution - newSolution) / temperature);
+        auto random = (double)rand() / RAND_MAX;
         if (random < probability) {
-            currentSolution = distance;
-            currentRoutes = routes;
-            currentTimeSchedule = timeSchedule;
-            currentWaitingTime = waitingTime;
+            currentSolution = newSolution;
+            currentRoutes = newRoutes;
+            currentTimeSchedule = newTimeSchedule;
+            currentWaitingTime = newWaitingTime;
+//            std::cout << "Accept new solution with probability: " << random << std::endl;
             updateTemperature();
-            return true;
         } else {
+            /**resetuj hodnoty na povodne neakceptuj riesenie*/
+            newRoutes.clear();
+            newRoutes = currentRoutes;
+            newTimeSchedule.clear();
+            newTimeSchedule = currentTimeSchedule;
+            newWaitingTime.clear();
+            newWaitingTime = currentWaitingTime;
             return false;
         }
     }
-    updateTemperature();
     return true;
 }

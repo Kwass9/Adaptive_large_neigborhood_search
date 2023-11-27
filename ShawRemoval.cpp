@@ -30,10 +30,10 @@ std::vector<double> Shaw_Removal::calculateRelatedness(std::vector<std::vector<d
         }
     }
 
-    std::cout << "r: " << r << std::endl;
-    std::cout << "route_number_r = " << route_number_r << std::endl;
-    std::cout << "index_r = " << index_r << std::endl;
-    std::cout << "nasledovnik_r = " << nasledovnik_r << std::endl;
+//    std::cout << "r: " << r << std::endl;
+//    std::cout << "route_number_r = " << route_number_r << std::endl;
+//    std::cout << "index_r = " << index_r << std::endl;
+//    std::cout << "nasledovnik_r = " << nasledovnik_r << std::endl;
 
     for (int i = 0; i < routes.size(); ++i) {
         for (int j = 0; j < routes[i].size() - 1; ++j) {
@@ -55,6 +55,8 @@ std::vector<double> Shaw_Removal::calculateRelatedness(std::vector<std::vector<d
             }
         }
     }
+/**    It is assumed that di j, Tx and li are normalized such that 0 ≤ R(i, j) ≤ 2(ϕ+χ)+ψ+ω. This is done
+    by scaling di j, Tx and li such that they only take on values from [0,1].*/
     return R;
 }
 
@@ -80,7 +82,6 @@ int Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatri
         auto y = (double)rand() / RAND_MAX;
         if (std::find(D.begin(), D.end(), L[std::pow(y, p) * (L.size() - 1)].first) == D.end()) {
             D.emplace_back(L[std::pow(y, p) * (L.size() - 1)].first);
-            //auto pokus = L.begin() + round(std::pow(y, p) * (L.size() - 1));
             L.erase(L.begin() + std::pow(y, p) * (L.size() - 1));
         }
         if (D.size() < p) {
@@ -98,9 +99,9 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
                                 std::vector<customer> &customers, std::vector<std::vector<int>> &routes,
                                 std::vector<std::vector<double>> &timeSchedule,
                                 std::vector<int> &D, std::vector<double>& waitingTime, std::vector<double>& usedCapacity) {
-    for (int i : D) {
-        std::cout << i << " vyhodeny zakaznik" << std::endl;
-    }
+//    for (int i : D) {
+//        std::cout << i << " vyhodeny zakaznik" << std::endl;
+//    }
     for (int k : D) {
         for (int i = 0; i < timeSchedule.size(); ++i) {
             for (int j = 0; j < timeSchedule[i].size(); ++j) {

@@ -17,6 +17,7 @@ public:
     ~solomon();
     void run(std::vector<customer>& customers, int numberOfUnvisitedCustomers);
     double getDistance() const;
+    void setDistance(double distance);
     std::vector<std::vector<int>> &getRoutes();
     std::vector<std::vector<double>> &getTimeSchedule();
     std::vector<double> &getWaitingTime();
