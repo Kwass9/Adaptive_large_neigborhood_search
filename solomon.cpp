@@ -40,9 +40,9 @@ solomon::~solomon() {
 //    for (double i : timeWaitedAtCustomer) {
 //        std::cout << i << std::endl;
 //    }
-    for (double i : usedCapacity) { /**robi chybu*/
-        std::cout << i << std::endl;
-    }
+//    for (double i : usedCapacity) { /**robi chybu*/
+//        std::cout << i << std::endl;
+//    }
 //for (std::vector<int> i : routes) {
 //        for (int j : i) {
 //            std::cout << j << " ";
@@ -54,22 +54,32 @@ solomon::~solomon() {
 
 void solomon::calculateDistances(std::vector<customer> &customers, std::vector<std::vector<double>> &distanceMatrix) {
     for (int i = 0; i <= customers.size(); ++i) {
-        std::vector<double> distVec(customers.size(), INT_MAX - 1);
+        std::vector<double> distVec(customers.size() + 1, INT_MAX - 1);
         distanceMatrix.push_back(distVec);
     }
     for (int i = 0; i < customers.size(); ++i) {
-        for (int j = 0; j < customers.size(); ++j) {
-            if (i == j) {
-                distanceMatrix[i][j] = 0;
-            } else {
-                distanceMatrix[i][j] = sqrt(pow(customers[i].getXcord() - customers[j].getXcord(), 2) +
-                                            pow(customers[i].getYcord() - customers[j].getYcord(), 2));
+        for (int j = 0; j <= customers.size(); ++j) {
+            if (j < customers.size()) {
+                if (i == j) {
+                    distanceMatrix[i][j] = 0;
+                } else {
+                    distanceMatrix[i][j] = sqrt(pow(customers[i].getXcord() - customers[j].getXcord(), 2) +
+                                                pow(customers[i].getYcord() - customers[j].getYcord(), 2));
+                }
+            }
+            if (j == customers.size()) {
+                distanceMatrix[i][j] = distanceMatrix[i][0];
             }
         }
     }
-    for (int i = 0; i < customers.size(); ++i) {
-        distanceMatrix[customers.size()][i] = sqrt(pow(customers[0].getXcord() - customers[i].getXcord(), 2) +
-                                                   pow(customers[0].getYcord() - customers[i].getYcord(), 2));
+    for (int i = 0; i <= customers.size(); ++i) {
+        if (i < customers.size()) {
+            distanceMatrix[i][customers.size()] = sqrt(pow(customers[i].getXcord() - customers[0].getXcord(), 2) +
+                                                       pow(customers[i].getYcord() - customers[0].getYcord(), 2));
+        }
+        if (i == customers.size()) {
+            distanceMatrix[i][customers.size()] = 0;
+        }
     }
 }
 
@@ -211,7 +221,7 @@ solomon::findMinForC1(double alfa1, double alfa2, std::vector<std::vector<double
                     double c12 = 0;
                     if (route.size() > 1) {
                         c11 = distanceMatrix[route[i - 1]][u] + distanceMatrix[u][route[i]] -
-                              distanceMatrix[route[i - 1]][route[i]]; /**asi som tu mal chybu*/
+                              distanceMatrix[route[i - 1]][route[i]];
                         c12 = pushForward[0];
                     }
                     double c1 = alfa1 * c11 + alfa2 * c12;
@@ -273,6 +283,15 @@ void solomon::insertCustomerToRoad(std::vector<int> &route, std::pair<int, int> 
         calculatePushForward(pushForward, route, u, i, timeWaitedAtCustomer, distanceMatrix, customers, timeOfService, timeWaitedAtCustomer[u], beginingOfService);
         calculateNewBeginings(pushForward, timeWaitedAtCustomer, route, customers, i, beginingOfService, timeOfService, distanceMatrix, u);
         route.insert(route.begin() + i, u);
+        for (int j : route) {
+            std::cout << j << " ";
+        }
+        std::cout << std::endl;
+        std::cout << "insertovany: " << u << std::endl;
+        for (double j : beginingOfService) {
+            std::cout << j << " ";
+        }
+        std::cout << std::endl;
         beginingOfService.insert(beginingOfService.begin() + i, timeOfService);
         currentlyUsedCapacity += customers[u].getDemand();
         customers[u].markAsRouted();
@@ -381,6 +400,8 @@ void solomon::run(std::vector<customer> &customers, int numberOfUnvisitedCustome
             routeIndex++;
         } else {
             if (alreadyIn) {
+//                routes[routeIndex].clear();
+                /**toto zakomentovane asi este bude treba*/
                 routes[routeIndex] = route;
             }
             routeIndex++;

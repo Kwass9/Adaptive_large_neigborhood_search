@@ -21,7 +21,7 @@ std::vector<double> Shaw_Removal::calculateRelatedness(std::vector<std::vector<d
     int route_number_r = 0;
     int index_r;
     for (int i = 0; i < routes.size(); ++i) {
-        for (int j = 0; j < routes[i].size(); ++j) {
+        for (int j = 0; j < routes[i].size() - 1; ++j) {
             if (routes[i][j] == r) {
                 nasledovnik_r = routes[i][j + 1];
                 route_number_r = i;
@@ -29,14 +29,28 @@ std::vector<double> Shaw_Removal::calculateRelatedness(std::vector<std::vector<d
             }
         }
     }
+
+    std::cout << "r: " << r << std::endl;
+    std::cout << "route_number_r = " << route_number_r << std::endl;
+    std::cout << "index_r = " << index_r << std::endl;
+    std::cout << "nasledovnik_r = " << nasledovnik_r << std::endl;
+
     for (int i = 0; i < routes.size(); ++i) {
         for (int j = 0; j < routes[i].size() - 1; ++j) {
             if (index_r != j && i != route_number_r) {
+
+                /**tato cast ma invalid read cize zrejme miss index*/
+                // index_r + 1 je asi chyba
+//                auto y = timeSchedule[0][routes[route_number_r][index_r + 1]];
+
+//                R[routes[i][j]] = timeSchedule[route_number_r][routes[route_number_r][index_r + 1]];
+//                std::cout << "routes[route_number_r][index_r + 1] = " << routes[route_number_r][index_r + 1] << std::endl;
+
                 R[routes[i][j]] = fi * (distanceMatrix[r][nasledovnik_r] + distanceMatrix[routes[i][j]][routes[i][j + 1]])
-                       + chi * (std::abs(timeSchedule[route_number_r][index_r] - timeSchedule[route_number_r][routes[route_number_r][index_r + 1]])
-                                + std::abs(timeSchedule[i][j] - timeSchedule[i][j + 1]))
-                       + psi * std::abs(customers[r].getDemand() - customers[j].getDemand());
-                //+ omega * (1 - () / std::min(,));
+                        + chi * (std::abs(timeSchedule[route_number_r][index_r] - timeSchedule[route_number_r][nasledovnik_r])
+                                 + std::abs(timeSchedule[i][j] - timeSchedule[i][j + 1]));
+                        + psi * std::abs(customers[r].getDemand() - customers[j].getDemand());
+                        //+ omega * (1 - () / std::min(,));
                 /**kolko vozidiel vie obsluzit zakaznika - netusim ako to uplne robit no...*/
             }
         }
@@ -51,15 +65,14 @@ int Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatri
     D.clear();
     srand((unsigned)time(nullptr));
     auto r = rand() % customers.size();
-//    unsigned long r = 33; /**pre ucel testovania*/
 //    randomly selected requests to be removed
     D.emplace_back(r);
     std::vector<std::pair<int, double>> L;
     while (D.size() < p) {
-        r = D[rand() % D.size()];
         calculateRelatedness(distanceMatrix, customers, routes, timeSchedule, r);
+        L.clear();
         for (int i = 1; i < customers.size(); ++i) {
-            if (i != r && std::find(D.begin(), D.end(), i) == D.end()) {
+            if (std::find(D.begin(), D.end(), i) == D.end()) {
                 L.emplace_back(i, R[i]);
             }
         }
@@ -67,8 +80,14 @@ int Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatri
         auto y = (double)rand() / RAND_MAX;
         if (std::find(D.begin(), D.end(), L[std::pow(y, p) * (L.size() - 1)].first) == D.end()) {
             D.emplace_back(L[std::pow(y, p) * (L.size() - 1)].first);
-            auto pokus = L.begin() + round(std::pow(y, p) * (L.size() - 1));
+            //auto pokus = L.begin() + round(std::pow(y, p) * (L.size() - 1));
             L.erase(L.begin() + std::pow(y, p) * (L.size() - 1));
+        }
+        if (D.size() < p) {
+            r = D[rand() % D.size()];
+            while (std::find(D.begin(), D.end(), r) != D.end()) { //pokial r je v D vyber nove r
+                r = rand() % customers.size();
+            }
         }
     }
     editSolution(distanceMatrix,customers,routes,timeSchedule, D, waitingTime, usedCapacity);
@@ -95,7 +114,9 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
                     timeSchedule[i].erase(timeSchedule[i].begin() + j);
                     routes[i].erase(routes[i].begin() + j);
                     if (routes[i].size() == 2) {
+                        routes[i].clear();
                         routes.erase(routes.begin() + i);
+                        timeSchedule[i].clear();
                         timeSchedule.erase(timeSchedule.begin() + i);
                         usedCapacity.erase(usedCapacity.begin() + i);
                     }

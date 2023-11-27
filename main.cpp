@@ -120,8 +120,11 @@ int main(int argc, char * argv[]) {
     }
 //    customers.emplace_back(customers[0]); //falosny vrchol na konci
 
-//    double temperature = 1815;
-    double temperature = 1000;
+//    double temperature = 10000;
+//    double temperature = 5000;
+//    double temperature = 2000;
+    double temperature = 1815;
+//    double temperature = 1000;
     double coolingRate = 0.997;
     double optimum = 1637.7;
 
