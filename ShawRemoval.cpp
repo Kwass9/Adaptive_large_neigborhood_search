@@ -55,6 +55,7 @@ std::vector<double> Shaw_Removal::calculateRelatedness(std::vector<std::vector<d
             }
         }
     }
+
 /**    It is assumed that di j, Tx and li are normalized such that 0 ≤ R(i, j) ≤ 2(ϕ+χ)+ψ+ω. This is done
     by scaling di j, Tx and li such that they only take on values from [0,1].*/
     return R;
