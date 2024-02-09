@@ -142,10 +142,9 @@ int main(int argc, char * argv[]) {
     double sigma3 = 13;
     double r = 0.1;
     double eta = 0.025; //kontrola mnozstva hluku /noise control
-    double ksi = 0.4; //parameter na kontrolu kolko requestov bude removnutych
+    double ksi = 0.4; //parameter na kontrolu kolko requestov bude removnutych |  4 ≤ ro ≤ min(100,ξn)
     double tau;
     double ro; //number of reguest removed in iteraton
-//    int q;
 
     auto *solomon = new class solomon(customers, alfa1, alfa2, lambda, q, startingCriteria);
     auto distanceMatrix = solomon->getDistanceMatrix();
@@ -154,8 +153,13 @@ int main(int argc, char * argv[]) {
     simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime()); /**nemusim posielat ako &*/
     auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, customers.size());
     int i = 0;
-    while (simulatedAnnealing->getTemperature() > optimum + 0.1 * optimum) {
-        auto numberOfRemoved = shawRemoval->removeRequests(distanceMatrix,customers, solomon->getRoutes(), solomon->getTimeSchedule(), p, solomon->getWaitingTime(), solomon->getUsedCapacity());
+    while (simulatedAnnealing->getTemperature() > optimum + 0.1 * optimum) { //**docasnem, budem prerabat*/
+        //4 ≤ ro ≤ min(100,ξn)
+        int ro = rand() / std::min(ksi * customers.size(), 100.0);
+        while (ro < 4) {
+            ro = rand() / std::min(ksi * customers.size(), 100.0);
+        }
+        auto numberOfRemoved = shawRemoval->removeRequests(distanceMatrix,customers, solomon->getRoutes(), solomon->getTimeSchedule(), ro, solomon->getWaitingTime(), solomon->getUsedCapacity());
         solomon->run(customers, numberOfRemoved);
         if (!simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime())) {
             solomon->setDistance(simulatedAnnealing->getBestSolution());
@@ -193,6 +197,7 @@ int main(int argc, char * argv[]) {
     std::cout << bestDistance << std::endl;
     std::cout << i << std::endl;
 
+    delete test;
     delete solomon;
     delete simulatedAnnealing;
     delete shawRemoval;

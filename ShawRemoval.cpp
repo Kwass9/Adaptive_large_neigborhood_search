@@ -7,7 +7,7 @@
 #include <iostream>
 #include "ShawRemoval.h"
 
-Shaw_Removal::Shaw_Removal(double f, double ch, double p, double o, int qve, int problemSize) : fi(f), chi(ch), psi(p), omega(o), q(qve) {
+Shaw_Removal::Shaw_Removal(double f, double ch, double ps, double o, int p, int problemSize) : fi(f), chi(ch), psi(ps), omega(o), p(p) {
     R.resize(problemSize);
 }
 
@@ -62,7 +62,7 @@ std::vector<double> Shaw_Removal::calculateRelatedness(std::vector<std::vector<d
 
 int Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatrix,
                                   std::vector<customer> &customers, std::vector<std::vector<int>> &routes,
-                                  std::vector<std::vector<double>> &timeSchedule, int p, std::vector<double> &waitingTime,
+                                  std::vector<std::vector<double>> &timeSchedule, int ro, std::vector<double> &waitingTime,
                                   std::vector<double> &usedCapacity) {
     D.clear();
     srand((unsigned)time(nullptr));
@@ -70,7 +70,7 @@ int Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatri
 //    randomly selected requests to be removed
     D.emplace_back(r);
     std::vector<std::pair<int, double>> L;
-    while (D.size() < p) {
+    while (D.size() < ro) {
         calculateRelatedness(distanceMatrix, customers, routes, timeSchedule, r);
         L.clear();
         for (int i = 1; i < customers.size(); ++i) {
@@ -81,10 +81,10 @@ int Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatri
         std::sort(L.begin(), L.end(), [&](std::pair<int, double> a, std::pair<int, double> b) { return a.second < b.second; });
         auto y = (double)rand() / RAND_MAX;
         if (std::find(D.begin(), D.end(), L[std::pow(y, p) * (L.size() - 1)].first) == D.end()) {
-            D.emplace_back(L[std::pow(y, p) * (L.size() - 1)].first);
+            D.emplace_back(L[std::pow(y, p) * (L.size() - 1)].first); /**k tomuto sa zastavit pri konzultacii este*/
             L.erase(L.begin() + std::pow(y, p) * (L.size() - 1));
         }
-        if (D.size() < p) {
+        if (D.size() < ro) {
             r = D[rand() % D.size()];
             while (std::find(D.begin(), D.end(), r) != D.end()) { //pokial r je v D vyber nove r
                 r = rand() % customers.size();
