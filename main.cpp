@@ -8,6 +8,7 @@
 #include "solomon.h"
 #include "SimulatedAnnealing.h"
 #include "ShawRemoval.h"
+#include "test.h"
 
 void removeCharsFromString( std::string &str, char* charsToRemove ) {
     for (unsigned int i = 0; i < strlen(charsToRemove); ++i) {
@@ -165,6 +166,9 @@ int main(int argc, char * argv[]) {
     auto bestDistance = simulatedAnnealing->getBestSolution();
     auto bestWaitingTime = simulatedAnnealing->getBestWaitingTime();
     auto bestRoutes = simulatedAnnealing->getBestRoutes();
+
+    auto test = new class test();
+    std::cout << "Test results for corectness: " << test->corectnessTest(customers, bestSchedule, bestRoutes) << std::endl;
 
     std::cout << "BestSchedule" << std::endl;
     for (auto & i : bestSchedule) {
