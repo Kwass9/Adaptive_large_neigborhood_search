@@ -11,7 +11,7 @@
 
 class Shaw_Removal {
 private:
-    std::vector<double> R; /**asi bude nejak treba povedat pre ktore r sa to pocitalo*/
+    std::vector<double> R;
     double fi;
     double chi;
     double psi;

@@ -4,8 +4,8 @@
 
 #include <random>
 #include <algorithm>
-#include <iostream>
 #include "ShawRemoval.h"
+#include <cmath>
 
 Shaw_Removal::Shaw_Removal(double f, double ch, double ps, double o, int p, int problemSize) : fi(f), chi(ch), psi(ps), omega(o), p(p) {
     R.resize(problemSize);
@@ -29,11 +29,8 @@ std::vector<double> Shaw_Removal::calculateRelatedness(std::vector<std::vector<d
             }
         }
     }
-
-//    std::cout << "r: " << r << std::endl;
-//    std::cout << "route_number_r = " << route_number_r << std::endl;
-//    std::cout << "index_r = " << index_r << std::endl;
-//    std::cout << "nasledovnik_r = " << nasledovnik_r << std::endl;
+    std::vector<double> DistanceRelatedness;
+    std::vector<double> TimeRelatedness;
 
     for (int i = 0; i < routes.size(); ++i) {
         for (int j = 0; j < routes[i].size() - 1; ++j) {
@@ -46,10 +43,15 @@ std::vector<double> Shaw_Removal::calculateRelatedness(std::vector<std::vector<d
 //                R[routes[i][j]] = timeSchedule[route_number_r][routes[route_number_r][index_r + 1]];
 //                std::cout << "routes[route_number_r][index_r + 1] = " << routes[route_number_r][index_r + 1] << std::endl;
 
-                R[routes[i][j]] = fi * (distanceMatrix[r][nasledovnik_r] + distanceMatrix[routes[i][j]][routes[i][j + 1]])
-                        + chi * (std::abs(timeSchedule[route_number_r][index_r] - timeSchedule[route_number_r][nasledovnik_r])
-                                 + std::abs(timeSchedule[i][j] - timeSchedule[i][j + 1]));
-                        + psi * std::abs(customers[r].getDemand() - customers[j].getDemand());
+                DistanceRelatedness.emplace_back(distanceMatrix[r][nasledovnik_r] + distanceMatrix[routes[i][j]][routes[i][j + 1]]);
+                TimeRelatedness.emplace_back(std::abs(timeSchedule[route_number_r][index_r] - timeSchedule[route_number_r][nasledovnik_r])
+                                             + std::abs(timeSchedule[i][j] - timeSchedule[i][j + 1]));
+
+                //                R[routes[i][j]] = fi * (distanceMatrix[r][nasledovnik_r] + distanceMatrix[routes[i][j]][routes[i][j + 1]])
+//                        + chi * (std::abs(timeSchedule[route_number_r][index_r] - timeSchedule[route_number_r][nasledovnik_r])
+//                                 + std::abs(timeSchedule[i][j] - timeSchedule[i][j + 1]));
+                /**tieto dve zrejme nebudem pouzivat*/
+//                        + psi * std::abs(customers[r].getDemand() - customers[j].getDemand());
                         //+ omega * (1 - () / std::min(,));
                 /**kolko vozidiel vie obsluzit zakaznika - netusim ako to uplne robit no...*/
             }
@@ -57,6 +59,16 @@ std::vector<double> Shaw_Removal::calculateRelatedness(std::vector<std::vector<d
     }
 /**    It is assumed that di j, Tx and li are normalized such that 0 ≤ R(i, j) ≤ 2(ϕ+χ)+ψ+ω. This is done
     by scaling di j, Tx and li such that they only take on values from [0,1].*/
+    //normalizacia
+    auto maxDistance = std::max_element(DistanceRelatedness.begin(), DistanceRelatedness.end());
+    auto maxTime = std::max_element(TimeRelatedness.begin(), TimeRelatedness.end());
+    for (int i = 0; i < DistanceRelatedness.size(); ++i) {
+        for (int j = 0; j < DistanceRelatedness.size(); ++j) {
+            DistanceRelatedness[i] /= *maxDistance;
+            TimeRelatedness[i] /= *maxTime;
+            R[routes[i][j]] = fi * DistanceRelatedness[i] + chi * TimeRelatedness[i];
+        }
+    }
     return R;
 }
 
@@ -73,9 +85,9 @@ int Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatri
     while (D.size() < ro) {
         calculateRelatedness(distanceMatrix, customers, routes, timeSchedule, r);
         L.clear();
-        for (int i = 1; i < customers.size(); ++i) {
+        for (int i = 0; i < customers.size(); ++i) {
             if (std::find(D.begin(), D.end(), i) == D.end()) {
-                L.emplace_back(i, R[i]);
+                L.emplace_back(i + 1, R[i]);
             }
         }
         std::sort(L.begin(), L.end(), [&](std::pair<int, double> a, std::pair<int, double> b) { return a.second < b.second; });
