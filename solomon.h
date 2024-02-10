@@ -13,7 +13,7 @@ class solomon {
 
 public:
     solomon(std::vector<customer> &customers, double alfa1, double alfa2,
-            double lambda, double q, bool startingCriteria);
+            double lambda, double q, bool startingCriteria, double eta);
     ~solomon();
     void run(std::vector<customer>& customers, int numberOfUnvisitedCustomers);
     double getDistance() const;
@@ -42,6 +42,7 @@ private:
     double q;
     bool startingCriteria;
     double totalDistance;
+    double maxN;
 
     void calculateDistances(std::vector<customer> &customers, std::vector<std::vector<double>> &distanceMatrix);
     unsigned int findCustomerWithEarliestDeadline(std::vector<customer> &customers);
@@ -72,6 +73,8 @@ private:
     void waitingTimeMath(std::vector<double> &timeWaitedAtCustomer, std::vector<double> &beginingOfService,
                          std::vector<int> &route, const std::vector<customer> &customers, std::vector<std::vector<double>> &distanceMatrix,
                          int index, double timeOfService, int u);
+    void calculateMaxN(double eta);
+    double createNoise();
 };
 
 

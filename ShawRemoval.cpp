@@ -8,7 +8,6 @@
 #include <cmath>
 #include <iostream>
 #include <map>
-#include <bits/stdc++.h>
 
 Shaw_Removal::Shaw_Removal(double f, double ch, double ps, double o, int p, int problemSize) : fi(f), chi(ch), psi(ps), omega(o), p(p) {
     R.resize(problemSize);
@@ -91,7 +90,7 @@ void Shaw_Removal::calculateRelatedness(std::vector<std::vector<double>> &distan
     }
 }
 
-int Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatrix,
+void Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatrix,
                                   std::vector<customer> &customers, std::vector<std::vector<int>> &routes,
                                   std::vector<std::vector<double>> &timeSchedule, const int &ro, std::vector<double> &waitingTime,
                                   std::vector<double> &usedCapacity) {
@@ -123,7 +122,6 @@ int Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatri
         }
     }
     editSolution(distanceMatrix,customers,routes,timeSchedule, D, waitingTime, usedCapacity);
-    return D.size();
 }
 
 void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix,

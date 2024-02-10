@@ -26,7 +26,7 @@ public:
                                              std::vector<std::vector<int>> &routes,
                                              std::vector<std::vector<double>> &timeSchedule,
                                              int r);
-    int removeRequests(std::vector<std::vector<double>> &distanceMatrix,
+    void removeRequests(std::vector<std::vector<double>> &distanceMatrix,
                         std::vector<customer> &customers, std::vector<std::vector<int>> &routes,
                         std::vector<std::vector<double>> &timeSchedule, const int &ro, std::vector<double> &waitingTime,
                         std::vector<double> &usedCapacity);

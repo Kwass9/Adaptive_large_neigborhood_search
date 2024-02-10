@@ -70,7 +70,7 @@ bool SimulatedAnnealing::tryToAcceptNewSolution(double newSolution, std::vector<
         updateTemperature(); //toto bude treba dat po kazdej iteracii asik
     } else {
         double probability = std::exp(std::abs(currentSolution - newSolution) / temperature);
-        auto random = (double)rand() / RAND_MAX;
+        auto random = (double)rand() / RAND_MAX; /**pozriet ci to nie je lepsie v kniznici random*/
         if (random < probability) {
             currentSolution = newSolution;
             currentRoutes = newRoutes;
@@ -79,7 +79,6 @@ bool SimulatedAnnealing::tryToAcceptNewSolution(double newSolution, std::vector<
 //            std::cout << "Accept new solution with probability: " << random << std::endl;
             updateTemperature();
         } else {
-            /**resetuj hodnoty na povodne neakceptuj riesenie*/
             newRoutes.clear();
             newRoutes = currentRoutes;
             newTimeSchedule.clear();

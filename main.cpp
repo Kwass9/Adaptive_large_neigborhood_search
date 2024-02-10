@@ -4,6 +4,7 @@
 #include <cstring>
 #include <algorithm>
 #include <tuple>
+#include <valarray>
 #include "Customer.h"
 #include "solomon.h"
 #include "SimulatedAnnealing.h"
@@ -36,6 +37,22 @@ double getAtributeForCustomer(std::string &str, const std::string& delimiter) {
 double processString(std::string &str, const std::string& delimiter) {
     removeDelimiters(str, delimiter);
     return getAtributeForCustomer(str, delimiter);
+}
+
+/**spytat sa este ci toto robim dobre*/
+double setInitialTemperature(double w, double solution) {
+    double acceptW = w * solution;
+    double temperature = acceptW / -log(0.5);
+    return temperature;
+}
+
+int calculateRo(double ksi, std::vector<customer> &customers) {
+    //4 ≤ ro ≤ min(100,ξn)
+    int ro = rand() % (int)std::min(ksi * customers.size(), 100.0);
+    while (ro < 4) {
+        ro = rand() / std::min(ksi * customers.size(), 100.0);
+    }
+    return ro;
 }
 
 int main(int argc, char * argv[]) {
@@ -121,46 +138,42 @@ int main(int argc, char * argv[]) {
     }
 //    customers.emplace_back(customers[0]); //falosny vrchol na konci
 
-//    double temperature = 1000000;
-//    double temperature = 5000;
-    double temperature = 2000;
-//    double temperature = 1815;
-//    double temperature = 1000;
-    double coolingRate = 0.997;
-    double optimum = 1637.7;
+//-------------------------------------------------------------------------------------------------------------------
 
+//    double optimum = 1637.7;
+    double temperature;
     double fi = 9;
     double chi = 3;
     double psi = 2;
     double omega = 5;
     double p = 6;
-    double pWorst = 3; //len pre worst removal
+//    double pWorst = 3; //len pre worst removal
     double w = 0.05; //vysledok horsi o w percent od aktualneho ma sancu na akceptovanie 0.5
     double c = 0.99975; //cooling rate
-    double sigma1 = 33; //adaptive weight adjustment
-    double sigma2 = 9;
-    double sigma3 = 13;
-    double r = 0.1;
+//    double sigma1 = 33; //adaptive weight adjustment
+//    double sigma2 = 9;
+//    double sigma3 = 13;
+//    double r = 0.1;
     double eta = 0.025; //kontrola mnozstva hluku /noise control
     double ksi = 0.4; //parameter na kontrolu kolko requestov bude removnutych |  4 ≤ ro ≤ min(100,ξn)
     double tau;
-    double ro; //number of reguest removed in iteraton
+    int ro; //number of reguest removed in iteraton
 
     auto *solomon = new class solomon(customers, alfa1, alfa2, lambda, q, startingCriteria);
     auto distanceMatrix = solomon->getDistanceMatrix();
 
-    auto *simulatedAnnealing = new class SimulatedAnnealing(temperature, coolingRate);
+    temperature = setInitialTemperature(w, solomon->getDistance());
+
+    auto *simulatedAnnealing = new class SimulatedAnnealing(temperature, c);
     simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime()); /**nemusim posielat ako &*/
     auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, customers.size());
     int i = 0;
-    while (simulatedAnnealing->getTemperature() > optimum + 0.1 * optimum) { //**docasnem, budem prerabat*/
-        //4 ≤ ro ≤ min(100,ξn)
-        int ro = rand() % (int)std::min(ksi * customers.size(), 100.0);
-        while (ro < 4) {
-            ro = rand() / std::min(ksi * customers.size(), 100.0);
-        }
-        auto numberOfRemoved = shawRemoval->removeRequests(distanceMatrix,customers, solomon->getRoutes(), solomon->getTimeSchedule(), ro, solomon->getWaitingTime(), solomon->getUsedCapacity());
-        solomon->run(customers, numberOfRemoved);
+    while (i < 25000) {
+
+        ro = calculateRo(ksi, customers);
+
+        shawRemoval->removeRequests(distanceMatrix,customers, solomon->getRoutes(), solomon->getTimeSchedule(), ro, solomon->getWaitingTime(), solomon->getUsedCapacity());
+        solomon->run(customers, ro);
         if (!simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime())) {
             solomon->setDistance(simulatedAnnealing->getBestSolution());
         }
@@ -171,6 +184,8 @@ int main(int argc, char * argv[]) {
     auto bestWaitingTime = simulatedAnnealing->getBestWaitingTime();
     auto bestRoutes = simulatedAnnealing->getBestRoutes();
 
+
+//    -------------------------------------------------------------------------------------------------------------------
     auto test = new class test();
     std::cout << "Test results for corectness: " << test->corectnessTest(customers, bestSchedule, bestRoutes) << std::endl;
 

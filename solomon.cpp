@@ -9,10 +9,12 @@
 #include <cmath>
 #include <tuple>
 #include <climits>
+#include <random>
 
 solomon::solomon(std::vector<customer> &customers, double alfa1, double alfa2,
-                 double lambda, double q, bool startingCriteria) {
+                 double lambda, double q, bool startingCriteria, double eta) {
     calculateDistances(customers, distanceMatrix);
+    calculateMaxN(eta);
     unvisitedCustomers = customers.size() - 1;
     currentlyUsedCapacity = 0;
     this->alfa1 = alfa1;
@@ -474,4 +476,23 @@ std::vector<double> &solomon::getUsedCapacity() {
 
 void solomon::setDistance(double distance) {
     totalDistance = distance;
+}
+
+void solomon::calculateMaxN(double eta) {
+    double maxDistance = 0;
+    for (const auto & i : distanceMatrix) {
+        for (double j : i) {
+            if (j > maxDistance) {
+                maxDistance = j;
+            }
+        }
+    }
+    maxN = eta * maxDistance;
+}
+
+double solomon::createNoise() {
+    std::random_device rd;
+    std::default_random_engine generator(rd());
+    std::uniform_real_distribution<double> distribution(-maxN, maxN);
+    return distribution(generator);
 }
