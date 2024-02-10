@@ -6,6 +6,9 @@
 #include <algorithm>
 #include "ShawRemoval.h"
 #include <cmath>
+#include <iostream>
+#include <map>
+#include <bits/stdc++.h>
 
 Shaw_Removal::Shaw_Removal(double f, double ch, double ps, double o, int p, int problemSize) : fi(f), chi(ch), psi(ps), omega(o), p(p) {
     R.resize(problemSize);
@@ -13,7 +16,7 @@ Shaw_Removal::Shaw_Removal(double f, double ch, double ps, double o, int p, int 
 
 Shaw_Removal::~Shaw_Removal() = default;
 
-std::vector<double> Shaw_Removal::calculateRelatedness(std::vector<std::vector<double>> &distanceMatrix,
+void Shaw_Removal::calculateRelatedness(std::vector<std::vector<double>> &distanceMatrix,
                                                        std::vector<customer> &customers, std::vector<std::vector<int>> &routes,
                                                        std::vector<std::vector<double>> &timeSchedule,
                                                        int r) {
@@ -29,8 +32,8 @@ std::vector<double> Shaw_Removal::calculateRelatedness(std::vector<std::vector<d
             }
         }
     }
-    std::vector<double> DistanceRelatedness;
-    std::vector<double> TimeRelatedness;
+    std::map<int ,double> DistanceRelatedness;
+    std::map<int ,double> TimeRelatedness;
 
     for (int i = 0; i < routes.size(); ++i) {
         for (int j = 0; j < routes[i].size() - 1; ++j) {
@@ -43,8 +46,8 @@ std::vector<double> Shaw_Removal::calculateRelatedness(std::vector<std::vector<d
 //                R[routes[i][j]] = timeSchedule[route_number_r][routes[route_number_r][index_r + 1]];
 //                std::cout << "routes[route_number_r][index_r + 1] = " << routes[route_number_r][index_r + 1] << std::endl;
 
-                DistanceRelatedness.emplace_back(distanceMatrix[r][nasledovnik_r] + distanceMatrix[routes[i][j]][routes[i][j + 1]]);
-                TimeRelatedness.emplace_back(std::abs(timeSchedule[route_number_r][index_r] - timeSchedule[route_number_r][nasledovnik_r])
+                DistanceRelatedness.emplace(routes[i][j], distanceMatrix[r][nasledovnik_r] + distanceMatrix[routes[i][j]][routes[i][j + 1]]);
+                TimeRelatedness.emplace(routes[i][j] ,std::abs(timeSchedule[route_number_r][index_r] - timeSchedule[route_number_r][nasledovnik_r])
                                              + std::abs(timeSchedule[i][j] - timeSchedule[i][j + 1]));
 
                 //                R[routes[i][j]] = fi * (distanceMatrix[r][nasledovnik_r] + distanceMatrix[routes[i][j]][routes[i][j + 1]])
@@ -59,22 +62,38 @@ std::vector<double> Shaw_Removal::calculateRelatedness(std::vector<std::vector<d
     }
 /**    It is assumed that di j, Tx and li are normalized such that 0 ≤ R(i, j) ≤ 2(ϕ+χ)+ψ+ω. This is done
     by scaling di j, Tx and li such that they only take on values from [0,1].*/
+
     //normalizacia
-    auto maxDistance = std::max_element(DistanceRelatedness.begin(), DistanceRelatedness.end());
-    auto maxTime = std::max_element(TimeRelatedness.begin(), TimeRelatedness.end());
-    for (int i = 0; i < DistanceRelatedness.size(); ++i) {
-        for (int j = 0; j < DistanceRelatedness.size(); ++j) {
-            DistanceRelatedness[i] /= *maxDistance;
-            TimeRelatedness[i] /= *maxTime;
-            R[routes[i][j]] = fi * DistanceRelatedness[i] + chi * TimeRelatedness[i];
+    double maxCurrently = 0;
+    std::map<int, double>::iterator currentItr;
+    for (currentItr = DistanceRelatedness.begin(); currentItr != DistanceRelatedness.end(); ++currentItr) {
+        if (currentItr->second > maxCurrently) {
+            maxCurrently = currentItr->second;
         }
     }
-    return R;
+    for (currentItr = DistanceRelatedness.begin(); currentItr != DistanceRelatedness.end(); ++currentItr) {
+        currentItr->second /= maxCurrently;
+    }
+    maxCurrently = 0;
+    for (currentItr = TimeRelatedness.begin(); currentItr != TimeRelatedness.end(); ++currentItr) {
+        if (currentItr->second > maxCurrently) {
+            maxCurrently = currentItr->second;
+        }
+    }
+    for (currentItr = TimeRelatedness.begin(); currentItr != TimeRelatedness.end(); ++currentItr) {
+        currentItr->second /= maxCurrently;
+    }
+    for (auto & route : routes) {
+        for (int currentCustomer : route) {
+            R[currentCustomer - 1] = fi * DistanceRelatedness[currentCustomer] + chi * TimeRelatedness[currentCustomer - 1];
+            R[currentCustomer - 1] /= (2 * (fi + chi)) ;
+        }
+    }
 }
 
 int Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatrix,
                                   std::vector<customer> &customers, std::vector<std::vector<int>> &routes,
-                                  std::vector<std::vector<double>> &timeSchedule, int ro, std::vector<double> &waitingTime,
+                                  std::vector<std::vector<double>> &timeSchedule, const int &ro, std::vector<double> &waitingTime,
                                   std::vector<double> &usedCapacity) {
     D.clear();
     srand((unsigned)time(nullptr));

@@ -121,9 +121,9 @@ int main(int argc, char * argv[]) {
     }
 //    customers.emplace_back(customers[0]); //falosny vrchol na konci
 
-    double temperature = 1000000;
+//    double temperature = 1000000;
 //    double temperature = 5000;
-//    double temperature = 2000;
+    double temperature = 2000;
 //    double temperature = 1815;
 //    double temperature = 1000;
     double coolingRate = 0.997;
@@ -155,7 +155,7 @@ int main(int argc, char * argv[]) {
     int i = 0;
     while (simulatedAnnealing->getTemperature() > optimum + 0.1 * optimum) { //**docasnem, budem prerabat*/
         //4 ≤ ro ≤ min(100,ξn)
-        int ro = rand() / std::min(ksi * customers.size(), 100.0);
+        int ro = rand() % (int)std::min(ksi * customers.size(), 100.0);
         while (ro < 4) {
             ro = rand() / std::min(ksi * customers.size(), 100.0);
         }
