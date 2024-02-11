@@ -22,10 +22,12 @@ void Shaw_Removal::calculateRelatedness(std::vector<std::vector<double>> &distan
     int nasledovnik_r = 0;
     int route_number_r = 0;
     int index_r;
+    int nasledovnik_r_index;
     for (int i = 0; i < routes.size(); ++i) {
-        for (int j = 0; j < routes[i].size() - 1; ++j) {
+        for (int j = 1; j < routes[i].size() - 1; ++j) {
             if (routes[i][j] == r) {
                 nasledovnik_r = routes[i][j + 1];
+                nasledovnik_r_index = j + 1;
                 route_number_r = i;
                 index_r = j;
             }
@@ -37,17 +39,10 @@ void Shaw_Removal::calculateRelatedness(std::vector<std::vector<double>> &distan
         for (int j = 0; j < routes[i].size() - 1; ++j) {
             if (routes[i][j] != 0 && routes[i][j] != 101 && routes[i][j] != r) {
 
-                /**tato cast ma invalid read cize zrejme miss index*/
-
-                auto z = timeSchedule[route_number_r][nasledovnik_r];
-                std::cout << "------------------------------------------------------" << std::endl;
-                std::cout << "Route[i][j + 1]: " << routes[i][j + 1] << std::endl;
-                std::cout << "[" << route_number_r << "]" << "[" << nasledovnik_r << "]" << std::endl;
-                std::cout << "------------------------------------------------------" << std::endl;
-
-                DistanceRelatedness.emplace(routes[i][j], distanceMatrix[r][nasledovnik_r] + distanceMatrix[routes[i][j]][routes[i][j + 1]]);
-                TimeRelatedness.emplace(routes[i][j] ,std::abs(timeSchedule[route_number_r][index_r] - timeSchedule[route_number_r][nasledovnik_r])
-                                             + std::abs(timeSchedule[i][j] - timeSchedule[i][j + 1]));
+                /**prediskutovat ci to robim dobre*/
+                DistanceRelatedness.emplace(routes[i][j], std::abs(distanceMatrix[r][nasledovnik_r] - distanceMatrix[routes[i][j]][routes[i][j + 1]]));
+                TimeRelatedness.emplace(routes[i][j] ,std::abs(std::abs(timeSchedule[route_number_r][index_r] - timeSchedule[route_number_r][nasledovnik_r_index])
+                                             - std::abs(timeSchedule[i][j] - timeSchedule[i][j + 1])));
 
                 //                R[routes[i][j]] = fi * (distanceMatrix[r][nasledovnik_r] + distanceMatrix[routes[i][j]][routes[i][j + 1]])
 //                        + chi * (std::abs(timeSchedule[route_number_r][index_r] - timeSchedule[route_number_r][nasledovnik_r])

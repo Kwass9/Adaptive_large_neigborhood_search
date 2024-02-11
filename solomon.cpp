@@ -212,8 +212,8 @@ solomon::findMinForC1(double alfa1, double alfa2, std::vector<std::vector<double
                     /**This decision is taken by the adaptive mechanism described earlier by keeping track of how often
                     the noise applied insertions and the “clean” insertions are successful.*/
 //                    if (useNoise) { //ci sa ma pouzit hluk sa ma rozhodnut pri kazdej iteracii cize typujem v maine...
-//                        auto noise = createNoise();
-//                        c1 = std::max(0.0, c1 + noise);
+                        auto noise = createNoise();
+                        c1 = std::max(0.0, c1 + noise);
 //                    }
                     if (c1 < min) {
                         min = c1;
