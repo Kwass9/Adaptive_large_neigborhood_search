@@ -12,7 +12,6 @@ SimulatedAnnealing::SimulatedAnnealing(double temperature, double coolingRate)
         : temperature(temperature), coolingRate(coolingRate) {
     bestSolution = std::numeric_limits<double>::max();
     currentSolution = std::numeric_limits<double>::max();
-    srand((unsigned)time(nullptr));
 }
 
 SimulatedAnnealing::~SimulatedAnnealing() = default;
@@ -45,7 +44,7 @@ const std::vector<double> &SimulatedAnnealing::getBestWaitingTime() const {
 }
 
 void SimulatedAnnealing::updateTemperature() {
-    temperature *= coolingRate;
+    temperature /= coolingRate; /**toto ma byt *= nie / no neviem spravne urobit rovnicu nizsie tak docasne takto*/
 }
 
 void SimulatedAnnealing::tryToAcceptNewSolution(double newSolution, std::vector<std::vector<int>> &newRoutes,
@@ -69,14 +68,13 @@ void SimulatedAnnealing::tryToAcceptNewSolution(double newSolution, std::vector<
             bestWaitingTime.clear();
             bestWaitingTime = newWaitingTime;
         }
-//        updateTemperature(); //toto bude treba dat po kazdej iteracii asik
     } else {
-        double probability = std::exp(std::abs(currentSolution - newSolution) / temperature);
+        auto differenceInSolutions = currentSolution - newSolution;
+        double probability = std::exp(-(differenceInSolutions) / temperature); /**nie je doimplementovane...*/
         std::random_device rd;
         std::default_random_engine generator(rd());
         std::uniform_real_distribution<double> distribution(0, 100);
         auto random = distribution(generator);
-//        std::cout << "Random: " << " | " << random << " Probability: " << probability << std::endl;
         if (random < probability) {
             currentSolution = newSolution;
             currentRoutes = newRoutes;

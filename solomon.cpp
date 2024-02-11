@@ -178,7 +178,7 @@ std::vector<std::tuple<int, double, int>>
 solomon::findMinForC1(double alfa1, double alfa2, std::vector<std::vector<double>> &distanceMatrix,
                       std::vector<double> &beginingOfService, std::vector<double> &pushForward, std::vector<int> &route,
                       std::vector<customer> &customers, unsigned int currentlyUsedCapacity, int maxCapacity,
-                      std::vector<double> &timeWaitedAtCustomer) {
+                      std::vector<double> &timeWaitedAtCustomer, int doesNoiseApply) {
     std::vector<std::tuple<int, double, int>> mnozinaC1;
     int minIndex = 0;
     for (int u = 1; u < customers.size(); ++u) {
@@ -211,10 +211,11 @@ solomon::findMinForC1(double alfa1, double alfa2, std::vector<std::vector<double
                     /**tu sa pouziju metody na hluk*/
                     /**This decision is taken by the adaptive mechanism described earlier by keeping track of how often
                     the noise applied insertions and the “clean” insertions are successful.*/
-//                    if (useNoise) { //ci sa ma pouzit hluk sa ma rozhodnut pri kazdej iteracii cize typujem v maine...
+
+                    if (doesNoiseApply) { /**ci sa ma pouzit hluk sa ma rozhodnut pri kazdej iteracii // zatial riesene 50% pravdepodobnostou nie dynamicky*/
                         auto noise = createNoise();
                         c1 = std::max(0.0, c1 + noise);
-//                    }
+                    }
                     if (c1 < min) {
                         min = c1;
                         minIndex = i;
@@ -332,7 +333,7 @@ void solomon::run(std::vector<customer> &customers, int numberOfUnvisitedCustome
     int routeIndex = 0;
     unsigned int index;
     bool alreadyIn = false;
-
+    auto useNoise = doesNoiseApply();
 
 //    std::cout << "unvisited: " << unvisitedCustomers << " | "<< std::endl;
 //    for (int i = 1; i < customers.size(); ++i) {
@@ -366,7 +367,7 @@ void solomon::run(std::vector<customer> &customers, int numberOfUnvisitedCustome
 
     while (unvisitedCustomers != 0) {
         auto c1 = findMinForC1(alfa1, alfa2, distanceMatrix, beginingOfService, pushForward, route, customers,
-                               currentlyUsedCapacity, vehicleCapacity, timeWaitedAtCustomer);
+                               currentlyUsedCapacity, vehicleCapacity, timeWaitedAtCustomer, useNoise);
         if (!c1.empty()) {
             auto c2 = findOptimumForC2(c1, lambda, distanceMatrix, customers);
             insertCustomerToRoad(route, c2, beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity, distanceMatrix, pushForward);
@@ -511,5 +512,12 @@ double solomon::createNoise() const {
     std::random_device rd;
     std::default_random_engine generator(rd());
     std::uniform_real_distribution<double> distribution(-maxN, maxN);
+    return distribution(generator);
+}
+
+int solomon::doesNoiseApply() {
+    std::random_device rd;
+    std::default_random_engine generator(rd());
+    std::uniform_int_distribution<int> distribution(0, 1);
     return distribution(generator);
 }
