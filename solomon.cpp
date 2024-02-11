@@ -10,11 +10,13 @@
 #include <tuple>
 #include <climits>
 #include <random>
+#include <algorithm>
 
 solomon::solomon(std::vector<customer> &customers, double alfa1, double alfa2,
                  double lambda, double q, bool startingCriteria, double eta) {
+    totalDistance = INT_MAX - 1;
     calculateDistances(customers, distanceMatrix);
-    calculateMaxN(eta);
+    maxN = calculateMaxN(eta);
     unvisitedCustomers = customers.size() - 1;
     currentlyUsedCapacity = 0;
     this->alfa1 = alfa1;
@@ -206,6 +208,13 @@ solomon::findMinForC1(double alfa1, double alfa2, std::vector<std::vector<double
                         c12 = pushForward[0];
                     }
                     double c1 = alfa1 * c11 + alfa2 * c12;
+                    /**tu sa pouziju metody na hluk*/
+                    /**This decision is taken by the adaptive mechanism described earlier by keeping track of how often
+                    the noise applied insertions and the “clean” insertions are successful.*/
+//                    if (useNoise) { //ci sa ma pouzit hluk sa ma rozhodnut pri kazdej iteracii cize typujem v maine...
+//                        auto noise = createNoise();
+//                        c1 = std::max(0.0, c1 + noise);
+//                    }
                     if (c1 < min) {
                         min = c1;
                         minIndex = i;
@@ -324,6 +333,14 @@ void solomon::run(std::vector<customer> &customers, int numberOfUnvisitedCustome
     unsigned int index;
     bool alreadyIn = false;
 
+
+//    std::cout << "unvisited: " << unvisitedCustomers << " | "<< std::endl;
+//    for (int i = 1; i < customers.size(); ++i) {
+//        if (!customers[i].isRouted()) {
+//            std::cout << i << std::endl;
+//        }
+//    }
+
     if (routes.empty()) {
         //zaciatok cesty
         route.emplace_back(0);
@@ -333,11 +350,11 @@ void solomon::run(std::vector<customer> &customers, int numberOfUnvisitedCustome
         timeWaitedAtCustomer[route[1]] = customers[0].getDueDate();
         index = startingCriteria ? findFurthestUnroutedCustomer(distanceMatrix, customers)
                                  : findCustomerWithEarliestDeadline(customers);
-        if (index != 0) { //bol najdeny zapaznik
+//        if (index != 0) { //bol najdeny zapaznik
             insertCustomerToRoad(route, std::make_pair(1, index), beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity,
                                  distanceMatrix, pushForward);
-        }
-        unvisitedCustomers--;
+            unvisitedCustomers--;
+//        }
     } else {
         route = routes[routeIndex];
         beginingOfService = timeSchedule[routeIndex];
@@ -368,16 +385,16 @@ void solomon::run(std::vector<customer> &customers, int numberOfUnvisitedCustome
             timeWaitedAtCustomer[route[1]] = customers[0].getDueDate();
             index = startingCriteria ? findFurthestUnroutedCustomer(distanceMatrix, customers)
                                      : findCustomerWithEarliestDeadline(customers);
-            if (index != 0) { //bol najdeny zapaznik
+            if (index != 0) { //bol najdeny zakaznik
                 insertCustomerToRoad(route, std::make_pair(1, index), beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity,
                                      distanceMatrix, pushForward);
+                unvisitedCustomers--;
+                routeIndex++;
             } else {
                 alreadyIn = true;
             }
-            unvisitedCustomers--;
-            routeIndex++;
         } else {
-            if (alreadyIn) {
+            if (alreadyIn && route.size() > 2) {
                 routes[routeIndex].clear();
                 routes[routeIndex] = route;
                 timeSchedule[routeIndex].clear();
@@ -402,11 +419,11 @@ void solomon::run(std::vector<customer> &customers, int numberOfUnvisitedCustome
         routes.push_back(route);
         timeSchedule.emplace_back(beginingOfService);
         usedCapacity.emplace_back(currentlyUsedCapacity);
-    } else {
+    } else if (route.size() > 2) {
         routes[routeIndex].clear();
         routes[routeIndex] = route;
         timeSchedule[routeIndex].clear();
-        timeSchedule[routeIndex] = beginingOfService;
+        timeSchedule[routeIndex] = beginingOfService; //seq fault //pravdepodobne doslo k vzniku novej cesty a ten index este nebol apendnuty cize dostal seq fault
         usedCapacity[routeIndex] = currentlyUsedCapacity;
     }
 
@@ -478,19 +495,19 @@ void solomon::setDistance(double distance) {
     totalDistance = distance;
 }
 
-void solomon::calculateMaxN(double eta) {
+double solomon::calculateMaxN(double eta) {
     double maxDistance = 0;
-    for (const auto & i : distanceMatrix) {
-        for (double j : i) {
-            if (j > maxDistance) {
+    for (int i = 0; i < distanceMatrix.size() - 1; i++) {
+        for (int j = 0; j < distanceMatrix[i].size() - 1; j++) {
+            if (distanceMatrix[i][j] > maxDistance) {
                 maxDistance = j;
             }
         }
     }
-    maxN = eta * maxDistance;
+    return eta * maxDistance;
 }
 
-double solomon::createNoise() {
+double solomon::createNoise() const {
     std::random_device rd;
     std::default_random_engine generator(rd());
     std::uniform_real_distribution<double> distribution(-maxN, maxN);

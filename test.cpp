@@ -7,7 +7,7 @@
 #include "test.h"
 
 std::string test::corectnessTest(const std::vector<customer>& customers, const std::vector<std::vector<double>> &bestSchedule,
-                          const std::vector<std::vector<int>>& bestRoutes) {
+                          const std::vector<std::vector<int>>& bestRoutes, const std::vector<double>& waitingTime) {
     for (const auto& customer : customers) {
         int routeIndex = -1;
         size_t customerIndexInRoute = 0;
@@ -28,7 +28,7 @@ std::string test::corectnessTest(const std::vector<customer>& customers, const s
 
         if (routeIndex >= bestSchedule.size() ||
             customerIndexInRoute >= bestSchedule[routeIndex].size() ||
-//            bestSchedule[routeIndex][customerIndexInRoute] < customer.getReadyTime() || //tu sa este asi musi priratat cas cakania malo by stacit kontrolovat due date
+            bestSchedule[routeIndex][customerIndexInRoute] + waitingTime[customer.getId() - 1] < customer.getReadyTime() || //tu sa este asi musi priratat cas cakania malo by stacit kontrolovat due date
             bestSchedule[routeIndex][customerIndexInRoute] > customer.getDueDate()) {
             return "false";
         }

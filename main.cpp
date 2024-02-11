@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <tuple>
 #include <valarray>
+#include <random>
 #include "Customer.h"
 #include "solomon.h"
 #include "SimulatedAnnealing.h"
@@ -48,11 +49,11 @@ double setInitialTemperature(double w, double solution) {
 
 int calculateRo(double ksi, std::vector<customer> &customers) {
     //4 ≤ ro ≤ min(100,ξn)
-    int ro = rand() % (int)std::min(ksi * customers.size(), 100.0);
-    while (ro < 4) {
-        ro = rand() / std::min(ksi * customers.size(), 100.0);
-    }
-    return ro;
+    int uppreBound = (int)std::min(ksi * customers.size(), 100.0);
+    std::random_device rd;
+    std::default_random_engine generator(rd());
+    std::uniform_int_distribution<int> distribution(5, uppreBound);
+    return distribution(generator);
 }
 
 int main(int argc, char * argv[]) {
@@ -159,7 +160,7 @@ int main(int argc, char * argv[]) {
     double tau;
     int ro; //number of reguest removed in iteraton
 
-    auto *solomon = new class solomon(customers, alfa1, alfa2, lambda, q, startingCriteria);
+    auto *solomon = new class solomon(customers, alfa1, alfa2, lambda, q, startingCriteria, eta);
     auto distanceMatrix = solomon->getDistanceMatrix();
 
     temperature = setInitialTemperature(w, solomon->getDistance());
@@ -168,26 +169,29 @@ int main(int argc, char * argv[]) {
     simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime()); /**nemusim posielat ako &*/
     auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, customers.size());
     int i = 0;
-    while (i < 25000) {
-
+    while (i < 1) {
+        std::cout << "Iteracia: " << i << std::endl;
         ro = calculateRo(ksi, customers);
-
+        std::cout << "ro: " << ro << std::endl;
+        ro = 2; //len pre testovanie
         shawRemoval->removeRequests(distanceMatrix,customers, solomon->getRoutes(), solomon->getTimeSchedule(), ro, solomon->getWaitingTime(), solomon->getUsedCapacity());
+//        std::cout << "Po shawRemoval" << std::endl;
         solomon->run(customers, ro);
         if (!simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime())) {
-            solomon->setDistance(simulatedAnnealing->getBestSolution());
+//            solomon->setDistance(simulatedAnnealing->getBestSolution());
+//            std::cout << "Nove riesenie nebolo zamietnute" << std::endl;
         }
         i++;
     }
+
     auto bestSchedule = simulatedAnnealing->getBestTimeSchedule();
     auto bestDistance = simulatedAnnealing->getBestSolution();
     auto bestWaitingTime = simulatedAnnealing->getBestWaitingTime();
     auto bestRoutes = simulatedAnnealing->getBestRoutes();
 
-
 //    -------------------------------------------------------------------------------------------------------------------
-    auto test = new class test();
-    std::cout << "Test results for corectness: " << test->corectnessTest(customers, bestSchedule, bestRoutes) << std::endl;
+//    auto test = new class test();
+//    std::cout << "Test results for corectness: " << test->corectnessTest(customers, bestSchedule, bestRoutes, bestWaitingTime) << std::endl;
 
     std::cout << "BestSchedule" << std::endl;
     for (auto & i : bestSchedule) {
@@ -212,7 +216,7 @@ int main(int argc, char * argv[]) {
     std::cout << bestDistance << std::endl;
     std::cout << i << std::endl;
 
-    delete test;
+//    delete test;
     delete solomon;
     delete simulatedAnnealing;
     delete shawRemoval;

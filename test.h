@@ -11,7 +11,7 @@
 class test {
 public:
     static std::string corectnessTest(const std::vector<customer>& customers, const std::vector<std::vector<double>>& bestSchedule,
-                        const std::vector<std::vector<int>>& bestRoutes);
+                        const std::vector<std::vector<int>>& bestRoutes, const std::vector<double>& waitingTime);
 };
 
 

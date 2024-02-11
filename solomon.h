@@ -73,8 +73,8 @@ private:
     void waitingTimeMath(std::vector<double> &timeWaitedAtCustomer, std::vector<double> &beginingOfService,
                          std::vector<int> &route, const std::vector<customer> &customers, std::vector<std::vector<double>> &distanceMatrix,
                          int index, double timeOfService, int u);
-    void calculateMaxN(double eta);
-    double createNoise();
+    double calculateMaxN(double eta);
+    double createNoise() const;
 };
 
 
