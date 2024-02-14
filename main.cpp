@@ -40,7 +40,6 @@ double processString(std::string &str, const std::string& delimiter) {
     return getAtributeForCustomer(str, delimiter);
 }
 
-/**spytat sa este ci toto robim dobre*/
 double setInitialTemperature(double w, double solution) {
     double acceptW = w * solution;
     double temperature = acceptW / -log(0.5);
@@ -171,7 +170,7 @@ int main(int argc, char * argv[]) {
     while (i < 25000) {
         std::cout << "Iteracia: " << i << std::endl;
         ro = calculateRo(ksi, customers);
-//        std::cout << "ro: " << ro << std::endl;
+        std::cout << "ro: " << ro << std::endl;
         shawRemoval->removeRequests(distanceMatrix,customers, solomon->getRoutes(), solomon->getTimeSchedule(), ro, solomon->getWaitingTime(), solomon->getUsedCapacity());
         solomon->run(customers, ro);
         simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime());

@@ -44,7 +44,7 @@ const std::vector<double> &SimulatedAnnealing::getBestWaitingTime() const {
 }
 
 void SimulatedAnnealing::updateTemperature() {
-    temperature /= coolingRate; /**toto ma byt *= nie / no neviem spravne urobit rovnicu nizsie tak docasne takto*/
+    temperature *= coolingRate; /**toto ma byt *= nie / no neviem spravne urobit rovnicu nizsie tak docasne takto*/
 }
 
 void SimulatedAnnealing::tryToAcceptNewSolution(double newSolution, std::vector<std::vector<int>> &newRoutes,
@@ -69,12 +69,13 @@ void SimulatedAnnealing::tryToAcceptNewSolution(double newSolution, std::vector<
             bestWaitingTime = newWaitingTime;
         }
     } else {
-        auto differenceInSolutions = currentSolution - newSolution;
+        auto differenceInSolutions = newSolution - currentSolution;
         double probability = std::exp(-(differenceInSolutions) / temperature); /**nie je doimplementovane...*/
         std::random_device rd;
         std::default_random_engine generator(rd());
-        std::uniform_real_distribution<double> distribution(0, 100);
+        std::uniform_real_distribution<double> distribution(0, 1);
         auto random = distribution(generator);
+//        std::cout << "Random: " << random << " Probability: " << probability << std::endl;
         if (random < probability) {
             currentSolution = newSolution;
             currentRoutes = newRoutes;
