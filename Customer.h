@@ -23,6 +23,7 @@ public:
     customer(customer const &customer);
     void markAsRouted();
     bool isRouted() const;
+    unsigned int getId() const;
     double getXcord() const;
     double getYcord() const;
     double getDemand() const;

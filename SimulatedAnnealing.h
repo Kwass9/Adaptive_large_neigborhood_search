@@ -31,7 +31,7 @@ public:
     const std::vector<double> &getBestWaitingTime() const;
     double getTemperature() const;
     void updateTemperature();
-    bool tryToAcceptNewSolution(double newSolution, std::vector<std::vector<int>> &newRoutes,
+    void tryToAcceptNewSolution(double newSolution, std::vector<std::vector<int>> &newRoutes,
                                 std::vector<std::vector<double>> &newTimeSchedule,
                                 std::vector<double> &newWaitingTime);
 };

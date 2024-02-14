@@ -13,7 +13,7 @@ class solomon {
 
 public:
     solomon(std::vector<customer> &customers, double alfa1, double alfa2,
-            double lambda, double q, bool startingCriteria);
+            double lambda, double q, bool startingCriteria, double eta);
     ~solomon();
     void run(std::vector<customer>& customers, int numberOfUnvisitedCustomers);
     double getDistance() const;
@@ -42,6 +42,7 @@ private:
     double q;
     bool startingCriteria;
     double totalDistance;
+    double maxN;
 
     void calculateDistances(std::vector<customer> &customers, std::vector<std::vector<double>> &distanceMatrix);
     unsigned int findCustomerWithEarliestDeadline(std::vector<customer> &customers);
@@ -58,7 +59,8 @@ private:
     std::vector<std::tuple<int, double, int>> findMinForC1(double alfa1, double alfa2, std::vector<std::vector<double>> &distanceMatrix,
                                                            std::vector<double> &beginingOfService, std::vector<double> &pushForward,
                                                            std::vector<int> &route, std::vector<customer> &customers,
-                                                           unsigned int currentlyUsedCapacity, int maxCapacity, std::vector<double> &timeWaitedAtCustomer);
+                                                           unsigned int currentlyUsedCapacity, int maxCapacity,
+                                                           std::vector<double> &timeWaitedAtCustomer, int doesNoiseApply);
     std::pair<int, int> findOptimumForC2(std::vector<std::tuple<int, double, int>> &mnozinaC1, double lambda,
                                          std::vector<std::vector<double>> &distanceMatrix, std::vector<customer> &customers);
     void insertCustomerToRoad(std::vector<int> &route, std::pair<int, int> optimalInsertion
@@ -72,6 +74,9 @@ private:
     void waitingTimeMath(std::vector<double> &timeWaitedAtCustomer, std::vector<double> &beginingOfService,
                          std::vector<int> &route, const std::vector<customer> &customers, std::vector<std::vector<double>> &distanceMatrix,
                          int index, double timeOfService, int u);
+    double calculateMaxN(double eta);
+    double createNoise() const;
+    int doesNoiseApply();
 };
 
 

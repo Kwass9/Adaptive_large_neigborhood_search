@@ -5,13 +5,13 @@
 #include <valarray>
 #include <limits>
 #include <iostream>
+#include <random>
 #include "SimulatedAnnealing.h"
 
 SimulatedAnnealing::SimulatedAnnealing(double temperature, double coolingRate)
         : temperature(temperature), coolingRate(coolingRate) {
     bestSolution = std::numeric_limits<double>::max();
     currentSolution = std::numeric_limits<double>::max();
-    srand((unsigned)time(nullptr));
 }
 
 SimulatedAnnealing::~SimulatedAnnealing() = default;
@@ -44,13 +44,14 @@ const std::vector<double> &SimulatedAnnealing::getBestWaitingTime() const {
 }
 
 void SimulatedAnnealing::updateTemperature() {
-    temperature *= coolingRate;
+    temperature *= coolingRate; /**toto ma byt *= nie / no neviem spravne urobit rovnicu nizsie tak docasne takto*/
 }
 
-bool SimulatedAnnealing::tryToAcceptNewSolution(double newSolution, std::vector<std::vector<int>> &newRoutes,
+void SimulatedAnnealing::tryToAcceptNewSolution(double newSolution, std::vector<std::vector<int>> &newRoutes,
                                                 std::vector<std::vector<double>> &newTimeSchedule,
                                                 std::vector<double> &newWaitingTime) {
     if (newSolution < currentSolution - 0.0001) {
+        std::cout << "New better solution: " << newSolution << std::endl;
         currentSolution = newSolution;
         currentRoutes.clear();
         currentRoutes = newRoutes;
@@ -67,27 +68,28 @@ bool SimulatedAnnealing::tryToAcceptNewSolution(double newSolution, std::vector<
             bestWaitingTime.clear();
             bestWaitingTime = newWaitingTime;
         }
-        updateTemperature(); //toto bude treba dat po kazdej iteracii asik
     } else {
-        double probability = std::exp(std::abs(currentSolution - newSolution) / temperature);
-        auto random = (double)rand() / RAND_MAX;
+        auto differenceInSolutions = newSolution - currentSolution;
+        double probability = std::exp(-(differenceInSolutions) / temperature); /**nie je doimplementovane...*/
+        std::random_device rd;
+        std::default_random_engine generator(rd());
+        std::uniform_real_distribution<double> distribution(0, 1);
+        auto random = distribution(generator);
+//        std::cout << "Random: " << random << " Probability: " << probability << std::endl;
         if (random < probability) {
             currentSolution = newSolution;
             currentRoutes = newRoutes;
             currentTimeSchedule = newTimeSchedule;
             currentWaitingTime = newWaitingTime;
-//            std::cout << "Accept new solution with probability: " << random << std::endl;
-            updateTemperature();
+            std::cout << "Accept new solution: " << newSolution << std::endl;
         } else {
-            /**resetuj hodnoty na povodne neakceptuj riesenie*/
-            newRoutes.clear();
+            newRoutes.clear(); //pozriet este
             newRoutes = currentRoutes;
             newTimeSchedule.clear();
             newTimeSchedule = currentTimeSchedule;
             newWaitingTime.clear();
             newWaitingTime = currentWaitingTime;
-            return false;
         }
     }
-    return true;
+    updateTemperature();
 }

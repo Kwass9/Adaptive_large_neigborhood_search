@@ -64,3 +64,7 @@ double customer::getServiceTime() const {
 void customer::markAsUnrouted() {
     routedStatus = false;
 }
+
+unsigned int customer::getId() const {
+    return id;
+}
