@@ -8,6 +8,7 @@
 
 #include <vector>
 #include "Customer.h"
+#include "test.h"
 
 class SimulatedAnnealing {
 private:
@@ -21,6 +22,7 @@ private:
     std::vector<std::vector<int>> currentRoutes;
     std::vector<std::vector<double>> currentTimeSchedule;
     std::vector<double> currentWaitingTime;
+//    test test = *new class test();
 public:
     SimulatedAnnealing(double temperature, double coolingRate);
     ~SimulatedAnnealing();

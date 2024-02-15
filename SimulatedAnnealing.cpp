@@ -7,6 +7,7 @@
 #include <iostream>
 #include <random>
 #include "SimulatedAnnealing.h"
+#include "test.h"
 
 SimulatedAnnealing::SimulatedAnnealing(double temperature, double coolingRate)
         : temperature(temperature), coolingRate(coolingRate) {
@@ -14,7 +15,9 @@ SimulatedAnnealing::SimulatedAnnealing(double temperature, double coolingRate)
     currentSolution = std::numeric_limits<double>::max();
 }
 
-SimulatedAnnealing::~SimulatedAnnealing() = default;
+SimulatedAnnealing::~SimulatedAnnealing() {
+//    delete &test;
+};
 
 SimulatedAnnealing::SimulatedAnnealing(SimulatedAnnealing &simulatedAnnealing) {
     temperature = simulatedAnnealing.getTemperature();

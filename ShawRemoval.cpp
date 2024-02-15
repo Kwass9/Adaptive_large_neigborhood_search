@@ -144,13 +144,14 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
 //    std::cout << "-----------------" << std::endl;
     for (int k : D) {
         for (int i = 0; i < timeSchedule.size(); ++i) {
-            for (int j = 0; j < timeSchedule[i].size(); ++j) {
+            for (int j = 1; j < timeSchedule[i].size(); ++j) {
                 if (routes[i][j] == k) {
-                    waitingTime[k] = 0;
-                    auto wait = timeSchedule[i][j + 1] -
-                                timeSchedule[i][j - 1] + customers[routes[i][j]].getDemand() + distanceMatrix[routes[i][j - 1]][routes[i][j + 1]];
-                    auto indexNasledovnik = routes[i][j + 1];
-                    waitingTime[indexNasledovnik] = wait;
+//                    auto wait = timeSchedule[i][j + 1] -
+//                                timeSchedule[i][j - 1] + customers[routes[i][j]].getServiceTime() + distanceMatrix[routes[i][j - 1]][routes[i][j + 1]];
+//                    auto indexNasledovnik = routes[i][j + 1];
+//                    waitingTime[indexNasledovnik] = wait; //skontrolovat ci je zakaznik depot a tiez nejak skotrolovat wait pre vsetkych nasledovnikov
+
+
                     usedCapacity[i] = usedCapacity[j] - customers[k].getDemand();
                     timeSchedule[i].erase(timeSchedule[i].begin() + j);
                     routes[i].erase(routes[i].begin() + j);
@@ -162,6 +163,25 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
                         usedCapacity.erase(usedCapacity.begin() + i);
                     }
                     customers[k].markAsUnrouted();
+                    waitingTime[k] = 0;
+
+                    auto l = j;
+                    while (l < timeSchedule[i].size()) {
+                        auto indexNasledovnik = routes[i][l];
+                        auto indexPredchodca = routes[i][l - 1];
+                        auto nasledovnik = l;
+                        auto predchodca = l - 1;
+                        auto newTimeOfService = timeSchedule[i][predchodca] + customers[indexPredchodca].getServiceTime()
+                                                + distanceMatrix[indexPredchodca][indexNasledovnik];
+                        if (newTimeOfService < customers[indexNasledovnik].getReadyTime()) {
+                            timeSchedule[i][nasledovnik] = customers[indexNasledovnik].getReadyTime();
+                            waitingTime[indexNasledovnik] = customers[indexNasledovnik].getReadyTime() - newTimeOfService;
+                        } else {
+                            timeSchedule[i][nasledovnik] = newTimeOfService;
+                            waitingTime[indexNasledovnik] = 0;
+                        }
+                        ++l;
+                    }
                     break;
                 }
             }

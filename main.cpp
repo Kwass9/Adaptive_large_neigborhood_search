@@ -167,12 +167,14 @@ int main(int argc, char * argv[]) {
     simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime());
     auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, customers.size());
     int i = 0;
-    while (i < 25000) {
+    auto *test = new class test();
+    while (i < 250) {
         std::cout << "Iteracia: " << i << std::endl;
         ro = calculateRo(ksi, customers);
         std::cout << "ro: " << ro << std::endl;
         shawRemoval->removeRequests(distanceMatrix,customers, solomon->getRoutes(), solomon->getTimeSchedule(), ro, solomon->getWaitingTime(), solomon->getUsedCapacity());
         solomon->run(customers, ro);
+        test->correctnessForCurrentSolution(customers, solomon->getTimeSchedule(), solomon->getRoutes(), solomon->getWaitingTime(), distanceMatrix);
         simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime());
         i++;
     }
@@ -209,7 +211,9 @@ int main(int argc, char * argv[]) {
     std::cout << bestDistance << std::endl;
     std::cout << i << std::endl;
 
-//    delete test;
+    std::cout << "Test results: " << test->getUncorectnessCounter() << std::endl;
+
+    delete test;
     delete solomon;
     delete simulatedAnnealing;
     delete shawRemoval;
