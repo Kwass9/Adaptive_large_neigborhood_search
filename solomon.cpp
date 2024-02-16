@@ -151,7 +151,9 @@ void solomon::calculateNewBeginings(std::vector<double> &pushForward, std::vecto
         waitingTimeMath(timeWaitedAtCustomer, beginingOfService, route, customers, distanceMatrix, zakaznikU,
                         timeOfService, u);
     } else if (route[route.size() - 1] == customers.size()) {
-        beginingOfService[route.size() - 1] += pushForward[pushForward.size() - 1];
+        beginingOfService[route.size() - 1] += pushForward[pushForward.size() - 1]; //toto nebude dobre lebo pf bude rovne 0
+//        beginingOfService[route.size() - 1] = beginingOfService[route.size() - 2] + customers[0].getServiceTime() +
+//                                              distanceMatrix[route[route.size() - 2]][0];
         timeWaitedAtCustomer[route[route.size() - 1]] = customers[0].getDueDate() - beginingOfService[route.size() - 1];
     }
 }
@@ -311,11 +313,12 @@ void solomon::waitingTimeMath(std::vector<double> &timeWaitedAtCustomer, std::ve
                               std::vector<std::vector<double>> &distanceMatrix, int index, double timeOfServicePrevious,
                               int u) {
     auto nextInRoute = route[index];
+    auto previousInRoute = route[index - 1];
     int j = nextInRoute;
     if (nextInRoute == customers.size()) {
         j = 0;
-        auto distance = distanceMatrix[u][j];
-        auto serviceTime = customers[u].getServiceTime();
+        auto distance = distanceMatrix[previousInRoute][j];
+        auto serviceTime = customers[previousInRoute].getServiceTime();
         beginingOfService[index] = timeOfServicePrevious + distance + serviceTime;
         timeWaitedAtCustomer[nextInRoute] = customers[0].getDueDate() - beginingOfService[index];
     } else {
@@ -360,6 +363,8 @@ void solomon::run(std::vector<customer> &customers, int numberOfUnvisitedCustome
         route = routes[routeIndex];
         beginingOfService = timeSchedule[routeIndex];
         currentlyUsedCapacity = usedCapacity[routeIndex];
+        waitingTimeMath(timeWaitedAtCustomer, beginingOfService, route, customers, distanceMatrix, route.size() - 1,
+                        beginingOfService[beginingOfService.size() - 2], customers.size() - 1);
         alreadyIn = true;
     }
 
@@ -407,6 +412,8 @@ void solomon::run(std::vector<customer> &customers, int numberOfUnvisitedCustome
                 route = routes[routeIndex];
                 beginingOfService = timeSchedule[routeIndex];
                 currentlyUsedCapacity = usedCapacity[routeIndex];
+                waitingTimeMath(timeWaitedAtCustomer, beginingOfService, route, customers, distanceMatrix, route.size() - 1,
+                                beginingOfService[beginingOfService.size() - 2], customers.size() - 1);
                 alreadyIn = true;
             } else {
                 route.clear();
@@ -424,7 +431,7 @@ void solomon::run(std::vector<customer> &customers, int numberOfUnvisitedCustome
         routes[routeIndex].clear();
         routes[routeIndex] = route;
         timeSchedule[routeIndex].clear();
-        timeSchedule[routeIndex] = beginingOfService; //seq fault //pravdepodobne doslo k vzniku novej cesty a ten index este nebol apendnuty cize dostal seq fault
+        timeSchedule[routeIndex] = beginingOfService;
         usedCapacity[routeIndex] = currentlyUsedCapacity;
     }
 

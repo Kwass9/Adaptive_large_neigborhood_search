@@ -134,6 +134,8 @@ void Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatr
 //    std::cout << "--------------------------5-------------------------------------------" << std::endl;
 }
 
+/**chyba sposobi zly vypocet waiting time pre vrchol 101 co sposobi ze insert nevie spravne posuvat vrchol 101 a zacne vytvarat nove a nove cesty aby obsluzil vrcholy
+ * co znamena dlhsiu vzdialenost*/
 void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix,
                                 std::vector<customer> &customers, std::vector<std::vector<int>> &routes,
                                 std::vector<std::vector<double>> &timeSchedule,
@@ -173,12 +175,19 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
                         auto predchodca = l - 1;
                         auto newTimeOfService = timeSchedule[i][predchodca] + customers[indexPredchodca].getServiceTime()
                                                 + distanceMatrix[indexPredchodca][indexNasledovnik];
-                        if (newTimeOfService < customers[indexNasledovnik].getReadyTime()) {
+                        if (newTimeOfService < customers[indexNasledovnik].getReadyTime() && indexNasledovnik != 101) {
                             timeSchedule[i][nasledovnik] = customers[indexNasledovnik].getReadyTime();
                             waitingTime[indexNasledovnik] = customers[indexNasledovnik].getReadyTime() - newTimeOfService;
                         } else {
-                            timeSchedule[i][nasledovnik] = newTimeOfService;
-                            waitingTime[indexNasledovnik] = 0;
+//                            timeSchedule[i][nasledovnik] = newTimeOfService;
+//                            if (indexNasledovnik != 101) {
+                                timeSchedule[i][nasledovnik] = newTimeOfService;
+                                waitingTime[indexNasledovnik] = 0;
+//                            }
+//                            else {
+//                                waitingTime[indexNasledovnik] = customers[0].getDueDate() - timeSchedule[i][nasledovnik];
+//                            }
+//                            waitingTime[indexNasledovnik] = 0; //nemozem dat 101 ze caka 0 takto to nepojde insert nie je tak napisany mal by mat due date - kedy ma byt = waiting time
                         }
                         ++l;
                     }
@@ -187,6 +196,13 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
             }
         }
     }
+//    for (int i = 0; i < routes.size(); ++i) {
+//        for (int j = 0; j < routes[i].size(); ++j) {
+//            std::cout << routes[i][j] << " ";
+//        }
+//        std::cout << std::endl;
+//    }
+//    std::cout << "Waiting time: " << waitingTime[101] << std::endl;
 //    for (int i = 1; i < customers.size(); ++i) {
 //        if (!customers[i].isRouted()) {
 //            std::cout << i << std::endl;

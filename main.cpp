@@ -168,9 +168,11 @@ int main(int argc, char * argv[]) {
     auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, customers.size());
     int i = 0;
     auto *test = new class test();
-    while (i < 250) {
+//    test->correctnessForCurrentSolution(customers, solomon->getTimeSchedule(), solomon->getRoutes(), solomon->getWaitingTime(), distanceMatrix);
+    while (i < 25000) {
         std::cout << "Iteracia: " << i << std::endl;
         ro = calculateRo(ksi, customers);
+//        ro = 1;
         std::cout << "ro: " << ro << std::endl;
         shawRemoval->removeRequests(distanceMatrix,customers, solomon->getRoutes(), solomon->getTimeSchedule(), ro, solomon->getWaitingTime(), solomon->getUsedCapacity());
         solomon->run(customers, ro);

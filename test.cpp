@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <string>
+#include <iostream>
 #include "test.h"
 
 std::string test::corectnessTest(const std::vector<customer>& customers, const std::vector<std::vector<double>> &bestSchedule,
@@ -76,8 +77,11 @@ void test::correctnessForCurrentSolution(const std::vector<customer> &customers,
             } else {
                 routeTime += distanceMatrix[bestRoutes[i][j - 1]][0];
             }
+//            std::cout << "routeTime: " << routeTime << " bestSchedule: " << bestSchedule[i][j] << " i: " << i << " j: " << j << std::endl;
             if (routeTime > bestSchedule[i][j] + 0.00001 || routeTime < bestSchedule[i][j] - 0.00001) {
                 uncorectnessCounter++;
+                std::cout << "-----------------------------------------------------------" << std::endl;
+                std::cout << "routeTime: " << routeTime << " bestSchedule: " << bestSchedule[i][j] << " i: " << i << " j: " << j << std::endl;
             }
             if (j < bestRoutes[i].size() - 1 && j > 0) {
                 routeTime += 10; //cas obsluhy
