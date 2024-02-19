@@ -144,19 +144,27 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
 //        std::cout << i << std::endl;
 //    }
 //    std::cout << "-----------------" << std::endl;
+
+//    for (const auto& route : routes) {
+//        for (int i : route) {
+//            std::cout << i << " ";
+//        }
+//        std::cout << "---------------------------------" << std::endl;
+//    }
+
     for (int k : D) {
         for (int i = 0; i < timeSchedule.size(); ++i) {
             for (int j = 1; j < timeSchedule[i].size(); ++j) {
                 if (routes[i][j] == k) {
                     customers[k].markAsUnrouted();
                     waitingTime[k] = 0;
-                    for (int x : routes[i]) {
-                        std::cout << x << " " << std::endl;
-                    }
-                    std::cout << std::endl;
-                    std::cout << "i: " << i << " k: " << k << " demand: " << customers[k].getDemand() << " usedCapacity: " << usedCapacity[i] << std::endl;
+//                    for (int x : routes[i]) {
+//                        std::cout << x << " " << std::endl;
+//                    }
+//                    std::cout << std::endl;
+//                    std::cout << "i: " << i << " k: " << k << " demand: " << customers[k].getDemand() << " usedCapacity: " << usedCapacity[i] << std::endl;
                     usedCapacity[i] -= customers[k].getDemand();
-                    std::cout << "i: " << i << " k: " << k << " usedCapacity: " << usedCapacity[i] << std::endl;
+//                    std::cout << "i: " << i << " k: " << k << " usedCapacity: " << usedCapacity[i] << std::endl;
                     timeSchedule[i].erase(timeSchedule[i].begin() + j);
                     routes[i].erase(routes[i].begin() + j);
                     if (routes[i].size() == 2) {

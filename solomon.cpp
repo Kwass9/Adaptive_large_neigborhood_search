@@ -278,7 +278,7 @@ void solomon::insertCustomerToRoad(std::vector<int> &route, std::pair<int, int> 
         calculateNewBeginings(pushForward, timeWaitedAtCustomer, route, customers, i, beginingOfService, timeOfService, distanceMatrix, u);
         route.insert(route.begin() + i, u);
         beginingOfService.insert(beginingOfService.begin() + i, timeOfService);
-        std::cout << "currently: " << currentlyUsedCapacity << " u: " << u << " demand for u: " << customers[u].getDemand() << std::endl;
+//        std::cout << "currently: " << currentlyUsedCapacity << " u: " << u << " demand for u: " << customers[u].getDemand() << std::endl;
         currentlyUsedCapacity += customers[u].getDemand();
 
         double usedCapacity = 0;
@@ -286,26 +286,26 @@ void solomon::insertCustomerToRoad(std::vector<int> &route, std::pair<int, int> 
             auto c = route[j];
             usedCapacity += customers[c].getDemand();
         }
-        if (usedCapacity > currentlyUsedCapacity + 0.00001 || usedCapacity < currentlyUsedCapacity - 0.00001) {
-            std::cout << "---------------------------" << " i: "<< i << " u: " << u << "--------------------------------" << std::endl;
-            std::cout << "usedCapacityAccurate: " << usedCapacity << " usedCapacity: " << currentlyUsedCapacity << std::endl;
-            for (int j : route) {
-                std::cout << j << " ";
-            }
-            std::cout << std::endl;
-            for (int j : route) {
-                std::cout << customers[j].getDemand() << " ";
-            }
-            std::cout << std::endl;
-        }
-        if (currentlyUsedCapacity < 0) {
-            std::cout << "---------------------------" << " i: "<< i << " u: " << u << "--------------------------------" << std::endl;
-            std::cout << "usedCapacityAccurate: " << usedCapacity << " usedCapacity: " << currentlyUsedCapacity << std::endl;
-        }
-        if (currentlyUsedCapacity > 200) {
-            std::cout << "---------------------------" << " i: "<< i << " u: " << u << "--------------------------------" << std::endl;
-            std::cout << "usedCapacityAccurate: " << usedCapacity << " usedCapacity: " << currentlyUsedCapacity << std::endl;
-        }
+//        if (usedCapacity > currentlyUsedCapacity + 0.00001 || usedCapacity < currentlyUsedCapacity - 0.00001) {
+//            std::cout << "---------------------------" << " i: "<< i << " u: " << u << "--------------------------------" << std::endl;
+//            std::cout << "usedCapacityAccurate: " << usedCapacity << " usedCapacity: " << currentlyUsedCapacity << std::endl;
+//            for (int j : route) {
+//                std::cout << j << " ";
+//            }
+//            std::cout << std::endl;
+//            for (int j : route) {
+//                std::cout << customers[j].getDemand() << " ";
+//            }
+//            std::cout << std::endl;
+//        }
+//        if (currentlyUsedCapacity < 0) {
+//            std::cout << "---------------------------" << " i: "<< i << " u: " << u << "--------------------------------" << std::endl;
+//            std::cout << "usedCapacityAccurate: " << usedCapacity << " usedCapacity: " << currentlyUsedCapacity << std::endl;
+//        }
+//        if (currentlyUsedCapacity > 200) {
+//            std::cout << "---------------------------" << " i: "<< i << " u: " << u << "--------------------------------" << std::endl;
+//            std::cout << "usedCapacityAccurate: " << usedCapacity << " usedCapacity: " << currentlyUsedCapacity << std::endl;
+//        }
 
 
         customers[u].markAsRouted();
@@ -319,9 +319,9 @@ void solomon::insertCustomerToRoad(std::vector<int> &route, std::pair<int, int> 
 void solomon::createNewRoute(double &currentlyUsedCapacity, std::vector<std::vector<int>> &routes,
                              std::vector<int> &route, std::vector<double> &beginingOfService,
                              std::vector<double> &pushForward) {
-    std::cout << "currently inserting: " << currentlyUsedCapacity << std::endl;
+//    std::cout << "currently inserting: " << currentlyUsedCapacity << std::endl;
     usedCapacity.push_back(currentlyUsedCapacity);
-    std::cout << "usedCapacity end: " << usedCapacity.back() << std::endl;
+//    std::cout << "usedCapacity end: " << usedCapacity.back() << std::endl;
     currentlyUsedCapacity = 0;
     pushForward.clear();
     std::vector<int> newRoute;
@@ -399,16 +399,16 @@ void solomon::run(std::vector<customer> &customers, int numberOfUnvisitedCustome
                                currentlyUsedCapacity, vehicleCapacity, timeWaitedAtCustomer, useNoise);
         if (!c1.empty()) {
             auto c2 = findOptimumForC2(c1, lambda, distanceMatrix, customers);
-            for (int i = 0; i < usedCapacity.size(); ++i) {
-                std::cout << "kapacita: " << usedCapacity[i] << " routeINdex: " << i << std::endl;
-            }
-            for (int i : route) {
-                std::cout << "route: " << i;
-            }
-            for (int i : route) {
-                std::cout << "demands: " << customers[i].getDemand();
-            }
-            std::cout << "number of routes: " << routes.size() << "number of capacities: " << usedCapacity.size() << std::endl;
+//            for (int i = 0; i < usedCapacity.size(); ++i) {
+//                std::cout << "kapacita: " << usedCapacity[i] << " routeINdex: " << i << std::endl;
+//            }
+//            for (int i : route) {
+//                std::cout << "route: " << i;
+//            }
+//            for (int i : route) {
+//                std::cout << "demands: " << customers[i].getDemand();
+//            }
+//            std::cout << "number of routes: " << routes.size() << "number of capacities: " << usedCapacity.size() << std::endl;
             insertCustomerToRoad(route, c2, beginingOfService, customers, timeWaitedAtCustomer, currentlyUsedCapacity, distanceMatrix, pushForward);
 //            std::cout << "kapacita: " << currentlyUsedCapacity << " routeINdex: " << routeIndex << std::endl;
             unvisitedCustomers--;
@@ -446,7 +446,7 @@ void solomon::run(std::vector<customer> &customers, int numberOfUnvisitedCustome
 //                std::cout << "kapacita: " << currentlyUsedCapacity << " routeINdex: " << routeIndex << " used: " << usedCapacity[routeIndex] << std::endl;
             }
             routeIndex++;
-            std::cout << "route index: " << routeIndex << std::endl;
+//            std::cout << "route index: " << routeIndex << std::endl;
             if (routeIndex <= routes.size() - 1) {
                 route = routes[routeIndex];
                 beginingOfService = timeSchedule[routeIndex];
@@ -467,7 +467,7 @@ void solomon::run(std::vector<customer> &customers, int numberOfUnvisitedCustome
         routes.push_back(route);
         timeSchedule.emplace_back(beginingOfService);
         usedCapacity.emplace_back(currentlyUsedCapacity);
-        std::cout << "insertujem: " << currentlyUsedCapacity << " " << usedCapacity.back() << std::endl;
+//        std::cout << "insertujem: " << currentlyUsedCapacity << " " << usedCapacity.back() << std::endl;
         currentlyUsedCapacity = 0;
 //        int last = route.size() - 1;
     } else if (route.size() > 2) {
@@ -475,24 +475,24 @@ void solomon::run(std::vector<customer> &customers, int numberOfUnvisitedCustome
         routes[routeIndex] = route;
         timeSchedule[routeIndex].clear();
         timeSchedule[routeIndex] = beginingOfService;
-        std::cout << "kapacita: " << currentlyUsedCapacity << " routeINdex: " << routeIndex << std::endl;
-        std::cout << "kapacita aktualne dnuka: " << usedCapacity[routeIndex] << " routeINdex: " << routeIndex << std::endl;
+//        std::cout << "kapacita: " << currentlyUsedCapacity << " routeINdex: " << routeIndex << std::endl;
+//        std::cout << "kapacita aktualne dnuka: " << usedCapacity[routeIndex] << " routeINdex: " << routeIndex << std::endl;
         usedCapacity[routeIndex] = currentlyUsedCapacity;
-        std::cout << "kapacita po zmene: " << usedCapacity[routeIndex] << " routeINdex: " << routeIndex << std::endl;
+//        std::cout << "kapacita po zmene: " << usedCapacity[routeIndex] << " routeINdex: " << routeIndex << std::endl;
     }
 
     /**------------------------------------------------------------------------------------------------------------*/
     //zaverecny vypis
-    for (auto & route : routes) {
-        for (int j = 0; j < route.size(); ++j) {
-            std::cout << route[j];
-            if (j != route.size() - 1) {
-                std::cout << " -> ";
-            }
-        }
-        std::cout << std::endl;
-        std::cout << "--------------------------------" << std::endl;
-    }
+//    for (auto & route : routes) {
+//        for (int j = 0; j < route.size(); ++j) {
+//            std::cout << route[j];
+//            if (j != route.size() - 1) {
+//                std::cout << " -> ";
+//            }
+//        }
+//        std::cout << std::endl;
+//        std::cout << "--------------------------------" << std::endl;
+//    }
     totalDistance = 0;
     double totalScheduleTime = 0;
     double waitingTimeInSchedule = 0;

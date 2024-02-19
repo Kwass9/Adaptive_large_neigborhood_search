@@ -164,12 +164,12 @@ int main(int argc, char * argv[]) {
     temperature = setInitialTemperature(w, solomon->getDistance());
 
     auto *simulatedAnnealing = new class SimulatedAnnealing(temperature, c);
-    simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime());
+    simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime(), solomon->getUsedCapacity());
     auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, customers.size());
     int i = 0;
     auto *test = new class test();
     test->correctnessForCurrentSolution(customers, solomon->getTimeSchedule(), solomon->getRoutes(), solomon->getWaitingTime(), distanceMatrix, solomon->getUsedCapacity());
-    while (i < 10) {
+    while (i < 25000) {
         std::cout << "Iteracia: " << i << std::endl;
         ro = calculateRo(ksi, customers);
 //        ro = 1;
@@ -177,7 +177,7 @@ int main(int argc, char * argv[]) {
         shawRemoval->removeRequests(distanceMatrix,customers, solomon->getRoutes(), solomon->getTimeSchedule(), ro, solomon->getWaitingTime(), solomon->getUsedCapacity());
         solomon->run(customers, ro);
         test->correctnessForCurrentSolution(customers, solomon->getTimeSchedule(), solomon->getRoutes(), solomon->getWaitingTime(), distanceMatrix, solomon->getUsedCapacity());
-        simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime());
+        simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime(), solomon->getUsedCapacity());
         i++;
     }
 

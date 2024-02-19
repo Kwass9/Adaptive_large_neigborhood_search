@@ -18,11 +18,12 @@ private:
     std::vector<std::vector<int>> bestRoutes;
     std::vector<std::vector<double>> bestTimeSchedule;
     std::vector<double> bestWaitingTime;
+    std::vector<double> bestUsedCapacity;
     double currentSolution;
     std::vector<std::vector<int>> currentRoutes;
     std::vector<std::vector<double>> currentTimeSchedule;
     std::vector<double> currentWaitingTime;
-//    test test = *new class test();
+    std::vector<double> currentUsedCapacity;
 public:
     SimulatedAnnealing(double temperature, double coolingRate);
     ~SimulatedAnnealing();
@@ -35,7 +36,7 @@ public:
     void updateTemperature();
     void tryToAcceptNewSolution(double newSolution, std::vector<std::vector<int>> &newRoutes,
                                 std::vector<std::vector<double>> &newTimeSchedule,
-                                std::vector<double> &newWaitingTime);
+                                std::vector<double> &newWaitingTime, std::vector<double> &newUsedCapacity);
 };
 
 
