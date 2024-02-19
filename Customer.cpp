@@ -4,7 +4,7 @@
 
 #include "Customer.h"
 
-customer::customer(unsigned int idNum, double x, double y, unsigned int dem, double rdyTime, double dueD,
+customer::customer(unsigned int idNum, double x, double y, double dem, double rdyTime, double dueD,
                    double serviceDuration) {
     id = idNum;
     xcord = x;

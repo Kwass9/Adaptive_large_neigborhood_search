@@ -22,7 +22,6 @@ public:
     Shaw_Removal(double fi, double chi, double psi, double omega, int p, int problemSize);
     ~Shaw_Removal();
     void calculateRelatedness(std::vector<std::vector<double>> &distanceMatrix,
-                                             std::vector<customer> &customers,
                                              std::vector<std::vector<int>> &routes,
                                              std::vector<std::vector<double>> &timeSchedule,
                                              int r);
@@ -30,7 +29,7 @@ public:
                         std::vector<customer> &customers, std::vector<std::vector<int>> &routes,
                         std::vector<std::vector<double>> &timeSchedule, const int &ro, std::vector<double> &waitingTime,
                         std::vector<double> &usedCapacity);
-    void editSolution(std::vector<std::vector<double>> &distanceMatrix,
+    static void editSolution(std::vector<std::vector<double>> &distanceMatrix,
                       std::vector<customer> &customers, std::vector<std::vector<int>> &routes,
                       std::vector<std::vector<double>> &timeSchedule, std::vector<int> &D,
                       std::vector<double>& waitingTime, std::vector<double>& usedCapacity);

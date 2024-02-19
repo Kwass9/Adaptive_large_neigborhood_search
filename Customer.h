@@ -9,15 +9,15 @@
 class customer {
 private:
     unsigned int id;
-    unsigned int xcord;
-    unsigned int ycord;
-    unsigned int demand;
-    unsigned int readyTime;
-    unsigned int dueDate;
-    unsigned int serviceTime;
+    double xcord;
+    double ycord;
+    double demand;
+    double readyTime;
+    double dueDate;
+    double serviceTime;
     bool routedStatus = false;
 public:
-    customer(unsigned int idNum, double x, double y, unsigned int dem,
+    customer(unsigned int idNum, double x, double y, double dem,
              double rdyTime, double dueD, double serviceDuration);
     ~customer();
     customer(customer const &customer);

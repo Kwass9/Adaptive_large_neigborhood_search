@@ -15,9 +15,7 @@ SimulatedAnnealing::SimulatedAnnealing(double temperature, double coolingRate)
     currentSolution = std::numeric_limits<double>::max();
 }
 
-SimulatedAnnealing::~SimulatedAnnealing() {
-//    delete &test;
-};
+SimulatedAnnealing::~SimulatedAnnealing() = default;
 
 SimulatedAnnealing::SimulatedAnnealing(SimulatedAnnealing &simulatedAnnealing) {
     temperature = simulatedAnnealing.getTemperature();
@@ -91,7 +89,7 @@ void SimulatedAnnealing::tryToAcceptNewSolution(double newSolution, std::vector<
             std::cout << "Accept new solution: " << newSolution << std::endl;
         } else {
             std::cout << "Reject new solution: " << newSolution << std::endl;
-            newRoutes.clear(); //pozriet este
+            newRoutes.clear();
             newRoutes = currentRoutes;
             newTimeSchedule.clear();
             newTimeSchedule = currentTimeSchedule;

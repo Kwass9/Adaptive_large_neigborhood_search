@@ -4,16 +4,15 @@
 
 #include <algorithm>
 #include <string>
-#include <iostream>
 #include "test.h"
 
 std::string test::corectnessTest(const std::vector<customer>& customers, const std::vector<std::vector<double>> &bestSchedule,
                           const std::vector<std::vector<int>>& bestRoutes, const std::vector<double>& waitingTime) {
     for (const auto& customer : customers) {
         int routeIndex = -1;
-        size_t customerIndexInRoute = 0;
+        long customerIndexInRoute;
 
-        for (size_t i = 0; i < bestRoutes.size(); ++i) {
+        for (int i = 0; i < bestRoutes.size(); ++i) {
             const auto& bestRoute = bestRoutes[i];
             auto it = std::find(bestRoute.begin(), bestRoute.end(), customer.getId());
             if (it != bestRoute.end()) {
@@ -29,7 +28,7 @@ std::string test::corectnessTest(const std::vector<customer>& customers, const s
 
         if (routeIndex >= bestSchedule.size() ||
             customerIndexInRoute >= bestSchedule[routeIndex].size() ||
-            bestSchedule[routeIndex][customerIndexInRoute] + waitingTime[customer.getId() - 1] < customer.getReadyTime() || //tu sa este asi musi priratat cas cakania malo by stacit kontrolovat due date
+            bestSchedule[routeIndex][customerIndexInRoute] + waitingTime[customer.getId() - 1] < customer.getReadyTime() ||
             bestSchedule[routeIndex][customerIndexInRoute] > customer.getDueDate()) {
             return "false";
         }
@@ -47,7 +46,7 @@ void test::correctnessForCurrentSolution(const std::vector<customer> &customers,
         int routeIndex = -1;
         size_t customerIndexInRoute = 0;
 
-        for (size_t i = 0; i < bestRoutes.size(); ++i) {
+        for (int i = 0; i < bestRoutes.size(); ++i) {
             const auto& bestRoute = bestRoutes[i];
             auto it = std::find(bestRoute.begin(), bestRoute.end(), customer.getId());
             if (it != bestRoute.end()) {
@@ -63,7 +62,7 @@ void test::correctnessForCurrentSolution(const std::vector<customer> &customers,
 
         if (routeIndex >= bestSchedule.size() ||
             customerIndexInRoute >= bestSchedule[routeIndex].size() ||
-            bestSchedule[routeIndex][customerIndexInRoute] < customer.getReadyTime() || //tu sa este asi musi priratat cas cakania malo by stacit kontrolovat due date
+            bestSchedule[routeIndex][customerIndexInRoute] < customer.getReadyTime() ||
             bestSchedule[routeIndex][customerIndexInRoute] > customer.getDueDate()) {
             uncorectnessCounter++;
         }
@@ -73,42 +72,32 @@ void test::correctnessForCurrentSolution(const std::vector<customer> &customers,
         for (size_t j = 0; j < bestRoutes[i].size(); ++j) {
             if (j == 0) {
                 routeTime += distanceMatrix[0][bestRoutes[i][j]];
-            } else if (j > 0 && j < bestRoutes[i].size() - 1) {
+            } else if (j < bestRoutes[i].size() - 1) {
                 routeTime += distanceMatrix[bestRoutes[i][j - 1]][bestRoutes[i][j]] + waitingTime[bestRoutes[i][j]];
             } else {
                 routeTime += distanceMatrix[bestRoutes[i][j - 1]][0];
             }
-//            std::cout << "routeTime: " << routeTime << " bestSchedule: " << bestSchedule[i][j] << " i: " << i << " j: " << j << std::endl;
             if (routeTime > bestSchedule[i][j] + 0.00001 || routeTime < bestSchedule[i][j ] - 0.00001) {
                 uncorectnessCounter++;
-//                std::cout << "-----------------------------------------------------------" << std::endl;
-//                std::cout << "routeTime: " << routeTime << " bestSchedule: " << bestSchedule[i][j] << " i: " << i << " j: " << j << std::endl;
             }
             if (j < bestRoutes[i].size() - 1 && j > 0) {
                 routeTime += 10; //cas obsluhy
             }
-            for (int i = 0; i < usedCapacity.size(); ++i) {
+            for (int k = 0; k < usedCapacity.size(); ++k) {
                 double capacity = 0;
-                for (int j = 1; j < bestRoutes[i].size() - 1; ++j) {
-                    auto c = bestRoutes[i][j];
+                for (int l = 1; l < bestRoutes[k].size() - 1; ++l) {
+                    auto c = bestRoutes[k][l];
                     capacity += customers[c].getDemand();
                 }
-                if (capacity > usedCapacity[i] + 0.00001 || capacity < usedCapacity[i] - 0.00001) {
+                if (capacity > usedCapacity[k] + 0.00001 || capacity < usedCapacity[k] - 0.00001) {
                     uncorectnessCounter++;
-//                    std::cout << "---------------------------" << i << "--------------------------------" << std::endl;
-//                    std::cout << "capacity: " << capacity << " usedCapacity: " << usedCapacity[i] << std::endl;
                 }
-                if (usedCapacity[i] < 0) {
+                if (usedCapacity[k] < 0) {
                     uncorectnessCounter++;
-//                    std::cout << "---------------------------" << i << "--------------------------------" << std::endl;
-//                    std::cout << "capacity: " << capacity << " usedCapacity: " << usedCapacity[i] << std::endl;
                 }
-                if (usedCapacity[i] > 200) {
+                if (usedCapacity[k] > 200) {
                     uncorectnessCounter++;
-//                    std::cout << "---------------------------" << i << "--------------------------------" << std::endl;
-//                    std::cout << "capacity: " << capacity << " usedCapacity: " << usedCapacity[i] << std::endl;
                 }
-//                std::cout << std::endl;
             }
 
 

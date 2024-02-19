@@ -125,7 +125,7 @@ int main(int argc, char * argv[]) {
     for (auto & i : data) {
         if ((cell = i.find(delimiter)) != std::string::npos) {
             h++;
-            double id = processString(i, delimiter);
+            unsigned int id = processString(i, delimiter);
             double x = processString(i, delimiter);
             double y = processString(i, delimiter);
             double demand = processString(i, delimiter);
@@ -136,7 +136,6 @@ int main(int argc, char * argv[]) {
             customers.emplace_back(customer);
         }
     }
-//    customers.emplace_back(customers[0]); //falosny vrchol na konci
 
 //-------------------------------------------------------------------------------------------------------------------
 
@@ -145,7 +144,7 @@ int main(int argc, char * argv[]) {
     double chi = 3;
     double psi = 2;
     double omega = 5;
-    double p = 6;
+    int p = 6;
 //    double pWorst = 3; //len pre worst removal
     double w = 0.05; //vysledok horsi o w percent od aktualneho ma sancu na akceptovanie 0.5
     double c = 0.99975; //cooling rate
@@ -172,7 +171,6 @@ int main(int argc, char * argv[]) {
     while (i < 25000) {
         std::cout << "Iteracia: " << i << std::endl;
         ro = calculateRo(ksi, customers);
-//        ro = 1;
         std::cout << "ro: " << ro << std::endl;
         shawRemoval->removeRequests(distanceMatrix,customers, solomon->getRoutes(), solomon->getTimeSchedule(), ro, solomon->getWaitingTime(), solomon->getUsedCapacity());
         solomon->run(customers, ro);
@@ -187,26 +185,24 @@ int main(int argc, char * argv[]) {
     auto bestRoutes = simulatedAnnealing->getBestRoutes();
 
 //    -------------------------------------------------------------------------------------------------------------------
-//    auto test = new class test();
-//    std::cout << "Test results for corectness: " << test->corectnessTest(customers, bestSchedule, bestRoutes, bestWaitingTime) << std::endl;
 
     std::cout << "BestSchedule" << std::endl;
-    for (auto & i : bestSchedule) {
-        for (double j : i) {
+    for (auto & r : bestSchedule) {
+        for (double j : r) {
             std::cout << j << " ";
         }
         std::cout << std::endl;
     }
     std::cout << "BestRoutes" << std::endl;
-    for (auto & i : bestRoutes) {
-        for (double j : i) {
+    for (auto & r : bestRoutes) {
+        for (double j : r) {
             std::cout << j << " ";
         }
         std::cout << std::endl;
     }
     std::cout << "BestWaitingTime" << std::endl;
-    for (double i : bestWaitingTime) {
-        std::cout << i << " ";
+    for (double r : bestWaitingTime) {
+        std::cout << r << " ";
     }
     std::cout << std::endl;
     std::cout << "BestDistance" << std::endl;
