@@ -72,8 +72,8 @@ int main(int argc, char * argv[]) {
             std::cerr << "Not a valid argument" << std::endl;
         }
         if (atof(argv[2]) >= 0 && atof(argv[3]) >= 0) {
-            lambda = atof(argv[2]);
-            q = atof(argv[3]);
+            lambda = atof(argv[3]);
+            q = atof(argv[2]);
         } else {
             std::cerr << "We need non negative value for argument lambda" << std::endl;
         }
@@ -168,15 +168,15 @@ int main(int argc, char * argv[]) {
     auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, customers.size());
     int i = 0;
     auto *test = new class test();
-//    test->correctnessForCurrentSolution(customers, solomon->getTimeSchedule(), solomon->getRoutes(), solomon->getWaitingTime(), distanceMatrix);
-    while (i < 25000) {
+    test->correctnessForCurrentSolution(customers, solomon->getTimeSchedule(), solomon->getRoutes(), solomon->getWaitingTime(), distanceMatrix, solomon->getUsedCapacity());
+    while (i < 10) {
         std::cout << "Iteracia: " << i << std::endl;
         ro = calculateRo(ksi, customers);
 //        ro = 1;
         std::cout << "ro: " << ro << std::endl;
         shawRemoval->removeRequests(distanceMatrix,customers, solomon->getRoutes(), solomon->getTimeSchedule(), ro, solomon->getWaitingTime(), solomon->getUsedCapacity());
         solomon->run(customers, ro);
-        test->correctnessForCurrentSolution(customers, solomon->getTimeSchedule(), solomon->getRoutes(), solomon->getWaitingTime(), distanceMatrix);
+        test->correctnessForCurrentSolution(customers, solomon->getTimeSchedule(), solomon->getRoutes(), solomon->getWaitingTime(), distanceMatrix, solomon->getUsedCapacity());
         simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime());
         i++;
     }

@@ -35,7 +35,7 @@ private:
     std::vector<customer> customers;
     std::vector<double> usedCapacity;
     int unvisitedCustomers;
-    unsigned int currentlyUsedCapacity;
+    double currentlyUsedCapacity;
     double alfa1;
     double alfa2;
     double lambda;
@@ -66,9 +66,9 @@ private:
     void insertCustomerToRoad(std::vector<int> &route, std::pair<int, int> optimalInsertion
             ,std::vector<double> &beginingOfService
             ,std::vector<customer> &customers, std::vector<double> &timeWaitedAtCustomer
-            ,unsigned int &currentlyUsedCapacity, std::vector<std::vector<double>> &distanceMatrix
+            ,double &currentlyUsedCapacity, std::vector<std::vector<double>> &distanceMatrix
             ,std::vector<double> &pushForward);
-    void createNewRoute(unsigned int &currentlyUsedCapacity, std::vector<std::vector<int>> &routes,
+    void createNewRoute(double &currentlyUsedCapacity, std::vector<std::vector<int>> &routes,
                         std::vector<int> &route, std::vector<double> &beginingOfService,
                         std::vector<double> &pushForward);
     void waitingTimeMath(std::vector<double> &timeWaitedAtCustomer, std::vector<double> &beginingOfService,

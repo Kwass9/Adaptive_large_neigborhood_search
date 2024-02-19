@@ -18,7 +18,7 @@ public:
                         const std::vector<std::vector<int>>& bestRoutes, const std::vector<double>& waitingTime);
     void correctnessForCurrentSolution(const std::vector<customer>& customers, const std::vector<std::vector<double>>& bestSchedule,
                                       const std::vector<std::vector<int>>& bestRoutes, const std::vector<double>& waitingTime,
-                                      std::vector<std::vector<double>> distanceMatrix);
+                                      std::vector<std::vector<double>> distanceMatrix, std::vector<double>& usedCapacity);
     int getUncorectnessCounter() const { return uncorectnessCounter; }
 };
 

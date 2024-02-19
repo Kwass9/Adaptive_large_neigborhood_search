@@ -107,9 +107,9 @@ void Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatr
 
         calculateRelatedness(distanceMatrix, customers, routes, timeSchedule, r);
         L.clear();
-        for (int i = 0; i < customers.size(); ++i) {
+        for (int i = 1; i < customers.size(); ++i) {
             if (std::find(D.begin(), D.end(), i) == D.end()) {
-                L.emplace_back(i + 1, R[i]);
+                L.emplace_back(i, R[i]); /**mal som tu i + 1 dal som to + 1 doprec lebo nechapem co som tam vlastne robil tym...*/
             }
         }
         std::sort(L.begin(), L.end(), [&](std::pair<int, double> a, std::pair<int, double> b) { return a.second < b.second; });
@@ -148,13 +148,15 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
         for (int i = 0; i < timeSchedule.size(); ++i) {
             for (int j = 1; j < timeSchedule[i].size(); ++j) {
                 if (routes[i][j] == k) {
-//                    auto wait = timeSchedule[i][j + 1] -
-//                                timeSchedule[i][j - 1] + customers[routes[i][j]].getServiceTime() + distanceMatrix[routes[i][j - 1]][routes[i][j + 1]];
-//                    auto indexNasledovnik = routes[i][j + 1];
-//                    waitingTime[indexNasledovnik] = wait; //skontrolovat ci je zakaznik depot a tiez nejak skotrolovat wait pre vsetkych nasledovnikov
-
-
-                    usedCapacity[i] = usedCapacity[j] - customers[k].getDemand();
+                    customers[k].markAsUnrouted();
+                    waitingTime[k] = 0;
+                    for (int x : routes[i]) {
+                        std::cout << x << " " << std::endl;
+                    }
+                    std::cout << std::endl;
+                    std::cout << "i: " << i << " k: " << k << " demand: " << customers[k].getDemand() << " usedCapacity: " << usedCapacity[i] << std::endl;
+                    usedCapacity[i] -= customers[k].getDemand();
+                    std::cout << "i: " << i << " k: " << k << " usedCapacity: " << usedCapacity[i] << std::endl;
                     timeSchedule[i].erase(timeSchedule[i].begin() + j);
                     routes[i].erase(routes[i].begin() + j);
                     if (routes[i].size() == 2) {
@@ -163,9 +165,9 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
                         timeSchedule[i].clear();
                         timeSchedule.erase(timeSchedule.begin() + i);
                         usedCapacity.erase(usedCapacity.begin() + i);
+//                        std::cout << "--------------------" << i << "----------------------" << std::endl;
+                        break;
                     }
-                    customers[k].markAsUnrouted();
-                    waitingTime[k] = 0;
 
                     auto l = j;
                     while (l < timeSchedule[i].size()) {
