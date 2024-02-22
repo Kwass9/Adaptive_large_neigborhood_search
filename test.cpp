@@ -81,7 +81,7 @@ void test::correctnessForCurrentSolution(const std::vector<customer> &customers,
                 uncorectnessCounter++;
             }
             if (j < bestRoutes[i].size() - 1 && j > 0) {
-                routeTime += 10; //cas obsluhy
+                routeTime += customers[bestRoutes[i][j]].getServiceTime(); //cas obsluhy
             }
             for (int k = 0; k < usedCapacity.size(); ++k) {
                 double capacity = 0;

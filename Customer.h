@@ -5,6 +5,7 @@
 #ifndef SOLOMON_CUSTOMER_H
 #define SOLOMON_CUSTOMER_H
 
+#include <vector>
 
 class customer {
 private:
@@ -15,7 +16,10 @@ private:
     double readyTime;
     double dueDate;
     double serviceTime;
-    bool routedStatus = false;
+    int numberOfVehiclesRequired = 1;
+    int numberOfVehiclesCurrenlyServing = 0;
+    std::vector<int> previouslyServedBy = {};
+    bool routedStatus;
 public:
     customer(unsigned int idNum, double x, double y, double dem,
              double rdyTime, double dueD, double serviceDuration);
@@ -31,6 +35,17 @@ public:
     double getDueDate() const;
     double getServiceTime() const;
     void markAsUnrouted();
+    void incrementNumberOfVehiclesCurrentlyServing();
+    void decrementNumberOfVehiclesCurrentlyServing();
+    int getNumberOfVehiclesCurrentlyServing() const;
+    void setNumberOfVehiclesRequired(int number);
+    int getNumberOfVehiclesRequired() const;
+    void addPreviouslyServedBy(int vehicleId);
+    std::vector<int> getPreviouslyServedBy() const;
+    void clearPreviouslyServedBy();
+    void setPreviouslyServedBy(std::vector<int> vehicles);
+    bool isPreviouslyServedBy(int vehicleId);
+    bool isServedByEnoughVehicles() const;
 };
 
 

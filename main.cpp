@@ -100,13 +100,7 @@ int main(int argc, char * argv[]) {
     size_t cell = 0;
     input.open(path);
     if (input) {
-        int hjl = 0;
-        while(!input.eof()) {
-            hjl++;
-            if (hjl == 111) { //docasne riesenie aby som runol ostatne subory... pre nejaky dovod asi skrity charakter prida prazdny riadok na konci...
-                break;
-            }
-            getline(input, par);
+        while(getline(input, par)) {
             par += delimiter;
             data.push_back(par);
         }
@@ -121,10 +115,8 @@ int main(int argc, char * argv[]) {
     }
 
     //inicializacia zakaznikov
-    int h = 0;
     for (auto & i : data) {
         if ((cell = i.find(delimiter)) != std::string::npos) {
-            h++;
             unsigned int id = processString(i, delimiter);
             double x = processString(i, delimiter);
             double y = processString(i, delimiter);
@@ -132,8 +124,23 @@ int main(int argc, char * argv[]) {
             double readyTime = processString(i, delimiter);
             double dueDate = processString(i, delimiter);
             double serviceTime = processString(i, delimiter);
-            customer customer(id, x, y, demand, readyTime, dueDate, serviceTime);
-            customers.emplace_back(customer);
+            if (!customers.empty()) {
+                //pokial su dve liny rovnake a maju rovnake casy obsluhy tak potrebuje obsluhu dvoch opatrovateliek naraz
+                if (id == customers.back().getId() && readyTime == customers.back().getReadyTime() && dueDate == customers.back().getDueDate()) {
+                    auto req = customers.back().getNumberOfVehiclesRequired();
+                    customers.back().setNumberOfVehiclesRequired(req + 1);
+                }
+                //pokial su dve liny rovnake ale maju rozne casy tak potrebuje obsluhu jednej opatrovatelky dva krat za den
+                else if (id == customers.back().getId() && readyTime != customers.back().getReadyTime() && dueDate != customers.back().getDueDate()) {
+
+                } else {
+                    customer customer(id, x, y, demand, readyTime, dueDate, serviceTime);
+                    customers.emplace_back(customer);
+                }
+            } else {
+                customer customer(id, x, y, demand, readyTime, dueDate, serviceTime);
+                customers.emplace_back(customer);
+            }
         }
     }
 
