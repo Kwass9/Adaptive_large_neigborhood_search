@@ -6,8 +6,9 @@
 
 #include <utility>
 #include <algorithm>
+#include <climits>
 
-Vehicle::Vehicle(unsigned int id, double capacity, double x, double y, double readyTime, double dueTime) {
+Vehicle::Vehicle(unsigned int id, double capacity, double x, double y, double readyTime, double dueTime, int custSize) {
     this->id = id;
     this->capacity = capacity;
     editWorkingHours(readyTime, dueTime);
@@ -17,6 +18,11 @@ Vehicle::Vehicle(unsigned int id, double capacity, double x, double y, double re
     routeTime = 0;
     routeWaitingTime = 0;
     usedCapacity = 0;
+    
+    route.emplace_back(0);
+    route.emplace_back(custSize);
+    timeSchedule.emplace_back(getReadyTimeAt(0));
+    timeSchedule.emplace_back(getDueTimeAt(0));
 }
 
 Vehicle::~Vehicle() {
@@ -65,7 +71,7 @@ double Vehicle::getCapacity() const {
     return capacity;
 }
 
-std::vector<int> Vehicle::getRoute() {
+std::vector<int> Vehicle::getRoute() const {
     return route;
 }
 
@@ -97,4 +103,72 @@ void Vehicle::editWorkingHours(double start, double end) {
 
 unsigned int Vehicle::getId() const {
     return id;
+}
+
+double Vehicle::getXcord() const {
+    return xcord;
+}
+
+double Vehicle::getYcord() const {
+    return ycord;
+}
+
+double Vehicle::getUsedCapacity() const {
+    return usedCapacity;
+}
+
+void Vehicle::setRoute(std::vector<int> r) {
+    this->route = r;
+}
+
+void Vehicle::setTimeSchedule(std::vector<double> tS) {
+    this->timeSchedule = tS;
+}
+
+void Vehicle::setUsedCapacity(double usedCap) {
+    this->usedCapacity = usedCap;
+
+}
+
+void Vehicle::addTimeToSchedule(double time, int position) {
+    timeSchedule.insert(timeSchedule.begin() + position, time);
+}
+
+void Vehicle::removeTimeFromSchedule(int idCustomer) {
+    for (int i = 0; i < route.size(); i++) {
+        if (route[i] == idCustomer) {
+            timeSchedule.erase(timeSchedule.begin() + i);
+            break;
+        }
+    }
+}
+
+int Vehicle::getNumberOfCustomers() const {
+    return route.size() - 2;
+}
+
+double Vehicle::getReadyTimeAt(int customersTime) const {
+    for (double i : readyTime) {
+        if (i <= customersTime) {
+            return i;
+        }
+    }
+    return INT_MAX;
+}
+
+double Vehicle::getDueTimeAt(int customersTime) const {
+    for (double i : dueTime) {
+        if (i >= customersTime) {
+            return i;
+        }
+    }
+    return INT_MAX;
+}
+
+const std::vector<double> &Vehicle::getTimeSchedule() const {
+    return timeSchedule;
+}
+
+void Vehicle::addCustomerToRoute(int idCustomer, int position) {
+    route.insert(route.end() - 1, idCustomer);
 }

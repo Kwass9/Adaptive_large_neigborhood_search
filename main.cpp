@@ -64,6 +64,7 @@ int main(int argc, char * argv[]) {
     double lambda;
     double q;
     std::vector<customer> customers;
+    std::vector<Vehicle> vehicles;
     bool startingCriteria; //premenna vybera ci sa zacina s najvzdialenejsim zakaznikom alebo s najskor zaciatocnou dobou
     std::string pathToVehicles;
 
@@ -166,7 +167,6 @@ int main(int argc, char * argv[]) {
     }
 
     //inicializacia vozidiel
-    std::vector<Vehicle> vehicles;
     for (auto & i : data) {
         if ((cell = i.find(delimiter)) != std::string::npos) {
             unsigned int id = processString(i, delimiter);
@@ -178,11 +178,11 @@ int main(int argc, char * argv[]) {
                 if (id == vehicles.back().getId()) {
                     vehicles.back().editWorkingHours(readyTime, dueDate);
                 } else {
-                    Vehicle vehicle(id, std::numeric_limits<int>::max(), x, y, readyTime, dueDate);
+                    Vehicle vehicle(id, std::numeric_limits<int>::max(), x, y, readyTime, dueDate, customers.size());
                     vehicles.emplace_back(vehicle);
                 }
             } else {
-                Vehicle vehicle(id, std::numeric_limits<int>::max(), x, y, readyTime, dueDate);
+                Vehicle vehicle(id, std::numeric_limits<int>::max(), x, y, readyTime, dueDate, customers.size());
                 vehicles.emplace_back(vehicle);
             }
         }
@@ -208,27 +208,38 @@ int main(int argc, char * argv[]) {
     double tau;
     int ro; //number of reguest removed in iteraton
 
-    auto *solomon = new class solomon(customers, alfa1, alfa2, lambda, q, startingCriteria, eta);
-    auto distanceMatrix = solomon->getDistanceMatrix();
+    auto *solomon = new class solomon(customers, alfa1, alfa2, lambda, q, startingCriteria, eta, vehicles);
 
+    auto distanceMatrix = solomon->getDistanceMatrix();
+    std::vector<std::vector<int>> routes;
+    std::vector<std::vector<double>> timeSchedule;
+    std::vector<double> usedCapacity;
+    for (const auto & vehicle : vehicles) {
+        auto r = vehicle.getRoute();
+        auto ts = vehicle.getTimeSchedule();
+        auto uc = vehicle.getUsedCapacity();
+        routes.push_back(r);
+        timeSchedule.push_back(ts);
+        usedCapacity.push_back(uc);
+    }
     temperature = setInitialTemperature(w, solomon->getDistance());
 
     auto *simulatedAnnealing = new class SimulatedAnnealing(temperature, c);
-    simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime(), solomon->getUsedCapacity());
+    simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), routes, timeSchedule, solomon->getWaitingTime(), usedCapacity);
     auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, customers.size());
     int i = 0;
     auto *test = new class test();
-    test->correctnessForCurrentSolution(customers, solomon->getTimeSchedule(), solomon->getRoutes(), solomon->getWaitingTime(), distanceMatrix, solomon->getUsedCapacity());
-    while (i < 0) {
-        std::cout << "Iteracia: " << i << std::endl;
-        ro = calculateRo(ksi, customers);
-        std::cout << "ro: " << ro << std::endl;
-        shawRemoval->removeRequests(distanceMatrix,customers, solomon->getRoutes(), solomon->getTimeSchedule(), ro, solomon->getWaitingTime(), solomon->getUsedCapacity());
-        solomon->run(customers, ro);
-        test->correctnessForCurrentSolution(customers, solomon->getTimeSchedule(), solomon->getRoutes(), solomon->getWaitingTime(), distanceMatrix, solomon->getUsedCapacity());
-        simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime(), solomon->getUsedCapacity());
-        i++;
-    }
+    test->correctnessForCurrentSolution(customers, timeSchedule, routes, solomon->getWaitingTime(), distanceMatrix, usedCapacity);
+//    while (i < 0) {
+//        std::cout << "Iteracia: " << i << std::endl;
+//        ro = calculateRo(ksi, customers);
+//        std::cout << "ro: " << ro << std::endl;
+//        shawRemoval->removeRequests(distanceMatrix,customers, solomon->getRoutes(), solomon->getTimeSchedule(), ro, solomon->getWaitingTime(), solomon->getUsedCapacity());
+//        solomon->run(customers, ro, vehicles);
+//        test->correctnessForCurrentSolution(customers, solomon->getTimeSchedule(), solomon->getRoutes(), solomon->getWaitingTime(), distanceMatrix, solomon->getUsedCapacity());
+//        simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime(), solomon->getUsedCapacity());
+//        i++;
+//    }
 
     auto bestSchedule = simulatedAnnealing->getBestTimeSchedule();
     auto bestDistance = simulatedAnnealing->getBestSolution();
