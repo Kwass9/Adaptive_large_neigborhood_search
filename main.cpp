@@ -175,7 +175,7 @@ int main(int argc, char * argv[]) {
     int i = 0;
     auto *test = new class test();
     test->correctnessForCurrentSolution(customers, solomon->getTimeSchedule(), solomon->getRoutes(), solomon->getWaitingTime(), distanceMatrix, solomon->getUsedCapacity());
-    while (i < 25000) {
+    while (i < 0) {
         std::cout << "Iteracia: " << i << std::endl;
         ro = calculateRo(ksi, customers);
         std::cout << "ro: " << ro << std::endl;

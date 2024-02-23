@@ -178,7 +178,7 @@ std::vector<std::tuple<int, double, int>>
 solomon::findMinForC1(const double a1, const double a2, const std::vector<std::vector<double>> &dMatrix,
                       const std::vector<double> &begOfServ, std::vector<double> &pf, const std::vector<int> &route,
                       const std::vector<customer> &custs, const double curUsedCap, const int maxCapacity,
-                      const std::vector<double> &timeWaitedAtCust, const int doesNoiseApply) {
+                      const std::vector<double> &timeWaitedAtCust, const int doesNoiseApply, const std::vector<std::vector<int>>& existingRoutes) {
     std::vector<std::tuple<int, double, int>> mnozinaC1;
     int minIndex = 0;
     for (int u = 1; u < custs.size(); ++u) {
@@ -187,6 +187,12 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
             && curUsedCap + custs[u].getDemand() <= maxCapacity) { //kontrola kapacity vozidla
             for (int i = 1; i < route.size(); ++i) {
                 pf.clear();
+
+//                if (!custs[u].getPreviouslyServedBy().empty()) {
+//                    auto servedBy = custs[u].getPreviouslyServedBy();
+//                    auto firstServedBy = servedBy[0];
+//                    auto itr = std::find(existingRoutes[firstServedBy].begin(), existingRoutes[firstServedBy].end(), u);
+//                }
 
                 double timeOfService = begOfServ[i - 1]
                                        + dMatrix[route[i - 1]][u]
@@ -273,16 +279,16 @@ void solomon::insertCustomerToRoad(std::vector<int> &route, std::pair<int, int> 
         beginingOfService.insert(beginingOfService.begin() + i, timeOfService);
         currentlyUsedCapacity += customers[u].getDemand();
 
-        double usedCapacity = 0;
-        for (int j = 1; j <  route.size() - 1; ++j) {
-            auto c = route[j];
-            usedCapacity += customers[c].getDemand();
+        customers[u].incrementNumberOfVehiclesCurrentlyServing();
+        if (customers[u].isServedByEnoughVehicles()) {
+            customers[u].markAsRouted();
         }
-        customers[u].markAsRouted();
     } else {
         route.insert(route.begin() + i, u);
         beginingOfService.insert(beginingOfService.begin() + i, 0);
-        customers[u].markAsRouted();
+        if (customers[u].isServedByEnoughVehicles()) {
+            customers[u].markAsRouted();
+        }
     }
 }
 
@@ -340,7 +346,10 @@ void solomon::run(std::vector<customer> &custs, int numberOfUnvisitedCustomers) 
                                  : findCustomerWithEarliestDeadline(custs);
         insertCustomerToRoad(route, std::make_pair(1, index), beginingOfService, custs, timeWaitedAtCustomer, currentlyUsedCapacity,
                              distanceMatrix, pushForward);
-        unvisitedCustomers--;
+        custs[index].addPreviouslyServedBy(0); //routes empty, takze musi ho obsluhovat prvy a to je 0
+        if (custs[index].isServedByEnoughVehicles()) {
+            unvisitedCustomers--;
+        }
     } else {
         route = routes[routeIndex];
         beginingOfService = timeSchedule[routeIndex];
@@ -354,11 +363,14 @@ void solomon::run(std::vector<customer> &custs, int numberOfUnvisitedCustomers) 
 
     while (unvisitedCustomers != 0) {
         auto c1 = findMinForC1(alfa1, alfa2, distanceMatrix, beginingOfService, pushForward, route, custs,
-                               currentlyUsedCapacity, vehicleCapacity, timeWaitedAtCustomer, useNoise);
+                               currentlyUsedCapacity, vehicleCapacity, timeWaitedAtCustomer, useNoise, routes);
         if (!c1.empty()) {
             auto c2 = findOptimumForC2(c1, lambda, distanceMatrix, custs);
             insertCustomerToRoad(route, c2, beginingOfService, custs, timeWaitedAtCustomer, currentlyUsedCapacity, distanceMatrix, pushForward);
-            unvisitedCustomers--;
+            custs[c2.second].addPreviouslyServedBy(routeIndex);
+            if (custs[c2.second].isServedByEnoughVehicles()) {
+                unvisitedCustomers--;
+            }
         } else if (routeIndex >= routes.size() && !alreadyIn) {
             if (!route.empty()) {
                 timeSchedule.emplace_back(beginingOfService);

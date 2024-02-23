@@ -59,7 +59,8 @@ private:
                                                            const std::vector<double> &begOfServ, std::vector<double> &pf,
                                                            const std::vector<int> &route, const std::vector<customer> &custs,
                                                            double curUsedCap, int maxCapacity,
-                                                           const std::vector<double> &timeWaitedAtCust, int doesNoiseApply);
+                                                           const std::vector<double> &timeWaitedAtCust, int doesNoiseApply,
+                                                           const std::vector<std::vector<int>>& existingRoutes);
     static std::pair<int, int> findOptimumForC2(std::vector<std::tuple<int, double, int>> &mnozinaC1, double lambda,
                                          std::vector<std::vector<double>> &distanceMatrix, std::vector<customer> &customers);
     static void insertCustomerToRoad(std::vector<int> &route, std::pair<int, int> optimalInsertion
