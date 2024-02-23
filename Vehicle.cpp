@@ -7,10 +7,12 @@
 #include <utility>
 #include <algorithm>
 
-Vehicle::Vehicle(double capacity, std::vector<double> readyTime, std::vector<double> dueTime) {
+Vehicle::Vehicle(unsigned int id, double capacity, double x, double y, double readyTime, double dueTime) {
+    this->id = id;
     this->capacity = capacity;
-    this->readyTime = std::move(readyTime);
-    this->dueTime = std::move(dueTime);
+    editWorkingHours(readyTime, dueTime);
+    xcord = x;
+    ycord = y;
     routeLength = 0;
     routeTime = 0;
     routeWaitingTime = 0;
@@ -36,6 +38,9 @@ Vehicle::Vehicle(const Vehicle &vehicle) {
     usedCapacity = vehicle.usedCapacity;
     readyTime = vehicle.readyTime;
     dueTime = vehicle.dueTime;
+    xcord = vehicle.xcord;
+    ycord = vehicle.ycord;
+    id = vehicle.id;
 }
 
 void Vehicle::addCustomer(int idCustomer) {
@@ -83,4 +88,13 @@ double Vehicle::whenIsCustomerServed(int idCustomer) {
 
 bool Vehicle::isCustomerInRoute(int idCustomer) {
     return std::find(route.begin(), route.end(), idCustomer) != route.end();
+}
+
+void Vehicle::editWorkingHours(double start, double end) {
+    readyTime.push_back(start);
+    dueTime.push_back(end);
+}
+
+unsigned int Vehicle::getId() const {
+    return id;
 }

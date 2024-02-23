@@ -6,11 +6,13 @@
 #include <tuple>
 #include <valarray>
 #include <random>
+#include <limits>
 #include "Customer.h"
 #include "solomon.h"
 #include "SimulatedAnnealing.h"
 #include "ShawRemoval.h"
 #include "test.h"
+#include "Vehicle.h"
 
 void removeCharsFromString( std::string &str, char* charsToRemove ) {
     for (unsigned int i = 0; i < strlen(charsToRemove); ++i) {
@@ -63,8 +65,9 @@ int main(int argc, char * argv[]) {
     double q;
     std::vector<customer> customers;
     bool startingCriteria; //premenna vybera ci sa zacina s najvzdialenejsim zakaznikom alebo s najskor zaciatocnou dobou
+    std::string pathToVehicles;
 
-    if (argc == 7) {
+    if (argc == 8) {
         path = argv[1];
         //kvoli tomu ako sa win chova k specialnym znakom
         removeCharsFromString(path,"\"");
@@ -90,6 +93,7 @@ int main(int argc, char * argv[]) {
         } else {
             std::cerr << "Not valid value of starting criteria" << std::endl;
         }
+        pathToVehicles = argv[7];
     } else {
         std::cend("Nespravny pocet argumentov");
     }
@@ -140,6 +144,46 @@ int main(int argc, char * argv[]) {
             } else {
                 customer customer(id, x, y, demand, readyTime, dueDate, serviceTime);
                 customers.emplace_back(customer);
+            }
+        }
+    }
+
+    input.open(pathToVehicles);
+    data.clear();
+    if (input) {
+        while(getline(input, par)) {
+            par += delimiter;
+            data.push_back(par);
+        }
+    } else {
+        std::cerr << "Subor nebol otvoreny" << std::endl;
+    }
+    input.close();
+
+    //zbavenie sa hlavicky v subore
+    for (int i = 0; i < 9; ++i) {
+        data[i].erase();
+    }
+
+    //inicializacia vozidiel
+    std::vector<Vehicle> vehicles;
+    for (auto & i : data) {
+        if ((cell = i.find(delimiter)) != std::string::npos) {
+            unsigned int id = processString(i, delimiter);
+            double x = processString(i, delimiter);
+            double y = processString(i, delimiter);
+            double readyTime = processString(i, delimiter);
+            double dueDate = processString(i, delimiter);
+            if (!vehicles.empty()) {
+                if (id == vehicles.back().getId()) {
+                    vehicles.back().editWorkingHours(readyTime, dueDate);
+                } else {
+                    Vehicle vehicle(id, std::numeric_limits<int>::max(), x, y, readyTime, dueDate);
+                    vehicles.emplace_back(vehicle);
+                }
+            } else {
+                Vehicle vehicle(id, std::numeric_limits<int>::max(), x, y, readyTime, dueDate);
+                vehicles.emplace_back(vehicle);
             }
         }
     }

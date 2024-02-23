@@ -11,6 +11,9 @@
 
 class Vehicle {
 private:
+    double xcord;
+    double ycord;
+    unsigned int id{};
     std::vector<int> customersServed;
     double capacity;
     std::vector<int> route;
@@ -22,7 +25,7 @@ private:
     std::vector<double> readyTime;
     std::vector<double> dueTime;
 public:
-    Vehicle(double capacity, std::vector<double> readyTime, std::vector<double> dueTime);
+    Vehicle(unsigned int id, double capacity, double x, double y, double readyTime, double dueTime);
     ~Vehicle();
     Vehicle(Vehicle const &vehicle);
     void addCustomer(int idCustomer);
@@ -34,6 +37,8 @@ public:
     double getRouteTime() const;
     double whenIsCustomerServed(int idCustomer);
     bool isCustomerInRoute(int idCustomer);
+    void editWorkingHours(double start, double end);
+    unsigned int getId() const;
 };
 
 
