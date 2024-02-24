@@ -67,27 +67,29 @@ void solomon::calculateDistances(std::vector<customer> &customers, std::vector<s
     }
 }
 
-/**este upravit aby robil zoznam vsetkych vrcholov sortnutych podla poziadavky*/
 std::vector<int> solomon::findCustomerWithEarliestDeadline(std::vector<customer> &customers) {
-    double min = INT_MAX - 1;
-    std::vector<int> minVector;
+    std::vector<int> customerIDs;
     for (int i = 1; i < customers.size(); ++i) {
-        if (!customers[i].isRouted()
-            && customers[i].getDueDate() < min) {
-            min = customers[i].getDueDate();
-            minVector.push_back(i);
+        if (!customers[i].isRouted()) {
+            customerIDs.push_back(i);
         }
     }
-    return minVector;
+    std::sort(customerIDs.begin(), customerIDs.end(), [&customers](int a, int b) {
+        return customers[a].getDueDate() < customers[b].getDueDate();
+    });
+    return customerIDs;
 }
 
 std::vector<int> solomon::findFurthestUnroutedCustomer(std::vector<std::vector<double>> &distanceMatrix,
                                                    std::vector<customer> &customers) {
-    std::vector<int> customerIDs(customers.size() - 1);
-    std::iota(customerIDs.begin(), customerIDs.end(), 1);
-
-    std::sort(customerIDs.begin(), customerIDs.end(),[&distanceMatrix](int i1, int i2) {
-                  return distanceMatrix[0][i1] < distanceMatrix[0][i2];
+    std::vector<int> customerIDs;
+    for (int i = 1; i < customers.size(); ++i) {
+        if (!customers[i].isRouted()) {
+            customerIDs.push_back(i);
+        }
+    }
+    std::sort(customerIDs.begin(), customerIDs.end(),[&distanceMatrix](int a, int b) {
+                  return distanceMatrix[0][a] > distanceMatrix[0][b];
               });
     return customerIDs;
 }
@@ -129,8 +131,12 @@ void solomon::calculateNewBeginings(std::vector<double> &pushForward, std::vecto
                                     std::vector<double> &beginingOfService, double timeOfService,
                                     std::vector<std::vector<double>> &distanceMatrix, int u) {
     double epsilon = 0.0000001;
+    auto services = customers[zakaznikU].getPreviouslyServedByTimes(); //TODO
     if (route.size() > 2 && route[zakaznikU] != customers.size() && pushForward[0] != 0) {
         int pf = 0;
+
+//        auto itr = std::find(services.begin(), services.end(), beginingOfService[zakaznikU]);
+//        customers[zakaznikU].editPreviouslyServedByTime(beginingOfService[zakaznikU] + pushForward[pf], itr);
         beginingOfService[zakaznikU] += pushForward[pf];
         timeWaitedAtCustomer[route[zakaznikU]] = 0;
         pf++;
@@ -139,6 +145,8 @@ void solomon::calculateNewBeginings(std::vector<double> &pushForward, std::vecto
             u = route[n - 1];
             timeOfService = beginingOfService[n - 1];
             if (pushForward[pf] > 0 + epsilon && pf < pushForward.size()) {
+//                auto itr = std::find(services.begin(), services.end(), beginingOfService[zakaznikU]);
+//                customers[zakaznikU].editPreviouslyServedByTime(beginingOfService[zakaznikU] + pushForward[pf], itr);
                 beginingOfService[n] += pushForward[pf];
                 timeWaitedAtCustomer[j] = 0;
                 pf++;
@@ -152,6 +160,8 @@ void solomon::calculateNewBeginings(std::vector<double> &pushForward, std::vecto
         waitingTimeMath(timeWaitedAtCustomer, beginingOfService, route, customers, distanceMatrix, zakaznikU,
                         timeOfService, u);
     } else if (route[route.size() - 1] == customers.size()) {
+//        auto itr = std::find(services.begin(), services.end(), beginingOfService[zakaznikU]);
+//        customers[zakaznikU].editPreviouslyServedByTime(beginingOfService[zakaznikU] + pushForward[pf], itr);
         beginingOfService[route.size() - 1] += pushForward[pushForward.size() - 1];
         timeWaitedAtCustomer[route[route.size() - 1]] = customers[0].getDueDate() - beginingOfService[route.size() - 1];
     }
@@ -378,8 +388,12 @@ void solomon::run(std::vector<customer> &custs, int numberOfUnvisitedCustomers, 
             auto indexSize = index.size();
             int dec = 0;
             while (vehicles[routeIndex].getRoute().size() <= 2) {
-                auto indexVYbrateho = index[indexSize - dec - 1];
-                dec++;
+                auto indexVYbrateho = index[dec];
+                if (dec < indexSize - 1) {
+                    dec++;
+                } else {
+                    break;
+                }
                 auto timeOfService = custs[indexVYbrateho].getReadyTime();
                 auto waitingTime = timeWaitedAtCustomer[indexVYbrateho];
                 if (custs[indexVYbrateho].getNumberOfVehiclesCurrentlyServing() != 0) {

@@ -7,7 +7,6 @@
 #include "ShawRemoval.h"
 #include <cmath>
 #include <map>
-#include <random>
 
 Shaw_Removal::Shaw_Removal(double f, double ch, double ps, double o, int p, int problemSize) : fi(f), chi(ch), psi(ps), omega(o), p(p) {
     R.resize(problemSize);
@@ -43,26 +42,8 @@ void Shaw_Removal::calculateRelatedness(std::vector<std::vector<double>> &distan
         }
     }
 
-    //normalizacia
-    double maxCurrently = 0;
-    std::map<int, double>::iterator currentItr;
-    for (currentItr = DistanceRelatedness.begin(); currentItr != DistanceRelatedness.end(); ++currentItr) {
-        if (currentItr->second > maxCurrently) {
-            maxCurrently = currentItr->second;
-        }
-    }
-    for (currentItr = DistanceRelatedness.begin(); currentItr != DistanceRelatedness.end(); ++currentItr) {
-        currentItr->second /= maxCurrently;
-    }
-    maxCurrently = 0;
-    for (currentItr = TimeRelatedness.begin(); currentItr != TimeRelatedness.end(); ++currentItr) {
-        if (currentItr->second > maxCurrently) {
-            maxCurrently = currentItr->second;
-        }
-    }
-    for (currentItr = TimeRelatedness.begin(); currentItr != TimeRelatedness.end(); ++currentItr) {
-        currentItr->second /= maxCurrently;
-    }
+    normalize(DistanceRelatedness);
+    normalize(TimeRelatedness);
 
     for (auto & route : routes) {
         for (int j = 1; j < route.size() - 1; ++j) {
@@ -77,37 +58,13 @@ void Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatr
                                   std::vector<std::vector<double>> &timeSchedule, const int &ro, std::vector<double> &waitingTime,
                                   std::vector<double> &usedCapacity) {
     D.clear();
-    srand((unsigned)time(nullptr));
-    auto r = rand() % customers.size();
-    while (r == 0 || r == 101) {
-        r = rand() % customers.size();
-    }
-//    randomly selected requests to be removed
+    auto r = generateRandomNumber(1, (int)customers.size() - 1);
     D.emplace_back(r);
     std::vector<std::pair<int, double>> L;
     while (D.size() < ro) {
         calculateRelatedness(distanceMatrix, routes, timeSchedule, r);
-        L.clear();
-        for (int i = 1; i < customers.size(); ++i) {
-            if (std::find(D.begin(), D.end(), i) == D.end()) {
-                L.emplace_back(i, R[i]); /**mal som tu i + 1 dal som to + 1 doprec lebo nechapem co som tam vlastne robil tym...*/
-            }
-        }
-        std::sort(L.begin(), L.end(), [&](std::pair<int, double> a, std::pair<int, double> b) { return a.second < b.second; });
-        auto y = (double)rand() / RAND_MAX;
-        if (std::find(D.begin(), D.end(), L[std::pow(y, p) * (L.size() - 1)].first) == D.end()
-            && L[std::pow(y, p) * (L.size() - 1)].first != r
-            && L[std::pow(y, p) * (L.size() - 1)].first != 0
-            && L[std::pow(y, p) * (L.size() - 1)].first != customers.size()) {
-            D.emplace_back(L[std::pow(y, p) * (L.size() - 1)].first);
-            L.erase(L.begin() + std::pow(y, p) * (L.size() - 1));
-        }
-        if (D.size() < ro) {
-            r = D[rand() % D.size()];
-            while (std::find(D.begin(), D.end(), r) != D.end() || r == 0 || r == 101) { //pokial r je v D vyber nove r
-                r = rand() % customers.size();
-            }
-        }
+        calculateL(L, (int)customers.size()); //TODO toto bude treba skontrolovat este
+        calculateD(ro,L, r, (int)customers.size()); //TODO toto bude treba skontrolovat este
     }
     editSolution(distanceMatrix,customers,routes,timeSchedule, D, waitingTime, usedCapacity);
 }
@@ -157,3 +114,61 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
         }
     }
 }
+
+int Shaw_Removal::generateRandomNumber(int min, int max) {
+    std::random_device rd;
+    std::default_random_engine generator(rd());
+    std::uniform_int_distribution<int> distribution(min, max);
+    return distribution(generator);
+}
+
+double Shaw_Removal::generateRandomDouble(double min, double max) {
+    std::random_device rd;
+    std::default_random_engine generator(rd());
+    std::uniform_real_distribution<double> distribution(min, max);
+    return distribution(generator);
+}
+
+void Shaw_Removal::normalize(std::map<int, double>& map) {
+    double max = 0;
+    for (auto &itr : map) {
+        if (itr.second > max) {
+            max = itr.second;
+        }
+    }
+    for (auto &itr : map) {
+        itr.second /= max;
+    }
+}
+
+void Shaw_Removal::calculateD(const int &ro, std::vector<std::pair<int, double>>& L, int r, int s) {
+    auto y = generateRandomDouble(0, 1);
+    auto index = (int)std::pow(y, p) * (L.size() - 1);
+    auto itr = L.begin();
+    std::advance(itr, std::min(static_cast<int>(std::pow(y, p) * static_cast<int>(L.size() - 1)), static_cast<int>(L.size() - 1)));
+
+    if (std::find(D.begin(), D.end(), L[index].first) == D.end()
+        && L[index].first != r
+        && L[index].first != 0
+        && L[index].first != s) {
+        D.emplace_back(L[index].first);
+        L.erase(itr);
+    }
+    if (D.size() < ro) { //TODO toto bude treba skontrolovat este
+        r = generateRandomNumber(1, s - 1);
+        while (std::find(D.begin(), D.end(), r) != D.end() || r == 0 || r == 101) { //pokial r je v D vyber nove r
+            r = generateRandomNumber(1, s - 1);
+        }
+    }
+}
+
+void Shaw_Removal::calculateL(std::vector<std::pair<int, double>> &L, int s) {
+    L.clear();
+    for (int i = 1; i < s; ++i) {
+        if (std::find(D.begin(), D.end(), i) == D.end()) {
+            L.emplace_back(i, R[i]); /**mal som tu i + 1 dal som to + 1 doprec lebo nechapem co som tam vlastne robil tym...*/
+        }
+    }
+    std::sort(L.begin(), L.end(), [&](std::pair<int, double> a, std::pair<int, double> b) { return a.second < b.second; });
+}
+
