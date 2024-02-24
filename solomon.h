@@ -36,8 +36,8 @@ private:
     int problemSize;
 
     static void calculateDistances(std::vector<customer> &customers, std::vector<std::vector<double>> &distanceMatrix);
-    static unsigned int findCustomerWithEarliestDeadline(std::vector<customer> &customers);
-    static unsigned int findFurthestUnroutedCustomer(std::vector<std::vector<double>> &distanceMatrix, std::vector<customer> &customers);
+    static std::vector<int> findCustomerWithEarliestDeadline(std::vector<customer> &customers);
+    static std::vector<int> findFurthestUnroutedCustomer(std::vector<std::vector<double>> &distanceMatrix, std::vector<customer> &customers);
     static std::vector<double> calculatePushForward(const std::vector<int>& route, int u, int position,
                               const std::vector<double> &timeWaitedAtCustomer, const std::vector<std::vector<double>> &distanceMatrix,
                               const std::vector<customer> &customers, double timeOfService, double waitingTime, const std::vector<double> &beginingOfService);

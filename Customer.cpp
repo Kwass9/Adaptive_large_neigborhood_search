@@ -116,3 +116,11 @@ bool customer::isPreviouslyServedBy(int vehicleId) {
 bool customer::isServedByEnoughVehicles() const {
     return numberOfVehiclesCurrenlyServing == numberOfVehiclesRequired;
 }
+
+std::vector<double> customer::getPreviouslyServedByTimes() const {
+    return previouslyServedByTime;
+}
+
+void customer::addPreviouslyServedByTime(double time) {
+    previouslyServedByTime.push_back(time);
+}

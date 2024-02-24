@@ -19,6 +19,7 @@ private:
     int numberOfVehiclesRequired = 1;
     int numberOfVehiclesCurrenlyServing = 0;
     std::vector<int> previouslyServedBy = {};
+    std::vector<double> previouslyServedByTime = {};
     bool routedStatus;
 public:
     customer(unsigned int idNum, double x, double y, double dem,
@@ -42,6 +43,8 @@ public:
     int getNumberOfVehiclesRequired() const;
     void addPreviouslyServedBy(int vehicleId);
     std::vector<int> getPreviouslyServedBy() const;
+    std::vector<double> getPreviouslyServedByTimes() const;
+    void addPreviouslyServedByTime(double time);
     void clearPreviouslyServedBy();
     void setPreviouslyServedBy(std::vector<int> vehicles);
     bool isPreviouslyServedBy(int vehicleId);

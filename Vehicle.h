@@ -34,7 +34,7 @@ public:
     void removeCustomerFromRoute(int idCustomer);
     void addTimeToSchedule(double time, int position);
     void removeTimeFromSchedule(int idCustomer);
-    double getReadyTimeAt(int customersTime) const;
+    double getReadyTimeAt(double customersTime) const;
     double getDueTimeAt(int customersTime) const;
     int getNumberOfCustomers() const;
     std::vector<int> getCustomers();

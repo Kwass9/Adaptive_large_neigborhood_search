@@ -22,7 +22,7 @@ Vehicle::Vehicle(unsigned int id, double capacity, double x, double y, double re
     route.emplace_back(0);
     route.emplace_back(custSize);
     timeSchedule.emplace_back(getReadyTimeAt(0));
-    timeSchedule.emplace_back(getDueTimeAt(0));
+    timeSchedule.emplace_back(getReadyTimeAt(0));
 }
 
 Vehicle::~Vehicle() {
@@ -147,13 +147,17 @@ int Vehicle::getNumberOfCustomers() const {
     return route.size() - 2;
 }
 
-double Vehicle::getReadyTimeAt(int customersTime) const {
+double Vehicle::getReadyTimeAt(double customersTime) const {
+    int lowest = INT_MAX;
     for (double i : readyTime) {
         if (i <= customersTime) {
             return i;
         }
+        if (i < lowest) {
+            lowest = i;
+        }
     }
-    return INT_MAX;
+    return lowest;
 }
 
 double Vehicle::getDueTimeAt(int customersTime) const {
@@ -170,5 +174,5 @@ const std::vector<double> &Vehicle::getTimeSchedule() const {
 }
 
 void Vehicle::addCustomerToRoute(int idCustomer, int position) {
-    route.insert(route.end() - 1, idCustomer);
+    route.insert(route.begin() + position, idCustomer);
 }
