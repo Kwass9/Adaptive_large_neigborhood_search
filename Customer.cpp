@@ -125,6 +125,10 @@ void customer::addPreviouslyServedByTime(double time) {
     previouslyServedByTime.push_back(time);
 }
 
-void customer::editPreviouslyServedByTime(double time, std::vector<double>::iterator position) {
-    *position = time;
+void customer::editPreviouslyServedByTime(double time, double position) {
+    for (double & i : previouslyServedByTime) {
+        if (i == position) {
+            i = time;
+        }
+    }
 }

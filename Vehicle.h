@@ -45,7 +45,7 @@ public:
     double whenIsCustomerServed(int idCustomer);
     bool isCustomerInRoute(int idCustomer);
     void editWorkingHours(double start, double end);
-    unsigned int getId() const;
+    int getId() const;
     double getXcord() const;
     double getYcord() const;
     double getUsedCapacity() const;

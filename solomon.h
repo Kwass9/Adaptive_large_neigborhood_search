@@ -42,7 +42,7 @@ private:
                               const std::vector<double> &timeWaitedAtCustomer, const std::vector<std::vector<double>> &distanceMatrix,
                               const std::vector<customer> &customers, double timeOfService, double waitingTime, const std::vector<double> &beginingOfService);
     static void calculateNewBeginings(std::vector<double> &pushForward, std::vector<double> &timeWaitedAtCustomer,
-                               std::vector<int> &route, const std::vector<customer>& customers, int zakaznikU,
+                               std::vector<int> &route, std::vector<customer>& customers, int zakaznikU,
                                std::vector<double> &beginingOfService, double timeOfService,
                                std::vector<std::vector<double>> &distanceMatrix, int u);
     static bool lema11(const std::vector<double> &beginingOfService, const std::vector<double> &pushForward,

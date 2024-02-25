@@ -101,7 +101,7 @@ void Vehicle::editWorkingHours(double start, double end) {
     dueTime.push_back(end);
 }
 
-unsigned int Vehicle::getId() const {
+int Vehicle::getId() const {
     return id;
 }
 
