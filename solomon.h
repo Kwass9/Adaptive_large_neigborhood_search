@@ -52,6 +52,9 @@ private:
                                                            std::vector<customer> &custs,
                                                            const std::vector<double> &timeWaitedAtCust, int doesNoiseApply,
                                                            const std::vector<Vehicle> &vehicles, int vehicleIndex);
+    std::tuple<int, double> calculateC1(std::vector<int> route, std::vector<std::vector<double>> dMatrix,
+                                                          int i, int u, double a1, double a2, bool doesNoiseApply, double min,
+                                                          int minIndex, std::vector<double> pf);
     /**pokial bolo treba pushnut vozidlo v jednej ceste no uz je aj v inej pridelene kvoli sucasnej obsluhe*/
     bool checkIfVehicleCanBePushedInRoute(const Vehicle &vehicle, int u, double timeOfService,
                                           const std::vector<customer> &customers, double waitingTime);

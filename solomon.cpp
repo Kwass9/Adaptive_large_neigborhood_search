@@ -193,10 +193,12 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
     auto curUsedCap = vehicles[vehicleIndex].getUsedCapacity();
     auto route = vehicles[vehicleIndex].getRoute();
     auto begOfServ = vehicles[vehicleIndex].getTimeSchedule();
+
     for (int u = 1; u < custs.size(); ++u) {
         double min = INT_MAX - 1;
         if (!custs[u].isRouted()
             && curUsedCap + custs[u].getDemand() <= maxCapacity) { //kontrola kapacity vozidla
+
             for (int i = 1; i < route.size(); ++i) {
                 double timeOfService;
                 if (custs[u].getPreviouslyServedBy().empty()) {
@@ -212,36 +214,32 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
                     waitingTime = custs[u].getReadyTime() - timeOfService;
                     timeOfService = custs[u].getReadyTime();
                 }
-                //aktualna
-                checkIfVehicleCanBePushedInRoute(vehicles[vehicleIndex], u, timeOfService, custs, waitingTime);
-
-                if (!custs[u].getPreviouslyServedBy().empty()) {
-                    vehicleIndex = custs[u].getIndexOfPreviouslyServedBy(timeOfService);
-                    waitingTime = timeWaitedAtCust[u];
-                    //povodna
-                    checkIfVehicleCanBePushedInRoute(vehicles[vehicleIndex], u, timeOfService, custs, waitingTime);
-                }
 
                 auto pf = calculatePushForward(route, u, i, timeWaitedAtCust,
-                                     dMatrix, custs, timeOfService, waitingTime, begOfServ);
+                                               dMatrix, custs, timeOfService, waitingTime, begOfServ);
 
-                //podmienky lemma 1.1
-                if (lema11(begOfServ, pf, route, custs, u, i, timeOfService)) {
-                    double c11 = 0;
-                    double c12 = 0;
-                    if (route.size() > 1) {
-                        c11 = dMatrix[route[i - 1]][u] + dMatrix[u][route[i]] -
-                              dMatrix[route[i - 1]][route[i]];
-                        c12 = pf[0];
+                //pokial nebol este vlozeny do ziadnej inej trasy
+                if (custs[u].getPreviouslyServedBy().empty()) {
+                    if (lema11(begOfServ, pf, route, custs, u, i, timeOfService)) {
+                        auto res = calculateC1(route, dMatrix, i, u, a1, a2, doesNoiseApply, min, minIndex, pf);
+                        minIndex = std::get<0>(res);
+                        min = std::get<1>(res);
                     }
-                    double c1 = a1 * c11 + a2 * c12;
-                    if (doesNoiseApply) {
-                        auto noise = createNoise();
-                        c1 = std::max(0.0, c1 + noise);
-                    }
-                    if (c1 < min) {
-                        min = c1;
-                        minIndex = i;
+                //pokial uz bol obsluhovany vramci inej trasy
+                } else {
+                    if (lema11(begOfServ, pf, route, custs, u, i, timeOfService)) {
+                        vehicleIndex = custs[u].getIndexOfPreviouslyServedBy(timeOfService);
+                        if (vehicleIndex == -1) {
+                            break; /**tento break este nie je uplne co by som chcel*/
+                        }
+                        waitingTime = timeWaitedAtCust[u];
+                        /**toto by teoreticky slo potom kontrolovat v cykle pre viac ciest*/
+                        //povodna
+                        if (checkIfVehicleCanBePushedInRoute(vehicles[vehicleIndex], u, timeOfService, custs, waitingTime)) {
+                            auto res = calculateC1(route, dMatrix, i, u, a1, a2, doesNoiseApply, min, minIndex, pf);
+                            minIndex = std::get<0>(res);
+                            min = std::get<1>(res);
+                        }
                     }
                 }
             }
@@ -516,4 +514,26 @@ void solomon::pushVehicleInOtherRoutes(Vehicle &vehicle, int u, double timeOfSer
     if (lema11(timeSchedule, pf, route, customers, u, routeIndex, timeOfService)) {
         insertCustomerToRoad(vehicle, std::make_pair(routeIndex, u), customers, distanceMatrix, timeWaitedAtCustomer);
     }
+}
+
+std::tuple<int, double> solomon::calculateC1(std::vector<int> route, std::vector<std::vector<double>> dMatrix,
+                                                               int i, int u, double a1, double a2, bool doesNoiseApply, double min,
+                                                               int minIndex, std::vector<double> pf) {
+    double c11 = 0;
+    double c12 = 0;
+    if (route.size() > 1) {
+        c11 = dMatrix[route[i - 1]][u] + dMatrix[u][route[i]] -
+                dMatrix[route[i - 1]][route[i]];
+        c12 = pf[0];
+    }
+    double c1 = a1 * c11 + a2 * c12;
+    if (doesNoiseApply) {
+        auto noise = createNoise();
+        c1 = std::max(0.0, c1 + noise);
+    }
+    if (c1 < min) {
+        min = c1;
+        minIndex = i;
+    }
+    return std::tuple<int, double>{std::make_tuple(minIndex, min)};
 }
