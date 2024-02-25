@@ -44,22 +44,27 @@ private:
     static void calculateNewBeginings(std::vector<double> &pushForward, std::vector<double> &timeWaitedAtCustomer,
                                std::vector<int> &route, std::vector<customer>& customers, int zakaznikU,
                                std::vector<double> &beginingOfService, double timeOfService,
-                               std::vector<std::vector<double>> &distanceMatrix, int u);
+                               const std::vector<std::vector<double>> &distanceMatrix, int u);
     static bool lema11(const std::vector<double> &beginingOfService, const std::vector<double> &pushForward,
                 const std::vector<int> &route, const std::vector<customer> &customers, int u, int position, double timeOfService);
 
     std::vector<std::tuple<int, double, int>> findMinForC1(double a1, double a2, const std::vector<std::vector<double>> &dMatrix,
-                                                           const std::vector<customer> &custs,
+                                                           std::vector<customer> &custs,
                                                            const std::vector<double> &timeWaitedAtCust, int doesNoiseApply,
                                                            const std::vector<Vehicle> &vehicles, int vehicleIndex);
-
+    /**pokial bolo treba pushnut vozidlo v jednej ceste no uz je aj v inej pridelene kvoli sucasnej obsluhe*/
+    bool checkIfVehicleCanBePushedInRoute(const Vehicle &vehicle, int u, double timeOfService,
+                                          const std::vector<customer> &customers, double waitingTime);
+    void pushVehicleInOtherRoutes(Vehicle &vehicle, int u, double timeOfService,
+                                  std::vector<customer> &customers, const std::vector<std::vector<double>> &distanceMatrix
+                                  ,double waitingTime);
     static std::pair<int, int> findOptimumForC2(std::vector<std::tuple<int, double, int>> &mnozinaC1, double lambda,
                                          std::vector<std::vector<double>> &distanceMatrix, std::vector<customer> &customers);
     static void insertCustomerToRoad(Vehicle &vehicle, std::pair<int, int> optimalInsertion,
-            std::vector<customer>& custs, std::vector<std::vector<double>>& distanceMatrix,
+            std::vector<customer>& custs, const std::vector<std::vector<double>>& distanceMatrix,
             std::vector<double>& timeWaitedAtCustomer);
     static void waitingTimeMath(std::vector<double> &timeWaitedAtCustomer, std::vector<double> &beginingOfService,
-                         std::vector<int> &route, const std::vector<customer> &customers, std::vector<std::vector<double>> &distanceMatrix,
+                         std::vector<int> &route, const std::vector<customer> &customers, const std::vector<std::vector<double>> &distanceMatrix,
                          int index, double timeOfService, int u);
     double calculateMaxN(double eta);
     double createNoise() const;

@@ -132,3 +132,12 @@ void customer::editPreviouslyServedByTime(double time, double position) {
         }
     }
 }
+
+int customer::getIndexOfPreviouslyServedBy(int time) {
+    for (int i = 0; i < previouslyServedByTime.size(); i++) {
+        if (previouslyServedByTime[i] == time) {
+            return i;
+        }
+    }
+    return -1;
+}

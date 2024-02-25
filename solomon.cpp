@@ -129,7 +129,7 @@ std::vector<double> solomon::calculatePushForward(const std::vector<int> &route,
 void solomon::calculateNewBeginings(std::vector<double> &pushForward, std::vector<double> &timeWaitedAtCustomer,
                                     std::vector<int> &route, std::vector<customer> &customers, int zakaznikU,
                                     std::vector<double> &beginingOfService, double timeOfService,
-                                    std::vector<std::vector<double>> &distanceMatrix, int u) {
+                                    const std::vector<std::vector<double>> &distanceMatrix, int u) {
     double epsilon = 0.0000001;
     if (route.size() > 2 && route[zakaznikU] != customers.size() && pushForward[0] != 0) {
         int pf = 0;
@@ -184,7 +184,7 @@ bool solomon::lema11(const std::vector<double> &beginingOfService, const std::ve
 
 std::vector<std::tuple<int, double, int>>
 solomon::findMinForC1(const double a1, const double a2, const std::vector<std::vector<double>> &dMatrix,
-                      const std::vector<customer> &custs,
+                      std::vector<customer> &custs,
                       const std::vector<double> &timeWaitedAtCust, const int doesNoiseApply,
                       const std::vector<Vehicle>& vehicles, int vehicleIndex) {
     std::vector<std::tuple<int, double, int>> mnozinaC1;
@@ -198,35 +198,33 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
         if (!custs[u].isRouted()
             && curUsedCap + custs[u].getDemand() <= maxCapacity) { //kontrola kapacity vozidla
             for (int i = 1; i < route.size(); ++i) {
-                double timeOfService = begOfServ[i - 1]
-                                       + dMatrix[route[i - 1]][u]
-                                       + custs[route[i - 1]].getServiceTime();
+                double timeOfService;
+                if (custs[u].getPreviouslyServedBy().empty()) {
+                    timeOfService = begOfServ[i - 1]
+                                           + dMatrix[route[i - 1]][u]
+                                           + custs[route[i - 1]].getServiceTime();
+                } else {
+                    auto times = custs[u].getPreviouslyServedByTimes();
+                    timeOfService = times[0]; //zatial len prvy pre viacero casovych okien to nepojde este
+                }
                 double waitingTime = 0;
-
-//                if (!custs[u].getPreviouslyServedBy().empty()) {
-//                    auto servedBy = custs[u].getPreviouslyServedBy();
-//                    for (int j = 0; j < servedBy.size(); ++j) {
-//                        auto r = vehicles[j].getRoute();
-//                        for (int k = 0; k < r.size(); ++k) {
-//                            if (r[k] == u) {
-//                                //time window zatial len pre jedno okno (vrchol 20)
-//                                auto begService = vehicles[servedBy[j]].getTimeSchedule()[k];
-////                                auto endService = begService + custs[u].getServiceTime();
-//                                if (begService > timeOfService) {
-//                                    waitingTime = begService - timeOfService;
-//                                    timeOfService = begService;
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-
                 if (timeOfService < custs[u].getReadyTime()) {
                     waitingTime = custs[u].getReadyTime() - timeOfService;
                     timeOfService = custs[u].getReadyTime();
                 }
+                //aktualna
+                checkIfVehicleCanBePushedInRoute(vehicles[vehicleIndex], u, timeOfService, custs, waitingTime);
+
+                if (!custs[u].getPreviouslyServedBy().empty()) {
+                    vehicleIndex = custs[u].getIndexOfPreviouslyServedBy(timeOfService);
+                    waitingTime = timeWaitedAtCust[u];
+                    //povodna
+                    checkIfVehicleCanBePushedInRoute(vehicles[vehicleIndex], u, timeOfService, custs, waitingTime);
+                }
+
                 auto pf = calculatePushForward(route, u, i, timeWaitedAtCust,
                                      dMatrix, custs, timeOfService, waitingTime, begOfServ);
+
                 //podmienky lemma 1.1
                 if (lema11(begOfServ, pf, route, custs, u, i, timeOfService)) {
                     double c11 = 0;
@@ -280,7 +278,7 @@ std::pair<int, int> solomon::findOptimumForC2(std::vector<std::tuple<int, double
 
 
 void solomon::insertCustomerToRoad(Vehicle& vehicle, std::pair<int, int> optimalInsertion, std::vector<customer>& custs,
-                                   std::vector<std::vector<double>>& distanceMatrix, std::vector<double>& timeWaitedAtCustomer) {
+                                   const std::vector<std::vector<double>>& distanceMatrix, std::vector<double>& timeWaitedAtCustomer) {
     int i = optimalInsertion.first;
     int u = optimalInsertion.second;
     auto route = vehicle.getRoute();
@@ -323,7 +321,7 @@ void solomon::insertCustomerToRoad(Vehicle& vehicle, std::pair<int, int> optimal
 
 void solomon::waitingTimeMath(std::vector<double> &timeWaitedAtCustomer, std::vector<double> &beginingOfService,
                               std::vector<int> &route, const std::vector<customer> &customers,
-                              std::vector<std::vector<double>> &distanceMatrix, int index, double timeOfServicePrevious,
+                              const std::vector<std::vector<double>> &distanceMatrix, int index, double timeOfServicePrevious,
                               int u) {
     auto nextInRoute = route[index];
     auto previousInRoute = route[index - 1];
@@ -486,5 +484,36 @@ void solomon::finalPrint(std::vector<customer> &custs, std::vector<Vehicle> &veh
     }
     for (int i = 1; i < timeWaitedAtCustomer.size() - 1; ++i) {
         waitingTimeInSchedule += timeWaitedAtCustomer[i];
+    }
+}
+
+//TODO: bude treba prejst debugom
+bool solomon::checkIfVehicleCanBePushedInRoute(const Vehicle &vehicle, int u, double timeOfService,
+                                               const std::vector<customer> &customers, double waitingTime) {
+    auto route = vehicle.getRoute();
+    const auto& timeSchedule = vehicle.getTimeSchedule();
+    int routeIndex;
+    for (int i = 0; i < route.size() - 1; ++i) {
+        if (route[i] == u) {
+            routeIndex = i;
+        }
+    }
+    auto pf = calculatePushForward(route, u, routeIndex, timeWaitedAtCustomer, distanceMatrix, customers, timeOfService, waitingTime, timeSchedule);
+    return lema11(timeSchedule, pf, route, customers, u, routeIndex, timeOfService);
+}
+
+void solomon::pushVehicleInOtherRoutes(Vehicle &vehicle, int u, double timeOfService, std::vector<customer> &customers,
+                                       const std::vector<std::vector<double>> &distanceMatrix, double waitingTime) {
+    auto route = vehicle.getRoute();
+    auto timeSchedule = vehicle.getTimeSchedule();
+    int routeIndex;
+    for (int i = 0; i < route.size() - 1; ++i) {
+        if (route[i] == u) {
+            routeIndex = i;
+        }
+    }
+    auto pf = calculatePushForward(route, u, routeIndex, timeWaitedAtCustomer, distanceMatrix, customers, timeOfService, waitingTime, timeSchedule);
+    if (lema11(timeSchedule, pf, route, customers, u, routeIndex, timeOfService)) {
+        insertCustomerToRoad(vehicle, std::make_pair(routeIndex, u), customers, distanceMatrix, timeWaitedAtCustomer);
     }
 }
