@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <string>
+#include <iostream>
 #include "test.h"
 
 std::string test::corectnessTest(const std::vector<customer>& customers, const std::vector<std::vector<double>> &bestSchedule,
@@ -41,7 +42,7 @@ void test::correctnessForCurrentSolution(const std::vector<customer> &customers,
                                          const std::vector<std::vector<int>> &bestRoutes,
                                          const std::vector<double> &waitingTime,
                                          std::vector<std::vector<double>> distanceMatrix,
-                                         std::vector<double>& usedCapacity) {
+                                         std::vector<double>& usedCapacity, std::vector<Vehicle> &vehicles) {
     for (const auto& customer : customers) {
         int routeIndex = -1;
         size_t customerIndexInRoute = 0;
@@ -59,25 +60,34 @@ void test::correctnessForCurrentSolution(const std::vector<customer> &customers,
         if (routeIndex == -1) {
             uncorectnessCounter++;
         }
-
         if (routeIndex >= bestSchedule.size() ||
             customerIndexInRoute >= bestSchedule[routeIndex].size() ||
             bestSchedule[routeIndex][customerIndexInRoute] < customer.getReadyTime() ||
             bestSchedule[routeIndex][customerIndexInRoute] > customer.getDueDate()) {
+            std::cout << "bestSchedule: " << bestSchedule[routeIndex][customerIndexInRoute] << std::endl;
+            std::cout << "customer ready time: " << customer.getReadyTime() << std::endl;
+            std::cout << "customer due date: " << customer.getDueDate() << std::endl;
+            std::cout << "routeIndex: " << routeIndex << std::endl;
+            std::cout << "customerIndexInRoute: " << customerIndexInRoute << std::endl;
             uncorectnessCounter++;
         }
     }
     for (size_t i = 0; i < bestRoutes.size(); ++i) {
-        double routeTime = 0;
+        double routeTime = vehicles[i].getReadyTimeAt(0); //este nevie pracovat s viac casovymi oknami pre jedno vozidlo
         for (size_t j = 0; j < bestRoutes[i].size(); ++j) {
             if (j == 0) {
                 routeTime += distanceMatrix[0][bestRoutes[i][j]];
             } else if (j < bestRoutes[i].size() - 1) {
-                routeTime += distanceMatrix[bestRoutes[i][j - 1]][bestRoutes[i][j]] + waitingTime[bestRoutes[i][j]];
+                if (customers[bestRoutes[i][j]].getNumberOfVehiclesCurrentlyServing() == 1) {
+                    routeTime += distanceMatrix[bestRoutes[i][j - 1]][bestRoutes[i][j]] + waitingTime[bestRoutes[i][j]];
+                } else {
+                    routeTime = customers[bestRoutes[i][j]].getPreviouslyServedByTimes()[0];
+                }
             } else {
                 routeTime += distanceMatrix[bestRoutes[i][j - 1]][0];
             }
             if (routeTime > bestSchedule[i][j] + 0.00001 || routeTime < bestSchedule[i][j ] - 0.00001) {
+                std::cout << "routeTime: " << routeTime << " i: " << i << " j: " << j << std::endl;
                 uncorectnessCounter++;
             }
             if (j < bestRoutes[i].size() - 1 && j > 0) {

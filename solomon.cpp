@@ -143,8 +143,8 @@ void solomon::calculateNewBeginings(std::vector<double> &pushForward, std::vecto
             u = route[n - 1];
             timeOfService = beginingOfService[n - 1];
             if (pushForward[pf] > 0 + epsilon && pf < pushForward.size()) {
-                oldTime = beginingOfService[zakaznikU];
-                customers[route[zakaznikU]].editPreviouslyServedByTime(beginingOfService[zakaznikU] + pushForward[pf], oldTime);
+                oldTime = beginingOfService[n];
+                customers[route[n]].editPreviouslyServedByTime(beginingOfService[n] + pushForward[pf], oldTime);
                 beginingOfService[n] += pushForward[pf];
                 timeWaitedAtCustomer[j] = 0;
                 pf++;
@@ -169,14 +169,22 @@ bool solomon::lema11(const std::vector<double> &beginingOfService, const std::ve
     if (beginingOfServiceU <= customers[u].getDueDate()) {
         int j = 0;
         while (pushForward[j] > 0.00000001 && j < route.size() - 1 && j < pushForward.size()) {
-            auto nextService = beginingOfService[route[position + j]] + pushForward[j];
+            auto nextService = beginingOfService[position + j] + pushForward[j];
+/**musim vymysliet ako premapovat tie casy lebo sa mi tam snazi vliest vrchol ktory je mimo casove okno...*/
+            //            vehicle.getDueTimeAt(vehicle.getReadyTimeAt(timeOfService))
             if (route[position + j] == customers.size() && nextService <= vehicle.getDueTimeAt(beginingOfServiceU)) {
                 return true;
             }
+//            vehicle.getDueTimeAt(vehicle.getReadyTimeAt(timeOfService))
             if ((position + j != route.size() - 1) && nextService >= vehicle.getDueTimeAt(beginingOfServiceU)) {
                 return false;
             }
-            ++j;
+            if (nextService <= customers[route[position + j]].getDueDate()) {
+                ++j;
+            } else {
+                return false;
+            }
+//            ++j;
         }
         return true;
     }
@@ -405,7 +413,9 @@ void solomon::run(std::vector<customer> &custs, int numberOfUnvisitedCustomers, 
                     timeOfService = custs[indexVYbrateho].getPreviouslyServedByTimes()[0];
                     /**riesenie je zatial ak zakaznik potrebuje len jednu obsluhu za den*/
                 }
-                if (timeOfService >= vehicles[routeIndex].getReadyTimeAt(timeOfService) + distanceMatrix[0][indexVYbrateho]) {
+                if (timeOfService >= vehicles[routeIndex].getReadyTimeAt(timeOfService) + distanceMatrix[0][indexVYbrateho]
+                    && vehicles[routeIndex].getDueTimeAt(vehicles[routeIndex].getReadyTimeAt(timeOfService))
+                        >= timeOfService + distanceMatrix[indexVYbrateho][0] + custs[0].getServiceTime()) {
                     auto pf = calculatePushForward(vehicles[routeIndex].getRoute(), indexVYbrateho, 1,
                                                    timeWaitedAtCustomer, distanceMatrix, custs,
                                                    timeOfService,

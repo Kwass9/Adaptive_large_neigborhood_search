@@ -7,6 +7,7 @@
 
 #include <vector>
 #include "Customer.h"
+#include "Vehicle.h"
 
 class test {
 private:
@@ -18,7 +19,8 @@ public:
                         const std::vector<std::vector<int>>& bestRoutes, const std::vector<double>& waitingTime);
     void correctnessForCurrentSolution(const std::vector<customer>& customers, const std::vector<std::vector<double>>& bestSchedule,
                                       const std::vector<std::vector<int>>& bestRoutes, const std::vector<double>& waitingTime,
-                                      std::vector<std::vector<double>> distanceMatrix, std::vector<double>& usedCapacity);
+                                      std::vector<std::vector<double>> distanceMatrix, std::vector<double>& usedCapacity,
+                                      std::vector<Vehicle> &vehicles);
     int getUncorectnessCounter() const { return uncorectnessCounter; }
 };
 
