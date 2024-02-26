@@ -165,14 +165,15 @@ void solomon::calculateNewBeginings(std::vector<double> &pushForward, std::vecto
 }
 
 bool solomon::lema11(const std::vector<double> &beginingOfService, const std::vector<double> &pushForward, const std::vector<int> &route,
-                     const std::vector<customer> &customers, int u, int position, double  beginingOfServiceU) {
+                     const std::vector<customer> &customers, int u, int position, double  beginingOfServiceU, const  Vehicle &vehicle) {
     if (beginingOfServiceU <= customers[u].getDueDate()) {
         int j = 0;
         while (pushForward[j] > 0.00000001 && j < route.size() - 1 && j < pushForward.size()) {
-            if (route[position + j] == customers.size() && beginingOfServiceU + pushForward[j] <= customers[0].getDueDate()) {
+            auto nextService = beginingOfService[route[position + j]] + pushForward[j];
+            if (route[position + j] == customers.size() && nextService <= vehicle.getDueTimeAt(beginingOfServiceU)) {
                 return true;
             }
-            if ((position + j != route.size() - 1) && beginingOfService[position + j] + pushForward[j] > customers[route[position + j]].getDueDate()) {
+            if ((position + j != route.size() - 1) && nextService >= vehicle.getDueTimeAt(beginingOfServiceU)) {
                 return false;
             }
             ++j;
@@ -220,22 +221,22 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
 
                 //pokial nebol este vlozeny do ziadnej inej trasy
                 if (custs[u].getPreviouslyServedBy().empty()) {
-                    if (lema11(begOfServ, pf, route, custs, u, i, timeOfService)) {
+                    if (lema11(begOfServ, pf, route, custs, u, i, timeOfService, vehicles[vehicleIndex])) {
                         auto res = calculateC1(route, dMatrix, i, u, a1, a2, doesNoiseApply, min, minIndex, pf);
                         minIndex = std::get<0>(res);
                         min = std::get<1>(res);
                     }
                 //pokial uz bol obsluhovany vramci inej trasy
                 } else {
-                    if (lema11(begOfServ, pf, route, custs, u, i, timeOfService)) {
-                        vehicleIndex = custs[u].getIndexOfPreviouslyServedBy(timeOfService);
-                        if (vehicleIndex == -1) {
+                    if (lema11(begOfServ, pf, route, custs, u, i, timeOfService, vehicles[vehicleIndex])) {
+                        auto secondIndex = custs[u].getIndexOfPreviouslyServedBy(timeOfService);
+                        if (secondIndex == -1) {
                             break; /**tento break este nie je uplne co by som chcel*/
                         }
                         waitingTime = timeWaitedAtCust[u];
                         /**toto by teoreticky slo potom kontrolovat v cykle pre viac ciest*/
                         //povodna
-                        if (checkIfVehicleCanBePushedInRoute(vehicles[vehicleIndex], u, timeOfService, custs, waitingTime)) {
+                        if (checkIfVehicleCanBePushedInRoute(vehicles[secondIndex], u, timeOfService, custs, waitingTime)) {
                             auto res = calculateC1(route, dMatrix, i, u, a1, a2, doesNoiseApply, min, minIndex, pf);
                             minIndex = std::get<0>(res);
                             min = std::get<1>(res);
@@ -360,7 +361,7 @@ void solomon::run(std::vector<customer> &custs, int numberOfUnvisitedCustomers, 
                                                                                     timeWaitedAtCustomer[indexVYbrateho],
                                                                                     vehicles[routeIndex].getTimeSchedule()),
                        vehicles[routeIndex].getRoute(), custs, indexVYbrateho, 1,
-                       vehicles[routeIndex].getTimeSchedule()[0]))
+                       vehicles[routeIndex].getTimeSchedule()[0], vehicles[routeIndex]))
             {
                 insertCustomerToRoad(vehicles[routeIndex], std::make_pair(1, indexVYbrateho), custs, distanceMatrix, timeWaitedAtCustomer);
                 if (custs[indexVYbrateho].isServedByEnoughVehicles()) {
@@ -383,6 +384,9 @@ void solomon::run(std::vector<customer> &custs, int numberOfUnvisitedCustomers, 
             }
         } else {
             routeIndex++;
+            if (routeIndex >= vehicles.size()) {
+                break; /**pokial nenasiel riesenie, docasne riesenie*/
+            }
             timeWaitedAtCustomer[custs.size()] = vehicles[routeIndex].getDueTimeAt(0); //prve casove okno koniec //este musim domysliet
             index = startingCriteria ? findFurthestUnroutedCustomer(distanceMatrix, custs)
                                      : findCustomerWithEarliestDeadline(custs);
@@ -390,7 +394,7 @@ void solomon::run(std::vector<customer> &custs, int numberOfUnvisitedCustomers, 
             int dec = 0;
             while (vehicles[routeIndex].getRoute().size() <= 2) {
                 auto indexVYbrateho = index[dec];
-                if (dec < indexSize - 1) {
+                if (dec <= indexSize - 1) {
                     dec++;
                 } else {
                     break;
@@ -398,10 +402,10 @@ void solomon::run(std::vector<customer> &custs, int numberOfUnvisitedCustomers, 
                 auto timeOfService = custs[indexVYbrateho].getReadyTime();
                 auto waitingTime = timeWaitedAtCustomer[indexVYbrateho];
                 if (custs[indexVYbrateho].getNumberOfVehiclesCurrentlyServing() != 0) {
-                    timeOfService = custs[indexVYbrateho].getPreviouslyServedByTimes()[0]; /**zatial nenaplnena musim naplnit este*/
+                    timeOfService = custs[indexVYbrateho].getPreviouslyServedByTimes()[0];
                     /**riesenie je zatial ak zakaznik potrebuje len jednu obsluhu za den*/
                 }
-                if (timeOfService > vehicles[routeIndex].getReadyTimeAt(timeOfService) + distanceMatrix[0][indexVYbrateho]) {
+                if (timeOfService >= vehicles[routeIndex].getReadyTimeAt(timeOfService) + distanceMatrix[0][indexVYbrateho]) {
                     auto pf = calculatePushForward(vehicles[routeIndex].getRoute(), indexVYbrateho, 1,
                                                    timeWaitedAtCustomer, distanceMatrix, custs,
                                                    timeOfService,
@@ -409,7 +413,7 @@ void solomon::run(std::vector<customer> &custs, int numberOfUnvisitedCustomers, 
                                                    vehicles[routeIndex].getTimeSchedule());
                     if (lema11(vehicles[routeIndex].getTimeSchedule(), pf,
                                vehicles[routeIndex].getRoute(), custs, indexVYbrateho, 1,
-                               timeOfService)) {
+                               timeOfService, vehicles[routeIndex])) {
                         insertCustomerToRoad(vehicles[routeIndex], std::make_pair(1, indexVYbrateho), custs,
                                              distanceMatrix, timeWaitedAtCustomer);
                         if (custs[indexVYbrateho].isServedByEnoughVehicles()) {
@@ -480,9 +484,12 @@ void solomon::finalPrint(std::vector<customer> &custs, std::vector<Vehicle> &veh
         auto t = ts.size() - 1;
         totalScheduleTime += (ts[t]);
     }
-    for (int i = 1; i < timeWaitedAtCustomer.size() - 1; ++i) {
+    for (int i = 1; i < timeWaitedAtCustomer.size() - 2; ++i) {
         waitingTimeInSchedule += timeWaitedAtCustomer[i];
     }
+    std::cout << "Total distance: " << totalDistance << std::endl;
+    std::cout << "Total schedule time: " << totalScheduleTime << std::endl;
+    std::cout << "Total waiting time: " << waitingTimeInSchedule << std::endl;
 }
 
 //TODO: bude treba prejst debugom
@@ -497,7 +504,7 @@ bool solomon::checkIfVehicleCanBePushedInRoute(const Vehicle &vehicle, int u, do
         }
     }
     auto pf = calculatePushForward(route, u, routeIndex, timeWaitedAtCustomer, distanceMatrix, customers, timeOfService, waitingTime, timeSchedule);
-    return lema11(timeSchedule, pf, route, customers, u, routeIndex, timeOfService);
+    return lema11(timeSchedule, pf, route, customers, u, routeIndex, timeOfService, vehicle);
 }
 
 void solomon::pushVehicleInOtherRoutes(Vehicle &vehicle, int u, double timeOfService, std::vector<customer> &customers,
@@ -511,7 +518,7 @@ void solomon::pushVehicleInOtherRoutes(Vehicle &vehicle, int u, double timeOfSer
         }
     }
     auto pf = calculatePushForward(route, u, routeIndex, timeWaitedAtCustomer, distanceMatrix, customers, timeOfService, waitingTime, timeSchedule);
-    if (lema11(timeSchedule, pf, route, customers, u, routeIndex, timeOfService)) {
+    if (lema11(timeSchedule, pf, route, customers, u, routeIndex, timeOfService, vehicle)) {
         insertCustomerToRoad(vehicle, std::make_pair(routeIndex, u), customers, distanceMatrix, timeWaitedAtCustomer);
     }
 }
