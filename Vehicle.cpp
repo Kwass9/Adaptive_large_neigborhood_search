@@ -9,7 +9,7 @@
 #include <climits>
 #include <tuple>
 
-Vehicle::Vehicle(unsigned int id, double capacity, double x, double y, double readyTime, double dueTime, int custSize) {
+Vehicle::Vehicle(int id, double capacity, double x, double y, double readyTime, double dueTime, int custSize) {
     this->id = id;
     this->capacity = capacity;
     editWorkingHours(readyTime, dueTime);
@@ -19,7 +19,7 @@ Vehicle::Vehicle(unsigned int id, double capacity, double x, double y, double re
     routeTime = 0;
     routeWaitingTime = 0;
     usedCapacity = 0;
-    
+    this->custSize = custSize;
     route.emplace_back(0);
     route.emplace_back(custSize);
     timeSchedule.emplace_back(getReadyTimeAt(0));
@@ -48,6 +48,7 @@ Vehicle::Vehicle(const Vehicle &vehicle) {
     xcord = vehicle.xcord;
     ycord = vehicle.ycord;
     id = vehicle.id;
+    custSize = vehicle.custSize;
 }
 
 void Vehicle::addCustomer(int idCustomer) {
@@ -145,12 +146,12 @@ void Vehicle::removeTimeFromSchedule(int idCustomer) {
 }
 
 int Vehicle::getNumberOfCustomers() const {
-    return route.size() - 2;
+    return (int)route.size() - 2;
 }
 
 double Vehicle::getReadyTimeAt(double customersTime) const {
-    int lowest = INT_MAX;
-    for (int i = readyTime.size() - 1; i >= 0; i--) {
+    double lowest = INT_MAX;
+    for (int i = (int)readyTime.size() - 1; i >= 0; i--) {
         if (readyTime[i] <= customersTime) {
             return readyTime[i];
         }
@@ -161,7 +162,7 @@ double Vehicle::getReadyTimeAt(double customersTime) const {
     return lowest;
 }
 
-double Vehicle::getDueTimeAt(int customersTime) const {
+double Vehicle::getDueTimeAt(double customersTime) const {
     for (double i : dueTime) {
         if (i >= customersTime) {
             return i;
@@ -181,4 +182,28 @@ void Vehicle::addCustomerToRoute(int idCustomer, int position) {
 std::pair<double, double> Vehicle::getTimeWindow(double customersTime) const {
     auto beginingOfTheWindowTime = getReadyTimeAt(customersTime);
     return std::make_pair(beginingOfTheWindowTime, getDueTimeAt(beginingOfTheWindowTime));
+}
+
+int Vehicle::getNumberOfTimeWindows() const {
+    return (int)readyTime.size();
+}
+
+std::vector<std::pair<double, double>> Vehicle::getAllTimeWindows() const {
+    std::vector<std::pair<double, double>> timeWindows;
+    for (int i = 0; i < readyTime.size(); ++i) {
+        timeWindows.emplace_back(readyTime[i], dueTime[i]);
+    }
+    return timeWindows;
+}
+
+void Vehicle::addAnotherTimeWindowIntoRoute() {
+    route.insert(route.begin() + (int)route.size() - 1, 0);
+    route.insert(route.begin() + (int)route.size() - 1, custSize);
+    auto timeScheduleEnd = timeSchedule[timeSchedule.size() - 2];
+    timeSchedule.insert(timeSchedule.begin() + (int)timeSchedule.size() - 1, getReadyTimeAt(timeScheduleEnd));
+    timeSchedule.insert(timeSchedule.begin() + (int)timeSchedule.size() - 1, getReadyTimeAt(timeScheduleEnd));
+}
+
+int Vehicle::getInitIndexForFirstVehicle() const { /**uz mam geter na number of customers asi by stacil iba ten... pozriet*/
+    return (int)route.size() - 2;
 }

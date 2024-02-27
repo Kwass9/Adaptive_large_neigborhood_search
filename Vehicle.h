@@ -13,7 +13,7 @@ class Vehicle {
 private:
     double xcord;
     double ycord;
-    unsigned int id{};
+    int id{};
     std::vector<int> customersServed;
     double capacity;
     std::vector<int> route;
@@ -24,9 +24,9 @@ private:
     double usedCapacity;
     std::vector<double> readyTime;
     std::vector<double> dueTime;
-
+    int custSize;
 public:
-    Vehicle(unsigned int id, double capacity, double x, double y, double readyTime, double dueTime, int custSize);
+    Vehicle(int id, double capacity, double x, double y, double readyTime, double dueTime, int custSize);
     ~Vehicle();
     Vehicle(Vehicle const &vehicle);
     void addCustomer(int idCustomer);
@@ -35,8 +35,12 @@ public:
     void addTimeToSchedule(double time, int position);
     void removeTimeFromSchedule(int idCustomer);
     double getReadyTimeAt(double customersTime) const;
-    double getDueTimeAt(int customersTime) const;
+    double getDueTimeAt(double customersTime) const;
     std::pair<double, double> getTimeWindow(double customersTime) const;
+    std::vector<std::pair<double, double>> getAllTimeWindows() const;
+    void addAnotherTimeWindowIntoRoute();
+    int getInitIndexForFirstVehicle() const;
+    int getNumberOfTimeWindows() const;
     int getNumberOfCustomers() const;
     std::vector<int> getCustomers();
     double getCapacity() const;
