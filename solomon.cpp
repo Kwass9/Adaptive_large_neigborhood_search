@@ -170,13 +170,11 @@ bool solomon::lema11(const std::vector<double> &beginingOfService, const std::ve
         int j = 0;
         while (pushForward[j] > 0.00000001 && j < route.size() - 1 && j < pushForward.size()) {
             auto nextService = beginingOfService[position + j] + pushForward[j];
-/**musim vymysliet ako premapovat tie casy lebo sa mi tam snazi vliest vrchol ktory je mimo casove okno...*/
-            //            vehicle.getDueTimeAt(vehicle.getReadyTimeAt(timeOfService))
-            if (route[position + j] == customers.size() && nextService <= vehicle.getDueTimeAt(beginingOfServiceU)) {
+            auto timeWindow = vehicle.getTimeWindow(beginingOfServiceU);
+            if (route[position + j] == customers.size() && nextService <= timeWindow.second && nextService >= timeWindow.first) { //este asi bude treba kontrolovat nieco s distance matrix atd podla toho ci sa potrebuje opatrovatelka aj vratit (auto do depa)
                 return true;
             }
-//            vehicle.getDueTimeAt(vehicle.getReadyTimeAt(timeOfService))
-            if ((position + j != route.size() - 1) && nextService >= vehicle.getDueTimeAt(beginingOfServiceU)) {
+            if ((position + j != route.size() - 1) && nextService > timeWindow.second && nextService < timeWindow.first) {
                 return false;
             }
             if (nextService <= customers[route[position + j]].getDueDate()) {
@@ -238,13 +236,14 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
                 } else {
                     if (lema11(begOfServ, pf, route, custs, u, i, timeOfService, vehicles[vehicleIndex])) {
                         auto secondIndex = custs[u].getIndexOfPreviouslyServedBy(timeOfService);
+                        auto vehIndex = custs[u].getPreviouslyServedBy()[secondIndex];
                         if (secondIndex == -1) {
                             break; /**tento break este nie je uplne co by som chcel*/
                         }
                         waitingTime = timeWaitedAtCust[u];
                         /**toto by teoreticky slo potom kontrolovat v cykle pre viac ciest*/
                         //povodna
-                        if (checkIfVehicleCanBePushedInRoute(vehicles[secondIndex], u, timeOfService, custs, waitingTime)) {
+                        if (checkIfVehicleCanBePushedInRoute(vehicles[vehIndex], u, timeOfService, custs, waitingTime)) {
                             auto res = calculateC1(route, dMatrix, i, u, a1, a2, doesNoiseApply, min, minIndex, pf);
                             minIndex = std::get<0>(res);
                             min = std::get<1>(res);

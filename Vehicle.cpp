@@ -7,6 +7,7 @@
 #include <utility>
 #include <algorithm>
 #include <climits>
+#include <tuple>
 
 Vehicle::Vehicle(unsigned int id, double capacity, double x, double y, double readyTime, double dueTime, int custSize) {
     this->id = id;
@@ -175,4 +176,9 @@ const std::vector<double> &Vehicle::getTimeSchedule() const {
 
 void Vehicle::addCustomerToRoute(int idCustomer, int position) {
     route.insert(route.begin() + position, idCustomer);
+}
+
+std::pair<double, double> Vehicle::getTimeWindow(double customersTime) const {
+    auto beginingOfTheWindowTime = getReadyTimeAt(customersTime);
+    return std::make_pair(beginingOfTheWindowTime, getDueTimeAt(beginingOfTheWindowTime));
 }

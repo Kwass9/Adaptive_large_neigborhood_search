@@ -36,6 +36,7 @@ public:
     void removeTimeFromSchedule(int idCustomer);
     double getReadyTimeAt(double customersTime) const;
     double getDueTimeAt(int customersTime) const;
+    std::pair<double, double> getTimeWindow(double customersTime) const;
     int getNumberOfCustomers() const;
     std::vector<int> getCustomers();
     double getCapacity() const;
