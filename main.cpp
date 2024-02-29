@@ -50,7 +50,7 @@ double setInitialTemperature(double w, double solution) {
 
 int calculateRo(double ksi, std::vector<customer> &customers) {
     //4 ≤ ro ≤ min(100,ξn)
-    int uppreBound = (int)std::min(ksi * customers.size(), 100.0);
+    int uppreBound = (int)std::min(ksi * (int)customers.size(), 100.0);
     std::random_device rd;
     std::default_random_engine generator(rd());
     std::uniform_int_distribution<int> distribution(5, uppreBound);
@@ -122,7 +122,7 @@ int main(int argc, char * argv[]) {
     //inicializacia zakaznikov
     for (auto & i : data) {
         if ((cell = i.find(delimiter)) != std::string::npos) {
-            unsigned int id = processString(i, delimiter);
+            int id = processString(i, delimiter);
             double x = processString(i, delimiter);
             double y = processString(i, delimiter);
             double demand = processString(i, delimiter);
@@ -131,19 +131,24 @@ int main(int argc, char * argv[]) {
             double serviceTime = processString(i, delimiter);
             if (!customers.empty()) {
                 //pokial su dve liny rovnake a maju rovnake casy obsluhy tak potrebuje obsluhu dvoch opatrovateliek naraz
-                if (id == customers.back().getId() && readyTime == customers.back().getReadyTime() && dueDate == customers.back().getDueDate()) {
-                    auto req = customers.back().getNumberOfVehiclesRequired();
-                    customers.back().setNumberOfVehiclesRequired(req + 1);
+                auto custBack = customers.back();
+                if (id == custBack.getId()) {
+                    if (custBack.doesTimeWindowExist(readyTime, dueDate)) {
+                        auto winIndex = custBack.getIndexOfTimeWindow(readyTime, dueDate);
+                        custBack.getTimeWindow(winIndex).incrementVehiclesRequired();
+                    }
+                    else {
+                        custBack.createNewTimeWindow(readyTime, dueDate, demand, serviceTime);
+                    }
                 }
-                //pokial su dve liny rovnake ale maju rozne casy tak potrebuje obsluhu jednej opatrovatelky dva krat za den
-                else if (id == customers.back().getId() && readyTime != customers.back().getReadyTime() && dueDate != customers.back().getDueDate()) {
-
-                } else {
-                    customer customer(id, x, y, demand, readyTime, dueDate, serviceTime);
+                else {
+                    customer customer(id, x, y);
+                    customer.createNewTimeWindow(readyTime, dueDate, demand, serviceTime);
                     customers.emplace_back(customer);
                 }
             } else {
-                customer customer(id, x, y, demand, readyTime, dueDate, serviceTime);
+                customer customer(id, x, y);
+                customer.createNewTimeWindow(readyTime, dueDate, demand, serviceTime);
                 customers.emplace_back(customer);
             }
         }

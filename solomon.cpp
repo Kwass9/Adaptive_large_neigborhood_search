@@ -391,17 +391,17 @@ void solomon::run(std::vector<customer> &custs, int numberOfUnvisitedCustomers, 
                 unvisitedCustomers--;
             }
         } else {
-            auto numberOfTimeWindows = vehicles[routeIndex].getNumberOfTimeWindows();
-            if (numberOfTimeWindows == windowsUsed) {
-                routeIndex++;
-                windowsUsed = 0;
-            } else {
-                windowsUsed++;
-            }
-            if (routeIndex >= vehicles.size()) {
-                break; /**pokial nenasiel riesenie, docasne riesenie*/
-            }
-            //TODO casove okna - viac obsluh v rozne casy
+//            auto numberOfTimeWindows = vehicles[routeIndex].getNumberOfTimeWindows();
+//            if (numberOfTimeWindows == windowsUsed) {
+//                routeIndex++;
+//                windowsUsed = 0;
+//            } else {
+//                windowsUsed++;
+//            }
+//            if (routeIndex >= vehicles.size()) {
+//                break; /**pokial nenasiel riesenie, docasne riesenie*/
+//            }
+//            TODO casove okna - viac obsluh v rozne casy
             timeWaitedAtCustomer[custs.size()] = vehicles[routeIndex].getDueTimeAt(0); //prve casove okno koniec //este musim domysliet
             index = startingCriteria ? findFurthestUnroutedCustomer(distanceMatrix, custs)
                                      : findCustomerWithEarliestDeadline(custs);

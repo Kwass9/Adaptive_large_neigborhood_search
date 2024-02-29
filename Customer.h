@@ -6,24 +6,19 @@
 #define SOLOMON_CUSTOMER_H
 
 #include <vector>
+#include "CustomersTimeWindow.h"
 
 class customer {
 private:
-    unsigned int id;
+    int id;
     double xcord;
     double ycord;
-    double demand;
-    double readyTime;
-    double dueDate;
-    double serviceTime;
-    int numberOfVehiclesRequired = 1;
-    int numberOfVehiclesCurrenlyServing = 0;
     std::vector<int> previouslyServedBy = {};
     std::vector<double> previouslyServedByTime = {};
     bool routedStatus;
+    std::vector<CustomersTimeWindow> timeWindows;
 public:
-    customer(unsigned int idNum, double x, double y, double dem,
-             double rdyTime, double dueD, double serviceDuration);
+    customer(int idNum, double x, double y);
     ~customer();
     customer(customer const &customer);
     void markAsRouted();
@@ -31,16 +26,7 @@ public:
     unsigned int getId() const;
     double getXcord() const;
     double getYcord() const;
-    double getDemand() const;
-    double getReadyTime() const;
-    double getDueDate() const;
-    double getServiceTime() const;
     void markAsUnrouted();
-    void incrementNumberOfVehiclesCurrentlyServing();
-    void decrementNumberOfVehiclesCurrentlyServing();
-    int getNumberOfVehiclesCurrentlyServing() const;
-    void setNumberOfVehiclesRequired(int number);
-    int getNumberOfVehiclesRequired() const;
     void addPreviouslyServedBy(int vehicleId);
     std::vector<int> getPreviouslyServedBy() const;
     std::vector<double> getPreviouslyServedByTimes() const;
@@ -50,7 +36,16 @@ public:
     void setPreviouslyServedBy(std::vector<int> vehicles);
     bool isPreviouslyServedBy(int vehicleId);
     int getIndexOfPreviouslyServedBy(int time);
+
     bool isServedByEnoughVehicles() const;
+    void createNewTimeWindow(double readyTime, double dueDate, double demand, double serviceTime);
+    CustomersTimeWindow getTimeWindow(int index);
+    std::vector<CustomersTimeWindow> getTimeWindows() const;
+    CustomersTimeWindow& findTimeWindowWithTimes(double readyTime, double dueDate);
+    void createTimeWindowIfNotFount(double readyTime, double dueDate, double demand, double serviceTime);
+    bool doesTimeWindowExist(double readyTime, double dueDate);
+    int getIndexOfTimeWindow(double readyTime, double dueDate);
+
 };
 
 
