@@ -414,15 +414,37 @@ void solomon::run(std::vector<customer> &custs, int numberOfUnvisitedCustomers, 
                 } else {
                     break;
                 }
-                auto timeOfService = custs[indexVYbrateho].getReadyTime();
-                auto waitingTime = timeWaitedAtCustomer[indexVYbrateho];
-                if (custs[indexVYbrateho].getNumberOfVehiclesCurrentlyServing() != 0) {
-                    timeOfService = custs[indexVYbrateho].getPreviouslyServedByTimes()[0];
-                    /**riesenie je zatial ak zakaznik potrebuje len jednu obsluhu za den*/
+//                auto timeOfService = custs[indexVYbrateho].getReadyTime();
+                double timeOfService = 0;
+                auto windows = custs[indexVYbrateho].getTimeWindows(); /**skor by som chcel hladat v zozname vsetkych okien ked pozeram earliest deadline*/
+                std::vector<CustomersTimeWindow>::iterator windowIt;
+                for (windowIt = windows.begin(); windowIt != windows.end(); ++windowIt) {
+                    if (!windowIt->isServedByEnoughVehicles()) {
+                        timeOfService = windowIt->getReadyTime();
+//                        auto window = *windowIt;
+                        break;
+                    }
                 }
+                if (windowIt == windows.end()) {
+                    break; /**este nie uplne co by som chcel*/
+                }
+                auto waitingTime = timeWaitedAtCustomer[indexVYbrateho];
+                if (windowIt->getNumberOfVehiclesServing() != 0) {
+                    auto prevServedByTime = custs[indexVYbrateho].getPreviouslyServedByTimes();
+                    auto windowIndex = custs[indexVYbrateho].getIndexOfTimeWindow(windowIt->getReadyTime(), windowIt->getDueDate());
+                    timeOfService = prevServedByTime[windowIndex];
+                }
+//                if (custs[indexVYbrateho].getNumberOfVehiclesCurrentlyServing() != 0) {
+//                    timeOfService = custs[indexVYbrateho].getPreviouslyServedByTimes()[0];
+//                    /**riesenie je zatial ak zakaznik potrebuje len jednu obsluhu za den*/
+//                }
+
+
                 if (timeOfService >= vehicles[routeIndex].getReadyTimeAt(timeOfService) + distanceMatrix[0][indexVYbrateho]
                     && vehicles[routeIndex].getDueTimeAt(vehicles[routeIndex].getReadyTimeAt(timeOfService))
-                        >= timeOfService + distanceMatrix[indexVYbrateho][0] + custs[0].getServiceTime()) {
+                        >= timeOfService + distanceMatrix[indexVYbrateho][0] + windowIt->getServiceTime() + windowIt->getServiceTime()
+//                        + custs[0].getServiceTime()
+                        ) {
                     auto pf = calculatePushForward(vehicles[routeIndex].getRoute(), indexVYbrateho, 1,
                                                    timeWaitedAtCustomer, distanceMatrix, custs,
                                                    timeOfService,
@@ -509,7 +531,7 @@ void solomon::finalPrint(std::vector<customer> &custs, std::vector<Vehicle> &veh
     std::cout << "Total waiting time: " << waitingTimeInSchedule << std::endl;
 }
 
-//TODO: bude treba prejst debugom
+// TODO: bude treba prejst debugom
 bool solomon::checkIfVehicleCanBePushedInRoute(const Vehicle &vehicle, int u, double timeOfService,
                                                const std::vector<customer> &customers, double waitingTime) {
     auto route = vehicle.getRoute();

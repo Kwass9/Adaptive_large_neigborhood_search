@@ -71,3 +71,7 @@ void CustomersTimeWindow::setDueDate(double dueD) {
 void CustomersTimeWindow::setVehiclesRequired(int vehRequired) {
     vehiclesRequired = vehRequired;
 }
+
+int CustomersTimeWindow::getNumberOfVehiclesServing() const {
+    return curentVehiclesServing;
+}

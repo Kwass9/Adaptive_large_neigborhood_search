@@ -30,6 +30,9 @@ public:
     void decrementCurentVehiclesServing();
     bool isServedByEnoughVehicles() const;
     void editWorkingHours(double start, double end);
+    double getDemand() const;
+    double getServiceTime() const;
+    int getNumberOfVehiclesServing() const;
 };
 
 
