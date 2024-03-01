@@ -3,6 +3,7 @@
 //
 
 #include <algorithm>
+#include <climits>
 #include "Customer.h"
 
 customer::customer(int idNum, double x, double y) {
@@ -136,4 +137,31 @@ int customer::getIndexOfTimeWindow(double readyTime, double dueDate) {
         return timeWindow.getReadyTime() == readyTime && timeWindow.getDueDate() == dueDate;
     }));
     return index - 1;
+}
+
+double customer::getReadyTimeAt(double serviceTime) const {
+    double lowest = INT_MAX;
+    for (const auto & timeWindow : timeWindows) {
+        if (timeWindow.getReadyTime() <= serviceTime) {
+            return timeWindow.getReadyTime();
+        }
+        if (timeWindow.getReadyTime() < lowest) {
+            lowest = timeWindow.getReadyTime();
+        }
+    }
+    return lowest;
+}
+
+double customer::getDueTimeAt(double serviceTime) const {
+    for (const auto & timeWindow : timeWindows) {
+        if (timeWindow.getDueDate() >= serviceTime) {
+            return timeWindow.getDueDate();
+        }
+    }
+    return INT_MAX;
+}
+
+std::pair<double, double> customer::getTimeWindow(double serviceTime) const {
+    auto beginingOfTheWindowTime = getReadyTimeAt(serviceTime);
+    return std::make_pair(beginingOfTheWindowTime, getDueTimeAt(beginingOfTheWindowTime));
 }

@@ -231,7 +231,7 @@ int main(int argc, char * argv[]) {
 
     auto *simulatedAnnealing = new class SimulatedAnnealing(temperature, c);
     simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), routes, timeSchedule, solomon->getWaitingTime(), usedCapacity);
-    auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, customers.size());
+//    auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, customers.size());
     int i = 0;
     auto *test = new class test(); //TODO prerobit, stale je stavany na stare riesenie nove nevie testovat
     test->correctnessForCurrentSolution(customers, timeSchedule, routes, solomon->getWaitingTime(), distanceMatrix, usedCapacity, vehicles);
@@ -281,6 +281,6 @@ int main(int argc, char * argv[]) {
     delete test;
     delete solomon;
     delete simulatedAnnealing;
-    delete shawRemoval;
+//    delete shawRemoval;
     return 0;
 }

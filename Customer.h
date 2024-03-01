@@ -46,6 +46,9 @@ public:
     bool doesTimeWindowExist(double readyTime, double dueDate);
     int getIndexOfTimeWindow(double readyTime, double dueDate);
 
+    double getReadyTimeAt(double serviceTime) const;
+    double getDueTimeAt(double serviceTime) const;
+    std::pair<double, double> getTimeWindow(double serviceTime) const;
 };
 
 

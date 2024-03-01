@@ -75,3 +75,11 @@ void CustomersTimeWindow::setVehiclesRequired(int vehRequired) {
 int CustomersTimeWindow::getNumberOfVehiclesServing() const {
     return curentVehiclesServing;
 }
+
+double CustomersTimeWindow::getDemand() const {
+    return demand;
+}
+
+double CustomersTimeWindow::getServiceTime() const {
+    return serviceTime;
+}
