@@ -19,6 +19,7 @@ customer::customer(const customer &customer) {
     xcord = customer.xcord;
     ycord = customer.ycord;
     routedStatus = customer.routedStatus;
+    timeWindows = customer.timeWindows;
 }
 
 customer::~customer() {

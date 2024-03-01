@@ -233,8 +233,8 @@ int main(int argc, char * argv[]) {
     simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), routes, timeSchedule, solomon->getWaitingTime(), usedCapacity);
 //    auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, customers.size());
     int i = 0;
-    auto *test = new class test(); //TODO prerobit, stale je stavany na stare riesenie nove nevie testovat
-    test->correctnessForCurrentSolution(customers, timeSchedule, routes, solomon->getWaitingTime(), distanceMatrix, usedCapacity, vehicles);
+//    auto *test = new class test(); //TODO prerobit, stale je stavany na stare riesenie nove nevie testovat
+//    test->correctnessForCurrentSolution(customers, timeSchedule, routes, solomon->getWaitingTime(), distanceMatrix, usedCapacity, vehicles);
 //    while (i < 1) {
 //        std::cout << "Iteracia: " << i << std::endl;
 //        ro = calculateRo(ksi, customers);
@@ -276,9 +276,9 @@ int main(int argc, char * argv[]) {
     std::cout << bestDistance << std::endl;
     std::cout << i << std::endl;
 
-    std::cout << "Test results: " << test->getUncorectnessCounter() << std::endl;
+//    std::cout << "Test results: " << test->getUncorectnessCounter() << std::endl;
 
-    delete test;
+//    delete test;
     delete solomon;
     delete simulatedAnnealing;
 //    delete shawRemoval;
