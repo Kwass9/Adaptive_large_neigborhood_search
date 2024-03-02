@@ -214,10 +214,11 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
 
                     for (int i = 1; i < route.size(); ++i) {
                         double timeOfService;
-                        if (timeWindow.getNumberOfVehiclesServing() > 0) {
+                        if (timeWindow.getNumberOfVehiclesServing() == 0) {
+                            auto timeWindowPredchodca = custs[route[i - 1]].getTimeWindowBeforeTime(begOfServ[i - 1]);
                             timeOfService = begOfServ[i - 1]
                                             + dMatrix[route[i - 1]][u]
-                                            + timeWindow.getServiceTime();
+                                            + timeWindowPredchodca.getServiceTime();
                         } else {
                             auto times = custs[u].getPreviouslyServedByTimes();
                             for (double time : times) {
@@ -302,7 +303,7 @@ void solomon::insertCustomerToRoad(Vehicle& vehicle, std::tuple<int, int, int> o
     int i = std::get<0>(optimalInsertion);
     int u = std::get<1>(optimalInsertion);
     int w = std::get<2>(optimalInsertion);
-    auto timeWindowU = custs[u].getTimeWindow(w);
+    CustomersTimeWindow& timeWindowU = custs[u].getTimeWindow(w);
     auto route = vehicle.getRoute();
     auto beginingOfService = vehicle.getTimeSchedule();
     int predchodca = route[i - 1];
@@ -560,8 +561,11 @@ void solomon::pushVehicleInOtherRoutes(Vehicle &vehicle, int u, double timeOfSer
             routeIndex = i;
         }
     }
-    auto pf = calculatePushForward(route, u, routeIndex, timeWaitedAtCustomer, distanceMatrix, customers, timeOfService, waitingTime, timeSchedule, customers[u].getTimeWindow(0), customers[0].getTimeWindow(0));
-    if (lema11(timeSchedule, pf, route, customers, u, routeIndex, timeOfService, vehicle, customers[u].getTimeWindow(0))) {
+    auto pf = calculatePushForward(route, u, routeIndex, timeWaitedAtCustomer, distanceMatrix, customers,
+                                   timeOfService, waitingTime, timeSchedule, customers[u].getTimeWindow(0),
+                                   customers[0].getTimeWindow(0));
+    if (lema11(timeSchedule, pf, route, customers, u, routeIndex, timeOfService,
+               vehicle, customers[u].getTimeWindow(0))) {
         insertCustomerToRoad(vehicle, std::make_tuple(routeIndex, u, 0), customers, distanceMatrix, timeWaitedAtCustomer);
     }
 }

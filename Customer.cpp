@@ -99,7 +99,7 @@ void customer::createNewTimeWindow(double readyTime, double dueDate, double dema
     timeWindows.emplace_back(readyTime, dueDate, demand, serviceTime);
 }
 
-CustomersTimeWindow customer::getTimeWindow(int index) {
+CustomersTimeWindow & customer::getTimeWindow(int index) {
     return timeWindows[index];
 }
 
@@ -165,4 +165,25 @@ double customer::getDueTimeAt(double serviceTime) const {
 std::pair<double, double> customer::getTimeWindow(double serviceTime) const {
     auto beginingOfTheWindowTime = getReadyTimeAt(serviceTime);
     return std::make_pair(beginingOfTheWindowTime, getDueTimeAt(beginingOfTheWindowTime));
+}
+
+CustomersTimeWindow &customer::getTimeWindowBeforeTime(double serviceTime) {
+    int index = 0;
+    for (int i = 0; i < timeWindows.size(); i++) {
+        if (timeWindows[i].getReadyTime() <= serviceTime) {
+            index = i;
+        }
+    }
+    return timeWindows[index];
+}
+
+CustomersTimeWindow &customer::getTimeWindowAfterTime(double serviceTime) {
+    int index = 0;
+    for (int i = 0; i < timeWindows.size(); i++) {
+        if (timeWindows[i].getDueDate() >= serviceTime) {
+            index = i;
+            break;
+        }
+    }
+    return timeWindows[index];
 }

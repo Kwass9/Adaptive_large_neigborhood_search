@@ -10,7 +10,7 @@ class CustomersTimeWindow {
 private:
     double readyTime;
     double dueDate;
-    int vehiclesRequired = 0;
+    int vehiclesRequired = 1;
     int curentVehiclesServing = 0;
     double demand;
     double serviceTime;

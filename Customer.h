@@ -39,7 +39,7 @@ public:
 
     bool isServedByEnoughVehicles() const;
     void createNewTimeWindow(double readyTime, double dueDate, double demand, double serviceTime);
-    CustomersTimeWindow getTimeWindow(int index);
+    CustomersTimeWindow & getTimeWindow(int index);
     std::vector<CustomersTimeWindow> getTimeWindows() const;
     CustomersTimeWindow& findTimeWindowWithTimes(double readyTime, double dueDate);
     void createTimeWindowIfNotFount(double readyTime, double dueDate, double demand, double serviceTime);
@@ -49,6 +49,8 @@ public:
     double getReadyTimeAt(double serviceTime) const;
     double getDueTimeAt(double serviceTime) const;
     std::pair<double, double> getTimeWindow(double serviceTime) const;
+    CustomersTimeWindow & getTimeWindowBeforeTime(double serviceTime);
+    CustomersTimeWindow & getTimeWindowAfterTime(double serviceTime);
 };
 
 
