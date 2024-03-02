@@ -35,7 +35,7 @@ public:
     void clearPreviouslyServedBy();
     void setPreviouslyServedBy(std::vector<int> vehicles);
     bool isPreviouslyServedBy(int vehicleId);
-    int getIndexOfPreviouslyServedBy(int time);
+    int getIndexOfPreviouslyServedBy(double time);
 
     bool isServedByEnoughVehicles() const;
     void createNewTimeWindow(double readyTime, double dueDate, double demand, double serviceTime);

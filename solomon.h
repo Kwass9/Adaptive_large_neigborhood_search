@@ -41,7 +41,7 @@ private:
     static std::vector<double> calculatePushForward(const std::vector<int>& route, int u, int position,
                                                     const std::vector<double> &timeWaitedAtCustomer, const std::vector<std::vector<double>> &distanceMatrix,
                                                     const std::vector<customer> &customers, double timeOfService, double waitingTime, const std::vector<double> &beginingOfService,
-                                                    CustomersTimeWindow timeWinCustomerU, CustomersTimeWindow timeWinCustomerJ);
+                                                    const CustomersTimeWindow& timeWinCustomerU, const CustomersTimeWindow& timeWinCustomerJ);
     static void calculateNewBeginings(std::vector<double> &pushForward, std::vector<double> &timeWaitedAtCustomer,
                                std::vector<int> &route, std::vector<customer>& customers, int zakaznikU,
                                std::vector<double> &beginingOfService, double timeOfService,
@@ -58,8 +58,9 @@ private:
                                                           int i, int u, double a1, double a2, bool doesNoiseApply, double min,
                                                           int minIndex, std::vector<double> pf);
     /**pokial bolo treba pushnut vozidlo v jednej ceste no uz je aj v inej pridelene kvoli sucasnej obsluhe*/
-    bool checkIfVehicleCanBePushedInRoute(const Vehicle &vehicle, int u, double timeOfService,
-                                          std::vector<customer> &customers, double waitingTime);
+    bool checkIfCustomerCanBePushedInRoute(const Vehicle &vehicle, int u, double timeOfService,
+                                           std::vector<customer> &customers, double waitingTime,
+                                           int vehicleIndex);
     void pushVehicleInOtherRoutes(Vehicle &vehicle, int u, double timeOfService,
                                   std::vector<customer> &customers, const std::vector<std::vector<double>> &distanceMatrix
                                   ,double waitingTime);

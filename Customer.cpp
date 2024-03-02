@@ -86,7 +86,7 @@ void customer::editPreviouslyServedByTime(double time, double position) {
     }
 }
 
-int customer::getIndexOfPreviouslyServedBy(int time) {
+int customer::getIndexOfPreviouslyServedBy(double time) {
     for (int i = 0; i < previouslyServedByTime.size(); i++) {
         if (previouslyServedByTime[i] == time) {
             return i;
