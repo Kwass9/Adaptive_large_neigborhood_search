@@ -135,7 +135,7 @@ int main(int argc, char * argv[]) {
                 if (id == custBack.getId()) {
                     if (custBack.doesTimeWindowExist(readyTime, dueDate)) {
                         auto winIndex = custBack.getIndexOfTimeWindow(readyTime, dueDate);
-                        custBack.getTimeWindow(winIndex).incrementVehiclesRequired();
+                        custBack.getTimeWindowAt(winIndex).incrementVehiclesRequired();
                     }
                     else {
                         custBack.createNewTimeWindow(readyTime, dueDate, demand, serviceTime);

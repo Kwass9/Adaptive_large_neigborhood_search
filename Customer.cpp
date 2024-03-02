@@ -99,7 +99,7 @@ void customer::createNewTimeWindow(double readyTime, double dueDate, double dema
     timeWindows.emplace_back(readyTime, dueDate, demand, serviceTime);
 }
 
-CustomersTimeWindow & customer::getTimeWindow(int index) {
+CustomersTimeWindow & customer::getTimeWindowAt(int index) {
     return timeWindows[index];
 }
 
