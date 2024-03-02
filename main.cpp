@@ -131,7 +131,7 @@ int main(int argc, char * argv[]) {
             double serviceTime = processString(i, delimiter);
             if (!customers.empty()) {
                 //pokial su dve liny rovnake a maju rovnake casy obsluhy tak potrebuje obsluhu dvoch opatrovateliek naraz
-                auto custBack = customers.back();
+                customer& custBack = customers.back();
                 if (id == custBack.getId()) {
                     if (custBack.doesTimeWindowExist(readyTime, dueDate)) {
                         auto winIndex = custBack.getIndexOfTimeWindow(readyTime, dueDate);

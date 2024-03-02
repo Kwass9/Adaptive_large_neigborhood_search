@@ -137,7 +137,7 @@ int customer::getIndexOfTimeWindow(double readyTime, double dueDate) {
     auto index = (int)std::distance(timeWindows.begin(), std::find_if(timeWindows.begin(), timeWindows.end(), [readyTime, dueDate](const CustomersTimeWindow & timeWindow) {
         return timeWindow.getReadyTime() == readyTime && timeWindow.getDueDate() == dueDate;
     }));
-    return index - 1;
+    return index;
 }
 
 double customer::getReadyTimeAt(double serviceTime) const {

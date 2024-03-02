@@ -47,7 +47,7 @@ private:
                                std::vector<double> &beginingOfService, double timeOfService,
                                const std::vector<std::vector<double>> &distanceMatrix, int u);
     static bool lema11(const std::vector<double> &beginingOfService, const std::vector<double> &pushForward,
-                       const std::vector<int> &route, const std::vector<customer> &customers, int u, int position, double timeOfService,
+                       const std::vector<int> &route, std::vector<customer> &customers, int u, int position, double timeOfService,
                        const Vehicle &vehicle, const CustomersTimeWindow& timeWinCustomerU);
 
     std::vector<std::tuple<int, double, int, int>> findMinForC1(double a1, double a2, const std::vector<std::vector<double>> &dMatrix,
@@ -59,7 +59,7 @@ private:
                                                           int minIndex, std::vector<double> pf);
     /**pokial bolo treba pushnut vozidlo v jednej ceste no uz je aj v inej pridelene kvoli sucasnej obsluhe*/
     bool checkIfVehicleCanBePushedInRoute(const Vehicle &vehicle, int u, double timeOfService,
-                                          const std::vector<customer> &customers, double waitingTime);
+                                          std::vector<customer> &customers, double waitingTime);
     void pushVehicleInOtherRoutes(Vehicle &vehicle, int u, double timeOfService,
                                   std::vector<customer> &customers, const std::vector<std::vector<double>> &distanceMatrix
                                   ,double waitingTime);

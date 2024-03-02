@@ -166,8 +166,9 @@ void solomon::calculateNewBeginings(std::vector<double> &pushForward, std::vecto
 }
 
 bool solomon::lema11(const std::vector<double> &beginingOfService, const std::vector<double> &pushForward, const std::vector<int> &route,
-                     const std::vector<customer> &customers, int u, int position, double  beginingOfServiceU, const  Vehicle &vehicle,
+                     std::vector<customer> &customers, int u, int position, double  beginingOfServiceU, const  Vehicle &vehicle,
                      const CustomersTimeWindow& timeWinCustomerU) {
+    CustomersTimeWindow* timeWindowAfter;
     if (beginingOfServiceU <= timeWinCustomerU.getDueDate()) {
         int j = 0;
         while (pushForward[j] > 0.00000001 && j < route.size() - 1 && j < pushForward.size()) {
@@ -179,8 +180,12 @@ bool solomon::lema11(const std::vector<double> &beginingOfService, const std::ve
             if ((position + j != route.size() - 1) && nextService > timeWindowVehicle.second && nextService < timeWindowVehicle.first) {
                 return false;
             }
-            /**tu potrebujem sposob ako dynamicky ratat o ake casove okno sa jedna*/
-            if (nextService <= customers[route[position + j]].getTimeWindows()[0].getDueDate()) {
+            if (route[position + j] == customers.size()) {
+                timeWindowAfter = &customers[0].getTimeWindowAfterTime(nextService);
+            } else {
+                timeWindowAfter = &customers[position + j].getTimeWindowAfterTime(nextService);
+            }
+            if (nextService <= timeWindowAfter->getDueDate()) {
                 ++j;
             } else {
                 return false;
@@ -250,6 +255,7 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
                             if (lema11(begOfServ, pf, route, custs, u, i, timeOfService, vehicles[vehicleIndex], timeWindow)) {
                                 auto secondIndex = custs[u].getIndexOfPreviouslyServedBy(timeOfService);
                                 auto vehIndex = custs[u].getPreviouslyServedBy()[secondIndex];
+                                /**tu trafi break ked chce obsluzit 10tku druhy krat pri index == 5, pri index == 9 ee, pri index == 10 ee, index 9 a 10 skoci mimo blok kodu idk preco zatial*/
                                 if (secondIndex == -1) {
                                     break; /**tento break este nie je uplne co by som chcel*/
                                 }
@@ -537,7 +543,7 @@ void solomon::finalPrint(std::vector<customer> &custs, std::vector<Vehicle> &veh
 
 // TODO: bude treba prejst debugom
 bool solomon::checkIfVehicleCanBePushedInRoute(const Vehicle &vehicle, int u, double timeOfService,
-                                               const std::vector<customer> &customers, double waitingTime) {
+                                               std::vector<customer> &customers, double waitingTime) {
     auto route = vehicle.getRoute();
     const auto& timeSchedule = vehicle.getTimeSchedule();
     int routeIndex;
