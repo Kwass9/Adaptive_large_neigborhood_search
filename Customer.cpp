@@ -66,7 +66,7 @@ void customer::setPreviouslyServedBy(std::vector<int> vehicles) {
     previouslyServedBy = vehicles;
 }
 
-bool customer::isPreviouslyServedBy(int vehicleId) {
+bool customer::isPreviouslyServedBy(int vehicleId) const {
     return std::find(previouslyServedBy.begin(), previouslyServedBy.end(), vehicleId) != previouslyServedBy.end();
 }
 
@@ -141,16 +141,16 @@ int customer::getIndexOfTimeWindow(double readyTime, double dueDate) {
 }
 
 double customer::getReadyTimeAt(double serviceTime) const {
-    double lowest = INT_MAX;
+    double highestReasonable = 0;
     for (const auto & timeWindow : timeWindows) {
         if (timeWindow.getReadyTime() <= serviceTime) {
-            return timeWindow.getReadyTime();
-        }
-        if (timeWindow.getReadyTime() < lowest) {
-            lowest = timeWindow.getReadyTime();
+//            return timeWindow.getReadyTime();
+            if (timeWindow.getReadyTime() >= highestReasonable) {
+                highestReasonable = timeWindow.getReadyTime();
+            }
         }
     }
-    return lowest;
+    return highestReasonable;
 }
 
 double customer::getDueTimeAt(double serviceTime) const {

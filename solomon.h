@@ -57,6 +57,7 @@ private:
     std::tuple<int, double> calculateC1(std::vector<int> route, std::vector<std::vector<double>> dMatrix,
                                                           int i, int u, double a1, double a2, bool doesNoiseApply, double min,
                                                           int minIndex, std::vector<double> pf);
+    static bool checkIfCustomerAcceptsThisVehicle(const customer& customer, int routeIndex, int timeWindowIndex, const CustomersTimeWindow& timeWindow);
     /**pokial bolo treba pushnut vozidlo v jednej ceste no uz je aj v inej pridelene kvoli sucasnej obsluhe*/
     bool checkIfCustomerCanBePushedInRoute(const Vehicle &vehicle, int u, double timeOfService,
                                            std::vector<customer> &customers, double waitingTime,

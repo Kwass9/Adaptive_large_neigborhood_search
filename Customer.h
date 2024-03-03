@@ -34,7 +34,7 @@ public:
     void editPreviouslyServedByTime(double time, double position);
     void clearPreviouslyServedBy();
     void setPreviouslyServedBy(std::vector<int> vehicles);
-    bool isPreviouslyServedBy(int vehicleId);
+    bool isPreviouslyServedBy(int vehicleId) const;
     int getIndexOfPreviouslyServedBy(double time);
 
     bool isServedByEnoughVehicles() const;
