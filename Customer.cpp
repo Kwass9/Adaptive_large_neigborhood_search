@@ -95,6 +95,11 @@ int customer::getIndexOfPreviouslyServedBy(double time) {
     return -1;
 }
 
+
+int customer::getIdOfPreviouslyServedBy(double time) {
+    return previouslyServedBy[getIndexOfPreviouslyServedBy(time)];
+}
+
 void customer::createNewTimeWindow(double readyTime, double dueDate, double demand, double serviceTime) {
     timeWindows.emplace_back(readyTime, dueDate, demand, serviceTime);
 }
