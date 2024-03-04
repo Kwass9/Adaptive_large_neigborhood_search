@@ -211,12 +211,12 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
     auto curUsedCap = vehicles[vehicleIndex].getUsedCapacity();
     auto route = vehicles[vehicleIndex].getRoute();
     auto begOfServ = vehicles[vehicleIndex].getTimeSchedule();
-    std::vector<int> minIndexesLocal;
-    std::vector<double> minLocal;
-    std::vector<int> wLocal; /**asi pridat min i potom by som ho nemusel zakazdym pocitat pri inserte...*/
+
     for (int u = 1; u < custs.size(); ++u) {
         double min = INT_MAX - 1;
-
+        std::vector<int> minIndexesLocal;
+        std::vector<double> minLocal;
+        std::vector<int> wLocal; /**asi pridat min i potom by som ho nemusel zakazdym pocitat pri inserte...*/
         std::vector<bool> validTimeWindows(custs[u].getTimeWindows().size(), false);
 
         for (int w = 0; w < custs[u].getTimeWindows().size(); ++w) {
@@ -249,8 +249,15 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
                         timeOfService = timeWindow.getReadyTime();
                     }
 
+                    /**timeWinCUstomerJ nie je aktualizovane*/
+                    auto winJ = custs[0].getTimeWindowAt(0);
+                    if (i < route.size() - 1) {
+                        auto winJP = custs[route[i]].getTimeWindow(begOfServ[i]);
+                        auto winJI = custs[route[i]].getIndexOfTimeWindow(winJP.first, winJP.second);
+                        winJ = custs[route[i]].getTimeWindowAt(winJI);
+                    }
                     auto pf = calculatePushForward(route, u, i, timeWaitedAtCust,
-                                                   dMatrix, custs, timeOfService, waitingTime, begOfServ, timeWindow, custs[0].getTimeWindows()[0]);
+                                                   dMatrix, custs, timeOfService, waitingTime, begOfServ, timeWindow, winJ);
 
                     //pokial nebol este vlozeny do ziadnej inej trasy
                     if (timeWindow.getNumberOfVehiclesServing() == 0) {
@@ -291,7 +298,14 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
                 auto check = std::all_of(validTimeWindows.begin(), validTimeWindows.end(), [](bool a) {return a;});
                 if (min < INT_MAX / 2 - 1 && check) {
                     for (int i = 0; i < custs[u].getTimeWindows().size(); ++i) {
-                        mnozinaC1.emplace_back(minIndexesLocal[i], minLocal[i], u, wLocal[i], validTimeWindows.size());
+                        int minFound = INT_MAX - 1;
+                        for (int j = 0; j < minIndexesLocal.size(); ++j) {
+                            if (wLocal[j] == i && minLocal[j] < minFound) {
+                                minIndex = j;
+                                minFound = minLocal[j];
+                            }
+                        }
+                        mnozinaC1.emplace_back(minIndexesLocal[minIndex], minLocal[minIndex], u, wLocal[minIndex], validTimeWindows.size());
                     }
                 }
             }
@@ -324,8 +338,12 @@ std::vector<std::tuple<int, int, int, int>> solomon::findOptimumForC2(std::vecto
     }
     std::vector<std::tuple<int, int, int, int>> optimalInsertions;
     for (int i = 0; i < std::get<4>(mnozinaC1[maxIndex]); ++i) {
-        optimalInsertions.emplace_back(std::get<0>(mnozinaC1[maxIndex]), std::get<2>(mnozinaC1[maxIndex]),
-                                       std::get<3>(mnozinaC1[maxIndex]), std::get<4>(mnozinaC1[maxIndex]));
+        for (int j = 0; j < mnozinaC1.size(); ++j) {
+            if (std::get<2>(mnozinaC1[j]) == std::get<2>(mnozinaC1[maxIndex])) {
+                optimalInsertions.emplace_back(std::get<0>(mnozinaC1[j]), std::get<2>(mnozinaC1[j]),
+                                               std::get<3>(mnozinaC1[j]), std::get<4>(mnozinaC1[j]));
+            }
+        }
     }
     return optimalInsertions;
 }
@@ -334,7 +352,7 @@ void solomon::insertCustomerToRoad(Vehicle& vehicle, std::vector<std::tuple<int,
                                    const std::vector<std::vector<double>>& distanceMatrix, std::vector<double>& timeWaitedAtCustomer) {;
     int n = std::get<3>(optimalInsertion[0]);
     int u = std::get<1>(optimalInsertion[0]);
-    for (int j = 0; j < n; ++j) {
+    for (int j = 0; j < n; ++j) { /**kokotina mi posiela stale rovnake okna...*/
         int i = std::get<0>(optimalInsertion[j]);
         int w = std::get<2>(optimalInsertion[j]);
 
