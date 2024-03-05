@@ -100,6 +100,7 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
                 if (routes[i][j] == k) {
                     customers[k].markAsUnrouted();
                     waitingTime[k] = 0;
+                    auto nWindows = customers[k].getTimeWindows().size();
 
                     auto winP = customers[k].getTimeWindow(timeSchedule[i][j]);
                     auto winIndex = customers[k].getIndexOfTimeWindow(winP.first, winP.second);
@@ -107,16 +108,21 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
                     customers[k].getTimeWindows()[winIndex].decrementCurentVehiclesServing();
 
                     vehicles[i].setUsedCapacity(vehicles[i].getUsedCapacity() - win.getDemand());
-//                    usedCapacity[i] -= customers[k].getDemand();
                     std::cout << "removed: " << k << " from route: " << i << std::endl;
                     timeSchedule[i].erase(timeSchedule[i].begin() + j);
                     routes[i].erase(routes[i].begin() + j);
 
-//                    vehicles[i].setPreviouslyServedBy(routes[i]);
-//                    customers[k];
-//                    customers[k].setPreviouslyServedByTimes(timeSchedule[i]); //TODO toto ma byt pre vehicle zakaznik ma iny init spravit
-//                    customers[k].setPreviouslyServedBy(routes[i]);
-
+                    vehicles[i].setRoute(routes[i]);
+                    vehicles[i].setTimeSchedule(timeSchedule[i]);
+                    for (int o = 0; o < nWindows; ++o) {
+                        for (int l = (int)customers[k].getPreviouslyServedBy().size() - 1; l >= 0; l--) {
+                            if (customers[k].getPreviouslyServedBy()[l] == i) {
+                                customers[k].removePreviouslyServedByTime(l);
+                                break;
+                            }
+                        }
+                    }
+                    customers[k].removePreviouslyServedBy(i);
 
                     auto l = j;
                     while (l < timeSchedule[i].size()) {
@@ -137,13 +143,16 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
                                                 + distanceMatrix[indexPredchodca][indexNasledovnik];
                         if (newTimeOfService < winNasledovnik.getReadyTime() && indexNasledovnik != 101) {
                             timeSchedule[i][nasledovnik] = winNasledovnik.getReadyTime();
-//                            vehicles[i].setTimeSchedule(timeSchedule[i]); //TODO
-//                            customers[];
+                            vehicles[i].setTimeSchedule(timeSchedule[i]);
+                            auto iServ = customers[indexNasledovnik].findIndexOfPreviouslyServedBy(i);
+                            customers[indexNasledovnik].editPreviouslyServedByTime(winNasledovnik.getReadyTime(), iServ);
                             waitingTime[indexNasledovnik] = winNasledovnik.getReadyTime() - newTimeOfService;
                         } else {
                             timeSchedule[i][nasledovnik] = newTimeOfService;
-//                            vehicles[i].setTimeSchedule(timeSchedule[i]); //TODO
-//                            customers[];
+                            vehicles[i].setTimeSchedule(timeSchedule[i]);
+                            vehicles[i].setTimeSchedule(timeSchedule[i]);
+                            auto iServ = customers[indexNasledovnik].findIndexOfPreviouslyServedBy(i);
+                            customers[indexNasledovnik].editPreviouslyServedByTime(winNasledovnik.getReadyTime(), iServ);
                             waitingTime[indexNasledovnik] = 0;
                         }
                         ++l;

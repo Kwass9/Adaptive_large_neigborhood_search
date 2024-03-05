@@ -35,10 +35,13 @@ public:
     void editPreviouslyServedByTime(double time, double position);
     void clearPreviouslyServedBy();
     void setPreviouslyServedBy(std::vector<int> vehicles);
+    void removePreviouslyServedBy(int vehicleId);
     void setPreviouslyServedByTimes(std::vector<double> times);
+    void removePreviouslyServedByTime(int position);
     bool isPreviouslyServedBy(int vehicleId) const;
     int getIndexOfPreviouslyServedBy(double time);
     int getIdOfPreviouslyServedBy(double time);
+    int findIndexOfPreviouslyServedBy(int vehicleId);
 
     std::vector<double> getWaitingTimeForService() const;
     double getWaitingTimeForServiceAt(int index) const;

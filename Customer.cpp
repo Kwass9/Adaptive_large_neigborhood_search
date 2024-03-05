@@ -221,3 +221,17 @@ void customer::setWaitingTimeForService(std::vector<double> times) {
 void customer::setPreviouslyServedByTimes(std::vector<double> times) {
     previouslyServedByTime = std::move(times);
 }
+
+//TODO: check if this is correct
+void customer::removePreviouslyServedBy(int vehicleId) {
+    previouslyServedBy.erase(std::remove(previouslyServedBy.begin(), previouslyServedBy.end(), vehicleId), previouslyServedBy.end());
+}
+
+//TODO: check if this is correct
+void customer::removePreviouslyServedByTime(int position) {
+    previouslyServedByTime.erase(previouslyServedByTime.begin() + position);
+}
+
+int customer::findIndexOfPreviouslyServedBy(int vehicleId) {
+    return (int)std::distance(previouslyServedBy.begin(), std::find(previouslyServedBy.begin(), previouslyServedBy.end(), vehicleId));
+}
