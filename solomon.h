@@ -63,7 +63,7 @@ private:
                                            std::vector<customer> &customers, double waitingTime,
                                            int vehicleIndex);
     void pushVehicleInOtherRoutes(Vehicle &vehicle, int u, double timeOfService,
-                                  std::vector<customer> &customers, const std::vector<std::vector<double>> &distanceMatrix
+                                  std::vector<customer> &customers, const std::vector<std::vector<double>> &distMatrix
                                   ,double waitingTime);
     static std::vector<std::tuple<int, int, int, int>> findOptimumForC2(std::vector<std::tuple<int, double, int, int, int>> &mnozinaC1, double lambda,
                                          std::vector<std::vector<double>> &distanceMatrix, std::vector<customer> &customers);

@@ -122,7 +122,7 @@ int main(int argc, char * argv[]) {
     //inicializacia zakaznikov
     for (auto & i : data) {
         if ((cell = i.find(delimiter)) != std::string::npos) {
-            int id = processString(i, delimiter);
+            int id = (int)processString(i, delimiter);
             double x = processString(i, delimiter);
             double y = processString(i, delimiter);
             double demand = processString(i, delimiter);
@@ -174,7 +174,7 @@ int main(int argc, char * argv[]) {
     //inicializacia vozidiel
     for (auto & i : data) {
         if ((cell = i.find(delimiter)) != std::string::npos) {
-            unsigned int id = processString(i, delimiter);
+            int id = (int)processString(i, delimiter);
             double x = processString(i, delimiter);
             double y = processString(i, delimiter);
             double readyTime = processString(i, delimiter);
@@ -183,11 +183,11 @@ int main(int argc, char * argv[]) {
                 if (id == vehicles.back().getId()) {
                     vehicles.back().editWorkingHours(readyTime, dueDate);
                 } else {
-                    Vehicle vehicle(id, std::numeric_limits<int>::max(), x, y, readyTime, dueDate, customers.size());
+                    Vehicle vehicle(id, std::numeric_limits<int>::max(), x, y, readyTime, dueDate, (int)customers.size());
                     vehicles.emplace_back(vehicle);
                 }
             } else {
-                Vehicle vehicle(id, std::numeric_limits<int>::max(), x, y, readyTime, dueDate, customers.size());
+                Vehicle vehicle(id, std::numeric_limits<int>::max(), x, y, readyTime, dueDate, (int)customers.size());
                 vehicles.emplace_back(vehicle);
             }
         }

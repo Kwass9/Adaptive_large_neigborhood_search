@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <climits>
+#include <utility>
 #include "Customer.h"
 
 customer::customer(int idNum, double x, double y) {
@@ -63,7 +64,7 @@ void customer::clearPreviouslyServedBy() {
 }
 
 void customer::setPreviouslyServedBy(std::vector<int> vehicles) {
-    previouslyServedBy = vehicles;
+    previouslyServedBy = std::move(vehicles);
 }
 
 bool customer::isPreviouslyServedBy(int vehicleId) const {
@@ -191,4 +192,28 @@ CustomersTimeWindow &customer::getTimeWindowAfterTime(double serviceTime) {
         }
     }
     return timeWindows[index];
+}
+
+std::vector<double> customer::getWaitingTimeForService() const {
+    return waitingTimeForService;
+}
+
+double customer::getWaitingTimeForServiceAt(int index) const {
+    return waitingTimeForService[index];
+}
+
+void customer::addWaitingTimeForService(double time) {
+    waitingTimeForService.push_back(time);
+}
+
+void customer::editWaitingTimeForService(double time, int index) {
+    waitingTimeForService[index] = time;
+}
+
+void customer::clearWaitingTimeForService() {
+    waitingTimeForService.clear();
+}
+
+void customer::setWaitingTimeForService(std::vector<double> times) {
+    waitingTimeForService = std::move(times);
 }

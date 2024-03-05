@@ -15,6 +15,7 @@ private:
     double ycord;
     std::vector<int> previouslyServedBy = {};
     std::vector<double> previouslyServedByTime = {};
+    std::vector<double> waitingTimeForService = {};
     bool routedStatus;
     std::vector<CustomersTimeWindow> timeWindows;
 public:
@@ -37,6 +38,13 @@ public:
     bool isPreviouslyServedBy(int vehicleId) const;
     int getIndexOfPreviouslyServedBy(double time);
     int getIdOfPreviouslyServedBy(double time);
+
+    std::vector<double> getWaitingTimeForService() const;
+    double getWaitingTimeForServiceAt(int index) const;
+    void addWaitingTimeForService(double time);
+    void editWaitingTimeForService(double time, int index);
+    void clearWaitingTimeForService();
+    void setWaitingTimeForService(std::vector<double> times);
 
     bool isServedByEnoughVehicles() const;
     void createNewTimeWindow(double readyTime, double dueDate, double demand, double serviceTime);
