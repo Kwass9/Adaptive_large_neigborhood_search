@@ -217,3 +217,7 @@ void customer::clearWaitingTimeForService() {
 void customer::setWaitingTimeForService(std::vector<double> times) {
     waitingTimeForService = std::move(times);
 }
+
+void customer::setPreviouslyServedByTimes(std::vector<double> times) {
+    previouslyServedByTime = std::move(times);
+}

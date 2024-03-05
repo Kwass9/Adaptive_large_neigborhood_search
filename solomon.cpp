@@ -515,7 +515,6 @@ void solomon::run(std::vector<customer> &custs, int numberOfUnvisitedCustomers, 
                     if (timeOfService >= vehicles[routeIndex].getReadyTimeAt(timeOfService) + distanceMatrix[0][indexVybrateho]
                         && vehicles[routeIndex].getDueTimeAt(vehicles[routeIndex].getReadyTimeAt(timeOfService))
                             >= timeOfService + distanceMatrix[indexVybrateho][0] + windowIt->getServiceTime() + windowIt->getServiceTime()) {
-                        /**tu este nie je updatnuty kod*/
                         auto pf = calculatePushForward(vehicles[routeIndex].getRoute(), indexVybrateho, 1,
                                                        timeWaitedAtCustomer, distanceMatrix, custs,
                                                        timeOfService,
@@ -523,7 +522,6 @@ void solomon::run(std::vector<customer> &custs, int numberOfUnvisitedCustomers, 
                                                        vehicles[routeIndex].getTimeSchedule(),
                                                        custs[indexVybrateho].getTimeWindowAt(position - 1),
                                                        custs[0].getTimeWindowAt(0));
-                        /**tu este nie je updatnuty kod*/
                         if (lema11(vehicles[routeIndex].getTimeSchedule(), pf,
                                    vehicles[routeIndex].getRoute(), custs, indexVybrateho, 1,
                                    timeOfService, vehicles[routeIndex], custs[indexVybrateho].getTimeWindowAt(position - 1))) {

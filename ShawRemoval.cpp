@@ -7,6 +7,7 @@
 #include "ShawRemoval.h"
 #include <cmath>
 #include <map>
+#include <iostream>
 
 Shaw_Removal::Shaw_Removal(double f, double ch, double ps, double o, int p, int problemSize) : fi(f), chi(ch), psi(ps), omega(o), p(p) {
     R.resize(problemSize);
@@ -14,12 +15,22 @@ Shaw_Removal::Shaw_Removal(double f, double ch, double ps, double o, int p, int 
 
 Shaw_Removal::~Shaw_Removal() = default;
 
-void Shaw_Removal::calculateRelatedness(std::vector<std::vector<double>> &distanceMatrix, std::vector<std::vector<int>> &routes,
-                                                       std::vector<std::vector<double>> &timeSchedule, int r) {
+void Shaw_Removal::calculateRelatedness(std::vector<std::vector<double>> &distanceMatrix, std::vector<Vehicle> &vehicles, int r) {
     int nasledovnik_r = 0;
     int route_number_r = 0;
     int index_r;
     int nasledovnik_r_index;
+
+    /**vytahal som si data do jednej struktury nech nemusim prerabat stary vypocet*/
+    //TODO bude sa dat prepisat kod po zmene riesenia v solomonovy, tak aby sa dal lahsie citat
+    std::vector<std::vector<int>> routes;
+    std::vector<std::vector<double>> timeSchedule;
+    for (const auto & vehicle : vehicles) {
+        routes.emplace_back(vehicle.getRoute());
+        timeSchedule.emplace_back(vehicle.getTimeSchedule());
+    }
+
+
     for (int i = 0; i < routes.size(); ++i) {
         for (int j = 1; j < routes[i].size() - 1; ++j) {
             if (routes[i][j] == r) {
@@ -54,42 +65,58 @@ void Shaw_Removal::calculateRelatedness(std::vector<std::vector<double>> &distan
 }
 
 void Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatrix,
-                                  std::vector<customer> &customers, std::vector<std::vector<int>> &routes,
-                                  std::vector<std::vector<double>> &timeSchedule, const int &ro, std::vector<double> &waitingTime,
-                                  std::vector<double> &usedCapacity) {
+                                  std::vector<customer> &customers,
+                                  const int &ro,
+                                  std::vector<double> &waitingTime,
+                                  std::vector<Vehicle> &vehicles) {
     D.clear();
     auto r = generateRandomNumber(1, (int)customers.size() - 1);
     D.emplace_back(r);
     std::vector<std::pair<int, double>> L;
     while (D.size() < ro) {
-        calculateRelatedness(distanceMatrix, routes, timeSchedule, r);
+        calculateRelatedness(distanceMatrix,vehicles, r);
         calculateL(L, (int)customers.size()); //TODO toto bude treba skontrolovat este
         calculateD(ro,L, r, (int)customers.size()); //TODO toto bude treba skontrolovat este
     }
-    editSolution(distanceMatrix,customers,routes,timeSchedule, D, waitingTime, usedCapacity);
+    editSolution(distanceMatrix,customers,D,waitingTime, vehicles);
 }
 
 void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix,
-                                std::vector<customer> &customers, std::vector<std::vector<int>> &routes,
-                                std::vector<std::vector<double>> &timeSchedule,
-                                std::vector<int> &D, std::vector<double>& waitingTime, std::vector<double>& usedCapacity) {
+                                std::vector<customer> &customers,
+                                std::vector<int> &D,
+                                std::vector<double>& waitingTime, std::vector<Vehicle> &vehicles) {
+
+    std::vector<std::vector<int>> routes;
+    std::vector<std::vector<double>> timeSchedule;
+    for (const auto & vehicle : vehicles) {
+        routes.emplace_back(vehicle.getRoute());
+        timeSchedule.emplace_back(vehicle.getTimeSchedule());
+    }
+
+
     for (int k : D) {
         for (int i = 0; i < timeSchedule.size(); ++i) {
             for (int j = 1; j < timeSchedule[i].size(); ++j) {
                 if (routes[i][j] == k) {
                     customers[k].markAsUnrouted();
                     waitingTime[k] = 0;
+
+                    auto winP = customers[k].getTimeWindow(timeSchedule[i][j]);
+                    auto winIndex = customers[k].getIndexOfTimeWindow(winP.first, winP.second);
+                    auto win = customers[k].getTimeWindows()[winIndex];
+                    customers[k].getTimeWindows()[winIndex].decrementCurentVehiclesServing();
+
+                    vehicles[i].setUsedCapacity(vehicles[i].getUsedCapacity() - win.getDemand());
 //                    usedCapacity[i] -= customers[k].getDemand();
+                    std::cout << "removed: " << k << " from route: " << i << std::endl;
                     timeSchedule[i].erase(timeSchedule[i].begin() + j);
                     routes[i].erase(routes[i].begin() + j);
-                    if (routes[i].size() == 2) {
-                        routes[i].clear();
-                        routes.erase(routes.begin() + i);
-                        timeSchedule[i].clear();
-                        timeSchedule.erase(timeSchedule.begin() + i);
-                        usedCapacity.erase(usedCapacity.begin() + i);
-                        break;
-                    }
+
+//                    vehicles[i].setPreviouslyServedBy(routes[i]);
+//                    customers[k];
+//                    customers[k].setPreviouslyServedByTimes(timeSchedule[i]); //TODO toto ma byt pre vehicle zakaznik ma iny init spravit
+//                    customers[k].setPreviouslyServedBy(routes[i]);
+
 
                     auto l = j;
                     while (l < timeSchedule[i].size()) {
@@ -97,15 +124,28 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
                         auto indexPredchodca = routes[i][l - 1];
                         auto nasledovnik = l;
                         auto predchodca = l - 1;
-//                        auto newTimeOfService = timeSchedule[i][predchodca] + customers[indexPredchodca].getServiceTime()
-//                                                + distanceMatrix[indexPredchodca][indexNasledovnik];
-//                        if (newTimeOfService < customers[indexNasledovnik].getReadyTime() && indexNasledovnik != 101) {
-//                            timeSchedule[i][nasledovnik] = customers[indexNasledovnik].getReadyTime();
-//                            waitingTime[indexNasledovnik] = customers[indexNasledovnik].getReadyTime() - newTimeOfService;
-//                        } else {
-//                            timeSchedule[i][nasledovnik] = newTimeOfService;
-//                            waitingTime[indexNasledovnik] = 0;
-//                        }
+
+                        auto winPPredchodca = customers[indexPredchodca].getTimeWindow(timeSchedule[i][predchodca]);
+                        auto winIndexPredchodca = customers[indexPredchodca].getIndexOfTimeWindow(winPPredchodca.first, winPPredchodca.second);
+                        auto winPredchodca = customers[indexPredchodca].getTimeWindows()[winIndexPredchodca];
+
+                        auto winPNasledovnik = customers[nasledovnik].getTimeWindow(timeSchedule[i][nasledovnik]);
+                        auto winIndexNasledovnik = customers[nasledovnik].getIndexOfTimeWindow(winPNasledovnik.first, winPNasledovnik.second);
+                        auto winNasledovnik = customers[nasledovnik].getTimeWindows()[winIndexNasledovnik];
+
+                        auto newTimeOfService = timeSchedule[i][predchodca] + winPredchodca.getServiceTime()
+                                                + distanceMatrix[indexPredchodca][indexNasledovnik];
+                        if (newTimeOfService < winNasledovnik.getReadyTime() && indexNasledovnik != 101) {
+                            timeSchedule[i][nasledovnik] = winNasledovnik.getReadyTime();
+//                            vehicles[i].setTimeSchedule(timeSchedule[i]); //TODO
+//                            customers[];
+                            waitingTime[indexNasledovnik] = winNasledovnik.getReadyTime() - newTimeOfService;
+                        } else {
+                            timeSchedule[i][nasledovnik] = newTimeOfService;
+//                            vehicles[i].setTimeSchedule(timeSchedule[i]); //TODO
+//                            customers[];
+                            waitingTime[indexNasledovnik] = 0;
+                        }
                         ++l;
                     }
                     break;

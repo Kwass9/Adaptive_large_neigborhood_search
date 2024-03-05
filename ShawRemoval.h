@@ -9,6 +9,7 @@
 #include <functional>
 #include <map>
 #include "Customer.h"
+#include "Vehicle.h"
 
 class Shaw_Removal {
 private:
@@ -20,13 +21,12 @@ private:
     int p;
     std::vector<int> D;
     void calculateRelatedness(std::vector<std::vector<double>> &distanceMatrix,
-                              std::vector<std::vector<int>> &routes,
-                              std::vector<std::vector<double>> &timeSchedule,
+                              std::vector<Vehicle> &vehicles,
                               int r);
     static void editSolution(std::vector<std::vector<double>> &distanceMatrix,
-                             std::vector<customer> &customers, std::vector<std::vector<int>> &routes,
-                             std::vector<std::vector<double>> &timeSchedule, std::vector<int> &D,
-                             std::vector<double>& waitingTime, std::vector<double>& usedCapacity);
+                             std::vector<customer> &customers,
+                             std::vector<int> &D,
+                             std::vector<double>& waitingTime, std::vector<Vehicle> &vehicles);
     void calculateD(const int &ro, std::vector<std::pair<int, double>>& L, int r, int s);
     void calculateL(std::vector<std::pair<int, double>>& L, int s);
     static void normalize(std::map<int ,double>& map);
@@ -36,9 +36,10 @@ public:
     Shaw_Removal(double fi, double chi, double psi, double omega, int p, int problemSize);
     ~Shaw_Removal();
     void removeRequests(std::vector<std::vector<double>> &distanceMatrix,
-                        std::vector<customer> &customers, std::vector<std::vector<int>> &routes,
-                        std::vector<std::vector<double>> &timeSchedule, const int &ro, std::vector<double> &waitingTime,
-                        std::vector<double> &usedCapacity);
+                        std::vector<customer> &customers,
+                        const int &ro,
+                        std::vector<double> &waitingTime,
+                        std::vector<Vehicle> &vehicles);
 };
 
 

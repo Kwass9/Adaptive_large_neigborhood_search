@@ -231,20 +231,20 @@ int main(int argc, char * argv[]) {
 
     auto *simulatedAnnealing = new class SimulatedAnnealing(temperature, c);
     simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), routes, timeSchedule, solomon->getWaitingTime(), usedCapacity);
-//    auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, customers.size());
+    auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, (int)customers.size());
     int i = 0;
 //    auto *test = new class test(); //TODO prerobit, stale je stavany na stare riesenie nove nevie testovat
 //    test->correctnessForCurrentSolution(customers, timeSchedule, routes, solomon->getWaitingTime(), distanceMatrix, usedCapacity, vehicles);
-//    while (i < 1) {
-//        std::cout << "Iteracia: " << i << std::endl;
-//        ro = calculateRo(ksi, customers);
-//        std::cout << "ro: " << ro << std::endl;
-//        shawRemoval->removeRequests(distanceMatrix,customers, solomon->getRoutes(), solomon->getTimeSchedule(), ro, solomon->getWaitingTime(), solomon->getUsedCapacity());
+    while (i < 1) {
+        std::cout << "Iteracia: " << i << std::endl;
+        ro = calculateRo(ksi, customers);
+        std::cout << "ro: " << ro << std::endl;
+        shawRemoval->removeRequests(distanceMatrix, customers, ro, solomon->getWaitingTime(), vehicles);
 //        solomon->run(customers, ro, vehicles);
 //        test->correctnessForCurrentSolution(customers, solomon->getTimeSchedule(), solomon->getRoutes(), solomon->getWaitingTime(), distanceMatrix, solomon->getUsedCapacity());
 //        simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime(), solomon->getUsedCapacity());
-//        i++;
-//    }
+        i++;
+    }
 
     auto bestSchedule = simulatedAnnealing->getBestTimeSchedule();
     auto bestDistance = simulatedAnnealing->getBestSolution();
@@ -281,6 +281,6 @@ int main(int argc, char * argv[]) {
 //    delete test;
     delete solomon;
     delete simulatedAnnealing;
-//    delete shawRemoval;
+    delete shawRemoval;
     return 0;
 }
