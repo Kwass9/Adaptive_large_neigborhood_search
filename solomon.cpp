@@ -400,7 +400,7 @@ void solomon::insertCustomerToRoad(Vehicle& vehicle, std::vector<std::tuple<int,
 }
 
 void solomon::waitingTimeMath(std::vector<double> &timeWaitedAtCustomer, std::vector<double> &beginingOfService,
-                              std::vector<int> &route, const std::vector<customer> &customers,
+                              std::vector<int> &route, std::vector<customer> &customers,
                               const std::vector<std::vector<double>> &distanceMatrix, int index, double timeOfServicePrevious,
                               int u, int w) {
     auto nextInRoute = route[index];
@@ -484,7 +484,7 @@ void solomon::run(std::vector<customer> &custs, int numberOfUnvisitedCustomers, 
                     break;
                 }
                 double timeOfService = 0;
-                auto windows = custs[indexVybrateho].getTimeWindows(); /**skor by som chcel hladat v zozname vsetkych okien ked pozeram earliest deadline*/
+                auto windows = custs[indexVybrateho].getTimeWindows();
                 std::vector<CustomersTimeWindow>::iterator windowIt;
                 std::vector<CustomersTimeWindow>::iterator windowItC;
                 for (windowIt = windows.begin(); windowIt != windows.end(); ++windowIt) {

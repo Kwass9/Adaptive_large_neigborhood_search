@@ -150,14 +150,13 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
                         } else {
                             timeSchedule[i][nasledovnik] = newTimeOfService;
                             vehicles[i].setTimeSchedule(timeSchedule[i]);
-                            vehicles[i].setTimeSchedule(timeSchedule[i]);
                             auto iServ = customers[indexNasledovnik].findIndexOfPreviouslyServedBy(i);
                             customers[indexNasledovnik].editPreviouslyServedByTime(winNasledovnik.getReadyTime(), iServ);
                             waitingTime[indexNasledovnik] = 0;
                         }
                         ++l;
                     }
-                    break;
+                    j--;
                 }
             }
         }

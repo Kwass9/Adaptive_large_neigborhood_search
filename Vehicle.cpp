@@ -120,11 +120,11 @@ double Vehicle::getUsedCapacity() const {
 }
 
 void Vehicle::setRoute(std::vector<int> r) {
-    this->route = std::move(r);
+    this->route = r;
 }
 
 void Vehicle::setTimeSchedule(std::vector<double> tS) {
-    this->timeSchedule = std::move(tS);
+    this->timeSchedule = tS;
 }
 
 void Vehicle::setUsedCapacity(double usedCap) {

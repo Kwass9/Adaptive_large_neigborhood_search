@@ -83,3 +83,7 @@ double CustomersTimeWindow::getDemand() const {
 double CustomersTimeWindow::getServiceTime() const {
     return serviceTime;
 }
+
+void CustomersTimeWindow::setCurrenVehiclesServing(int vehiclesServing) {
+    curentVehiclesServing = vehiclesServing;
+}

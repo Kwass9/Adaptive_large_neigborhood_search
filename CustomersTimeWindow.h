@@ -33,6 +33,7 @@ public:
     double getDemand() const;
     double getServiceTime() const;
     int getNumberOfVehiclesServing() const;
+    void setCurrenVehiclesServing(int vehiclesServing);
 };
 
 

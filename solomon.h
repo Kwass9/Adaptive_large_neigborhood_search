@@ -71,7 +71,7 @@ private:
             std::vector<customer>& custs, const std::vector<std::vector<double>>& distanceMatrix,
             std::vector<double>& timeWaitedAtCustomer);
     static void waitingTimeMath(std::vector<double> &timeWaitedAtCustomer, std::vector<double> &beginingOfService,
-                         std::vector<int> &route, const std::vector<customer> &customers, const std::vector<std::vector<double>> &distanceMatrix,
+                         std::vector<int> &route, std::vector<customer> &customers, const std::vector<std::vector<double>> &distanceMatrix,
                          int index, double timeOfService, int u, int w);
     double calculateMaxN(double eta);
     double createNoise() const;

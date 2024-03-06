@@ -109,7 +109,7 @@ CustomersTimeWindow & customer::getTimeWindowAt(int index) {
     return timeWindows[index];
 }
 
-std::vector<CustomersTimeWindow> customer::getTimeWindows() const {
+std::vector<CustomersTimeWindow>& customer::getTimeWindows() {
     return timeWindows;
 }
 
