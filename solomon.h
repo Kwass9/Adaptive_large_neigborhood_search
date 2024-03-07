@@ -60,8 +60,7 @@ private:
 //    static bool checkIfCustomerAcceptsThisVehicle(const customer& customer, int routeIndex, int timeWindowIndex, const CustomersTimeWindow& timeWindow);
     /**pokial bolo treba pushnut vozidlo v jednej ceste no uz je aj v inej pridelene kvoli sucasnej obsluhe*/
     bool checkIfCustomerCanBePushedInRoute(const Vehicle &vehicle, int u, double timeOfService,
-                                           std::vector<customer> &customers, double waitingTime,
-                                           int vehicleIndex);
+                                           std::vector<customer> &customers, double waitingTime);
     void pushVehicleInOtherRoutes(Vehicle &vehicle, int u, double timeOfService,
                                   std::vector<customer> &customers, const std::vector<std::vector<double>> &distMatrix
                                   ,double waitingTime);

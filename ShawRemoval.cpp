@@ -25,7 +25,7 @@ void Shaw_Removal::calculateRelatedness(std::vector<std::vector<double>> &distan
     //TODO bude sa dat prepisat kod po zmene riesenia v solomonovy, tak aby sa dal lahsie citat
     std::vector<std::vector<int>> routes;
     std::vector<std::vector<double>> timeSchedule;
-    for (const auto & vehicle : vehicles) {
+    for (auto & vehicle : vehicles) {
         routes.emplace_back(vehicle.getRoute());
         timeSchedule.emplace_back(vehicle.getTimeSchedule());
     }
@@ -44,8 +44,8 @@ void Shaw_Removal::calculateRelatedness(std::vector<std::vector<double>> &distan
     std::map<int ,double> DistanceRelatedness;
     std::map<int ,double> TimeRelatedness;
     for (int i = 0; i < routes.size(); ++i) {
-        for (int j = 0; j < routes[i].size() - 1; ++j) {
-            if (routes[i][j] != 0 && routes[i][j] != 101 && routes[i][j] != r) {
+        for (int j = 1; j < routes[i].size() - 1; ++j) {
+            if (routes[i][j] != 0 && routes[i][j] != distanceMatrix.size() && routes[i][j] != r) {
                 DistanceRelatedness.emplace(routes[i][j], std::abs(distanceMatrix[r][nasledovnik_r] - distanceMatrix[routes[i][j]][routes[i][j + 1]]));
                 TimeRelatedness.emplace(routes[i][j] ,std::abs(std::abs(timeSchedule[route_number_r][index_r] - timeSchedule[route_number_r][nasledovnik_r_index])
                                              - std::abs(timeSchedule[i][j] - timeSchedule[i][j + 1])));
@@ -71,6 +71,9 @@ void Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatr
                                   std::vector<Vehicle> &vehicles) {
     D.clear();
     auto r = generateRandomNumber(1, (int)customers.size() - 1);
+    while (!customers[r].isRouted()) {
+        r = generateRandomNumber(1, (int)customers.size() - 1);
+    }
     D.emplace_back(r);
     std::vector<std::pair<int, double>> L;
     while (D.size() < ro) {
