@@ -48,9 +48,17 @@ void SimulatedAnnealing::updateTemperature() {
     temperature *= coolingRate;
 }
 
-void SimulatedAnnealing::tryToAcceptNewSolution(double newSolution, std::vector<std::vector<int>> &newRoutes,
-                                                std::vector<std::vector<double>> &newTimeSchedule,
-                                                std::vector<double> &newWaitingTime, std::vector<double> &newUsedCapacity) {
+void SimulatedAnnealing::tryToAcceptNewSolution(double newSolution, std::vector<Vehicle> &vehicles,
+                                                std::vector<double> &newWaitingTime) {
+    std::vector<std::vector<int>> newRoutes;
+    std::vector<std::vector<double>> newTimeSchedule;
+    std::vector<double> newUsedCapacity;
+    for (const auto & vehicle : vehicles) {
+        newRoutes.push_back(vehicle.getRoute());
+        newTimeSchedule.push_back(vehicle.getTimeSchedule());
+        newUsedCapacity.push_back(vehicle.getUsedCapacity());
+    }
+
     if (newSolution < currentSolution - 0.0001) {
         std::cout << "New better solution: " << newSolution << std::endl;
         currentSolution = newSolution;
@@ -89,14 +97,14 @@ void SimulatedAnnealing::tryToAcceptNewSolution(double newSolution, std::vector<
             std::cout << "Accept new solution: " << newSolution << std::endl;
         } else {
             std::cout << "Reject new solution: " << newSolution << std::endl;
-            newRoutes.clear();
-            newRoutes = currentRoutes;
-            newTimeSchedule.clear();
-            newTimeSchedule = currentTimeSchedule;
-            newWaitingTime.clear();
+            for (int i = 0; i < vehicles.size(); ++i) {
+                vehicles[i].setRoute(currentRoutes[i]);
+                vehicles[i].setTimeSchedule(currentTimeSchedule[i]);
+                vehicles[i].setUsedCapacity(currentUsedCapacity[i]);
+
+            }
             newWaitingTime = currentWaitingTime;
             newUsedCapacity.clear();
-            newUsedCapacity = currentUsedCapacity;
         }
     }
     updateTemperature();

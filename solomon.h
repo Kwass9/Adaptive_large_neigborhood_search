@@ -21,6 +21,7 @@ public:
     double getDistance() const;
     std::vector<double> &getWaitingTime();
     const std::vector<std::vector<double>> &getDistanceMatrix() const;
+    int getUnvisitedCustomers() const;
 
 private:
     std::vector<std::vector<double>> distanceMatrix;
