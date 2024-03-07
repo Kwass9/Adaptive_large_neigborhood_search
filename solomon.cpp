@@ -475,7 +475,7 @@ void solomon::run(std::vector<customer> &custs, int numberOfUnvisitedCustomers, 
                                      : findCustomerWithEarliestDeadline(custs);
             auto indexSize = index.size();
             int dec = 0;
-            while (vehicles[routeIndex].getRoute().size() <= 2) {
+            while (vehicles[routeIndex].getRoute().size() <= 2 && indexSize != 0 && dec < indexSize) {
                 auto indexVybrateho = index[dec];
                 int correctWindow = 0;
                 if (dec <= indexSize - 1) {
@@ -546,6 +546,7 @@ void solomon::run(std::vector<customer> &custs, int numberOfUnvisitedCustomers, 
             break;
         }
     }
+    std::cout << "Unvisited customers: " << unvisitedCustomers << std::endl;
     finalPrint(custs, vehicles);
 }
 

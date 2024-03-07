@@ -118,15 +118,19 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
                         for (int l = (int)customers[k].getPreviouslyServedBy().size() - 1; l >= 0; l--) {
                             if (customers[k].getPreviouslyServedBy()[l] == i) {
                                 customers[k].removePreviouslyServedByTime(l);
+                                customers[k].removePreviouslyServedBy(l);
                                 break;
                             }
                         }
                     }
-                    customers[k].removePreviouslyServedBy(i);
+//                    customers[k].removePreviouslyServedBy(i);
 
                     auto l = j;
                     while (l < timeSchedule[i].size()) {
                         auto indexNasledovnik = routes[i][l];
+                        if (indexNasledovnik == customers.size()) {
+                            indexNasledovnik = 0;
+                        }
                         auto indexPredchodca = routes[i][l - 1];
                         auto nasledovnik = l;
                         auto predchodca = l - 1;
@@ -135,13 +139,13 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
                         auto winIndexPredchodca = customers[indexPredchodca].getIndexOfTimeWindow(winPPredchodca.first, winPPredchodca.second);
                         auto winPredchodca = customers[indexPredchodca].getTimeWindows()[winIndexPredchodca];
 
-                        auto winPNasledovnik = customers[nasledovnik].getTimeWindow(timeSchedule[i][nasledovnik]);
-                        auto winIndexNasledovnik = customers[nasledovnik].getIndexOfTimeWindow(winPNasledovnik.first, winPNasledovnik.second);
-                        auto winNasledovnik = customers[nasledovnik].getTimeWindows()[winIndexNasledovnik];
+                        auto winPNasledovnik = customers[indexNasledovnik].getTimeWindow(timeSchedule[i][nasledovnik]);
+                        auto winIndexNasledovnik = customers[indexNasledovnik].getIndexOfTimeWindow(winPNasledovnik.first, winPNasledovnik.second);
+                        auto winNasledovnik = customers[indexNasledovnik].getTimeWindows()[winIndexNasledovnik];
 
                         auto newTimeOfService = timeSchedule[i][predchodca] + winPredchodca.getServiceTime()
                                                 + distanceMatrix[indexPredchodca][indexNasledovnik];
-                        if (newTimeOfService < winNasledovnik.getReadyTime() && indexNasledovnik != 101) {
+                        if (newTimeOfService < winNasledovnik.getReadyTime()) {
                             timeSchedule[i][nasledovnik] = winNasledovnik.getReadyTime();
                             vehicles[i].setTimeSchedule(timeSchedule[i]);
                             auto iServ = customers[indexNasledovnik].findIndexOfPreviouslyServedBy(i);

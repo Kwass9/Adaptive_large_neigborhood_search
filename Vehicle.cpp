@@ -124,7 +124,7 @@ void Vehicle::setRoute(std::vector<int> r) {
 }
 
 void Vehicle::setTimeSchedule(std::vector<double> tS) {
-    this->timeSchedule = tS;
+    this->timeSchedule = std::vector<double>(tS);
 }
 
 void Vehicle::setUsedCapacity(double usedCap) {

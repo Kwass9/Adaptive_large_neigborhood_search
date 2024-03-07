@@ -223,8 +223,8 @@ void customer::setPreviouslyServedByTimes(std::vector<double> times) {
 }
 
 //TODO: check if this is correct
-void customer::removePreviouslyServedBy(int vehicleId) {
-    previouslyServedBy.erase(std::remove(previouslyServedBy.begin(), previouslyServedBy.end(), vehicleId), previouslyServedBy.end());
+void customer::removePreviouslyServedBy(int position) {
+    previouslyServedBy.erase(previouslyServedBy.begin() + position);
 }
 
 //TODO: check if this is correct
