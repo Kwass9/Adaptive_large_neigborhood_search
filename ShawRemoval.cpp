@@ -102,6 +102,7 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
             for (int j = 1; j < timeSchedule[i].size(); ++j) {
                 if (routes[i][j] == k) {
                     customers[k].markAsUnrouted();
+                    std::cout << "ad as unrouted: " << k << std::endl;
                     waitingTime[k] = 0;
                     auto nWindows = customers[k].getTimeWindows().size();
 
@@ -109,7 +110,7 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
                     auto winIndex = customers[k].getIndexOfTimeWindow(winP.first, winP.second);
                     auto win = customers[k].getTimeWindows()[winIndex];
                     customers[k].getTimeWindows()[winIndex].decrementCurentVehiclesServing();
-
+                    std::cout << "serving: " << customers[k].getTimeWindows()[winIndex].getNumberOfVehiclesServing() << " | " << std::endl;
                     vehicles[i].setUsedCapacity(vehicles[i].getUsedCapacity() - win.getDemand());
                     std::cout << "removed: " << k << " from route: " << i << std::endl;
                     timeSchedule[i].erase(timeSchedule[i].begin() + j);
@@ -117,16 +118,22 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
 
                     vehicles[i].setRoute(routes[i]);
                     vehicles[i].setTimeSchedule(timeSchedule[i]);
+                    vehicles[i].removeCustomerFromServed(k);
+                    std::cout << "removed from served: " << i << " zostava: " << vehicles[i].getCustomers().size() << std::endl;
+                    for (int x = 0; x < vehicles[i].getCustomers().size(); ++x) {
+                        std::cout << vehicles[i].getCustomers()[x] << " ";
+                    }
+                    std::cout << std::endl;
                     for (int o = 0; o < nWindows; ++o) {
                         for (int l = (int)customers[k].getPreviouslyServedBy().size() - 1; l >= 0; l--) {
                             if (customers[k].getPreviouslyServedBy()[l] == i) {
                                 customers[k].removePreviouslyServedByTime(l);
                                 customers[k].removePreviouslyServedBy(l);
+                                std::cout << "removed from previously served by: " << i << " zostava: " << customers[k].getPreviouslyServedBy().size() << std::endl;
                                 break;
                             }
                         }
                     }
-//                    customers[k].removePreviouslyServedBy(i);
 
                     auto l = j;
                     while (l < timeSchedule[i].size()) {
@@ -167,6 +174,13 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
                 }
             }
         }
+    }
+    std::cout << "Kontrola served by: " << std::endl;
+    for (const auto & customer : customers) {
+        for (int j = 0; j < customer.getPreviouslyServedBy().size(); ++j) {
+            std::cout << "customer:" << customer.getId() << " served by: " << customer.getPreviouslyServedBy()[j] << " ";
+        }
+        std::cout << std::endl;
     }
 }
 

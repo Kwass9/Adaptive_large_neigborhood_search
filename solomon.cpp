@@ -389,6 +389,11 @@ void solomon::insertCustomerToRoad(Vehicle& vehicle, std::vector<std::tuple<int,
         vehicle.setUsedCapacity(vehicle.getUsedCapacity() + timeWindowU.getDemand());
         timeWindowU.incrementCurentVehiclesServing();
         custs[u].addPreviouslyServedBy(vehicle.getId());
+        std::cout << "---------------------" << u << "--------------------------" << std::endl;
+        for (int k = 0; k < custs[u].getPreviouslyServedBy().size(); ++k) {
+            std::cout << custs[u].getPreviouslyServedBy()[k] << " ";
+        }
+        std::cout << std::endl;
         custs[u].addPreviouslyServedByTime(timeOfService);
     }
     if (custs[u].isServedByEnoughVehicles()) {
@@ -418,7 +423,7 @@ void solomon::waitingTimeMath(std::vector<double> &timeWaitedAtCustomer, std::ve
 }
 
 void solomon::run(std::vector<customer> &custs, int numberOfUnvisitedCustomers, std::vector<Vehicle>& vehicles) {
-    unvisitedCustomers = numberOfUnvisitedCustomers;
+    unvisitedCustomers += numberOfUnvisitedCustomers;
     int routeIndex = 0;
     std::vector<int> index;
     auto useNoise = doesNoiseApply();
@@ -592,15 +597,21 @@ void solomon::finalPrint(std::vector<customer> &custs, std::vector<Vehicle> &veh
     auto numberOfCustomersServed = 0;
     for (auto & v : vehicles) {
         auto r = v.getRoute();
-        for (int j = 0; j < v.getRoute().size() - 2; ++j) {
+        for (int j = 0; j <= v.getRoute().size() - 2; ++j) {
             totalDistance += distanceMatrix[r[j]][r[j + 1]];
+            std::cout << r[j] << " -> ";
         }
+        std::cout << r[r.size() - 1] << std::endl;
         totalDistance += distanceMatrix[r[r.size() - 2]][0];
         numberOfCustomersServed += (int)r.size() - 2;
         int j = (int)r.size() - 1;
     }
     for (auto & v : vehicles) {
         auto ts = v.getTimeSchedule();
+        for (double t : ts) {
+            std::cout << t << " ";
+        }
+        std::cout << std::endl;
         auto t = ts.size() - 1;
         totalScheduleTime += (ts[t]);
     }

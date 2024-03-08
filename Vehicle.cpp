@@ -207,3 +207,13 @@ void Vehicle::addAnotherTimeWindowIntoRoute() {
 int Vehicle::getInitIndexForFirstVehicle() const { /**uz mam geter na number of customers asi by stacil iba ten... pozriet*/
     return (int)route.size() - 2;
 }
+
+void Vehicle::removeCustomerFromServed(int idCustomer) {
+    for (int i = 0; i < customersServed.size(); i++) {
+        if (customersServed[i] == idCustomer) {
+            customersServed.erase(customersServed.begin() + i);
+            --i;
+            break;
+        }
+    }
+}

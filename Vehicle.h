@@ -30,6 +30,7 @@ public:
     ~Vehicle();
     Vehicle(Vehicle const &vehicle);
     void addCustomer(int idCustomer);
+    void removeCustomerFromServed(int idCustomer);
     void addCustomerToRoute(int idCustomer, int position);
     void removeCustomerFromRoute(int idCustomer);
     void addTimeToSchedule(double time, int position);
