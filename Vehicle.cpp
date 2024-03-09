@@ -9,7 +9,7 @@
 #include <climits>
 #include <tuple>
 
-Vehicle::Vehicle(int id, double capacity, double x, double y, double readyTime, double dueTime, int custSize) {
+Vehicle::Vehicle(int id, double capacity, double x, double y, double readyTime, double dueTime, int custSize, int isWorking) {
     this->id = id;
     this->capacity = capacity;
     editWorkingHours(readyTime, dueTime);
@@ -24,6 +24,9 @@ Vehicle::Vehicle(int id, double capacity, double x, double y, double readyTime, 
     route.emplace_back(custSize);
     timeSchedule.emplace_back(getReadyTimeAt(0));
     timeSchedule.emplace_back(getReadyTimeAt(0));
+    if (isWorking == 1) {
+        this->isWorking = true;
+    }
 }
 
 Vehicle::~Vehicle() {
@@ -49,6 +52,7 @@ Vehicle::Vehicle(const Vehicle &vehicle) {
     ycord = vehicle.ycord;
     id = vehicle.id;
     custSize = vehicle.custSize;
+    isWorking = vehicle.isWorking;
 }
 
 void Vehicle::addCustomer(int idCustomer) {
@@ -216,4 +220,16 @@ void Vehicle::removeCustomerFromServed(int idCustomer) {
             break;
         }
     }
+}
+
+void Vehicle::setIsWorkingToTrue() {
+    isWorking = true;
+}
+
+void Vehicle::setIsWorkingToFalse() {
+    isWorking = false;
+}
+
+bool Vehicle::getIsWorking() const {
+    return isWorking;
 }

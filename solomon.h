@@ -77,6 +77,7 @@ private:
     double createNoise() const;
     static int doesNoiseApply();
     void finalPrint(std::vector<customer>& custs, std::vector<Vehicle>& vehicles);
+    void insertSpecialRequirements(std::vector<customer>& custs, std::vector<Vehicle>& vehicles);
 };
 
 

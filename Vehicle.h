@@ -25,8 +25,9 @@ private:
     std::vector<double> readyTime;
     std::vector<double> dueTime;
     int custSize;
+    bool isWorking = false;
 public:
-    Vehicle(int id, double capacity, double x, double y, double readyTime, double dueTime, int custSize);
+    Vehicle(int id, double capacity, double x, double y, double readyTime, double dueTime, int custSize, int isWorking);
     ~Vehicle();
     Vehicle(Vehicle const &vehicle);
     void addCustomer(int idCustomer);
@@ -59,6 +60,9 @@ public:
     void setTimeSchedule(std::vector<double> tS);
     void setUsedCapacity(double usedCap);
     const std::vector<double> &getTimeSchedule() const;
+    void setIsWorkingToTrue();
+    void setIsWorkingToFalse();
+    bool getIsWorking() const;
 };
 
 #endif //SOLOMON_VEHICLE_H

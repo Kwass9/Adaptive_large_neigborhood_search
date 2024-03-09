@@ -7,11 +7,12 @@
 #include <utility>
 #include "Customer.h"
 
-customer::customer(int idNum, double x, double y) {
+customer::customer(int idNum, double x, double y, int specificRequirementsForVehicle) {
     id = idNum;
     xcord = x;
     ycord = y;
     routedStatus = false;
+    this->specificRequirementsForVehicle = specificRequirementsForVehicle;
 }
 
 
@@ -21,6 +22,10 @@ customer::customer(const customer &customer) {
     ycord = customer.ycord;
     routedStatus = customer.routedStatus;
     timeWindows = customer.timeWindows;
+    previouslyServedBy = customer.previouslyServedBy;
+    previouslyServedByTime = customer.previouslyServedByTime;
+    waitingTimeForService = customer.waitingTimeForService;
+    specificRequirementsForVehicle = customer.specificRequirementsForVehicle;
 }
 
 customer::~customer() {
@@ -234,4 +239,16 @@ void customer::removePreviouslyServedByTime(int position) {
 
 int customer::findIndexOfPreviouslyServedBy(int vehicleId) {
     return (int)std::distance(previouslyServedBy.begin(), std::find(previouslyServedBy.begin(), previouslyServedBy.end(), vehicleId));
+}
+
+bool customer::hasSpecificRequirements() const {
+    return specificRequirementsForVehicle != - 1;
+}
+
+void customer::setSpecificRequirementsForVehicle(int vehicleId) {
+    specificRequirementsForVehicle = vehicleId;
+}
+
+int customer::getSpecificRequirementsForVehicle() const {
+    return specificRequirementsForVehicle;
 }

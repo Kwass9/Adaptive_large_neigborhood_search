@@ -28,6 +28,7 @@ solomon::solomon(std::vector<customer> &customers, double alfa1, double alfa2,
         timeWaitedAtCustomer.push_back(0);
     }
     problemSize = (int)customers.size() - 1;
+    insertSpecialRequirements(customers, vehicles);
     run(customers, unvisitedCustomers, vehicles);
 }
 
@@ -696,16 +697,28 @@ int solomon::getUnvisitedCustomers() const {
     return unvisitedCustomers;
 }
 
-///**toto by teoreticky malo fungovat ak staci aby sa opakovala iba jedna s obsluhujucich*/
-//bool solomon::checkIfCustomerAcceptsThisVehicle(const customer& customer, int routeIndex, int timeWindowIndex, const CustomersTimeWindow& timeWindow) {
-//    if (customer.getTimeWindows().size() != 1) {
-//        if (customer.getPreviouslyServedBy().empty()) {
-//            return true;
-//        }
-//        if (customer.isPreviouslyServedBy(routeIndex) && timeWindow.getNumberOfVehiclesServing() == 0) {
-//            return true;
-//        }
-//
-//    }
-//    return false;
-//}
+/**malo by helpnut generalizovat uvodny insert pri tvorbe trasy tym refaktor run metody*/
+void solomon::insertSpecialRequirements(std::vector<customer>& custs, std::vector<Vehicle> &vehicles) {
+
+    for (int i = 0; i < custs.size(); ++i) {
+        if (custs[i].hasSpecificRequirements()) {
+            auto req = custs[i].getSpecificRequirementsForVehicle();
+
+//            auto timeOfService = custs[i].getReadyTimeAt();
+
+            //TODO
+            calculatePushForward(vehicles[req].getRoute(), i, 1, timeWaitedAtCustomer, distanceMatrix, custs, 0, 0,
+                                 vehicles[req].getTimeSchedule(), custs[i].getTimeWindowAt(0), custs[0].getTimeWindowAt(0));
+            lema11(vehicles[req].getTimeSchedule(), calculatePushForward(vehicles[req].getRoute(), i, 1, timeWaitedAtCustomer, distanceMatrix, custs, 0, 0,
+                                                                        vehicles[req].getTimeSchedule(), custs[i].getTimeWindowAt(0), custs[0].getTimeWindowAt(0)),
+                   vehicles[req].getRoute(), custs, i, 1, 0, vehicles[req], custs[i].getTimeWindowAt(0));
+            /**-------------end to do*/
+
+            std::vector<std::tuple<int, int, int, int>> tup;
+            for (int j = 0; j < custs[i].getTimeWindows().size(); ++j) {
+                tup.emplace_back(1, custs[i].getId(), j, custs[i].getTimeWindows().size());
+            }
+            insertCustomerToRoad(vehicles[req], tup, custs, distanceMatrix, timeWaitedAtCustomer);
+        }
+    }
+}

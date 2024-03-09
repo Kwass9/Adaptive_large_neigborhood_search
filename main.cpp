@@ -39,7 +39,11 @@ double getAtributeForCustomer(std::string &str, const std::string& delimiter) {
 
 double processString(std::string &str, const std::string& delimiter) {
     removeDelimiters(str, delimiter);
-    return getAtributeForCustomer(str, delimiter);
+    try {
+        return getAtributeForCustomer(str, delimiter);
+    } catch (std::invalid_argument &e) {
+        return -1;
+    }
 }
 
 double setInitialTemperature(double w, double solution) {
@@ -129,6 +133,7 @@ int main(int argc, char * argv[]) {
             double readyTime = processString(i, delimiter);
             double dueDate = processString(i, delimiter);
             double serviceTime = processString(i, delimiter);
+            int speacialRequirements = (int)processString(i, delimiter);
             if (!customers.empty()) {
                 //pokial su dve liny rovnake a maju rovnake casy obsluhy tak potrebuje obsluhu dvoch opatrovateliek naraz
                 customer& custBack = customers.back();
@@ -142,12 +147,12 @@ int main(int argc, char * argv[]) {
                     }
                 }
                 else {
-                    customer customer(id, x, y);
+                    customer customer(id, x, y, speacialRequirements);
                     customer.createNewTimeWindow(readyTime, dueDate, demand, serviceTime);
                     customers.emplace_back(customer);
                 }
             } else {
-                customer customer(id, x, y);
+                customer customer(id, x, y, speacialRequirements);
                 customer.createNewTimeWindow(readyTime, dueDate, demand, serviceTime);
                 customers.emplace_back(customer);
             }
@@ -179,16 +184,26 @@ int main(int argc, char * argv[]) {
             double y = processString(i, delimiter);
             double readyTime = processString(i, delimiter);
             double dueDate = processString(i, delimiter);
+            int isWorking = (int)processString(i, delimiter);
             if (!vehicles.empty()) {
                 if (id == vehicles.back().getId()) {
                     vehicles.back().editWorkingHours(readyTime, dueDate);
                 } else {
-                    Vehicle vehicle(id, std::numeric_limits<int>::max(), x, y, readyTime, dueDate, (int)customers.size());
+                    Vehicle vehicle(id, std::numeric_limits<int>::max(), x, y, readyTime, dueDate, (int)customers.size(), isWorking);
                     vehicles.emplace_back(vehicle);
                 }
             } else {
-                Vehicle vehicle(id, std::numeric_limits<int>::max(), x, y, readyTime, dueDate, (int)customers.size());
+                Vehicle vehicle(id, std::numeric_limits<int>::max(), x, y, readyTime, dueDate, (int)customers.size(), isWorking);
                 vehicles.emplace_back(vehicle);
+            }
+        }
+    }
+
+    for (auto & customer : customers) {
+        if (customer.getSpecificRequirementsForVehicle() != -1) {
+            if (!vehicles[customer.getSpecificRequirementsForVehicle()].getIsWorking()) {
+                std::cout << "Customer " << customer.getId() << " has specific requirements for vehicle " << customer.getSpecificRequirementsForVehicle() << " but it is not working" << std::endl;
+                customer.setSpecificRequirementsForVehicle(-1);
             }
         }
     }

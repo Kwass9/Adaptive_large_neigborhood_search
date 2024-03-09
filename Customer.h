@@ -18,8 +18,9 @@ private:
     std::vector<double> waitingTimeForService = {};
     bool routedStatus;
     std::vector<CustomersTimeWindow> timeWindows;
+    int specificRequirementsForVehicle = - 1;
 public:
-    customer(int idNum, double x, double y);
+    customer(int idNum, double x, double y, int specificRequirementsForVehicle);
     ~customer();
     customer(customer const &customer);
     void markAsRouted();
@@ -42,6 +43,9 @@ public:
     int getIndexOfPreviouslyServedBy(double time);
     int getIdOfPreviouslyServedBy(double time);
     int findIndexOfPreviouslyServedBy(int vehicleId);
+    bool hasSpecificRequirements() const;
+    int getSpecificRequirementsForVehicle() const;
+    void setSpecificRequirementsForVehicle(int vehicleId);
 
     std::vector<double> getWaitingTimeForService() const;
     double getWaitingTimeForServiceAt(int index) const;

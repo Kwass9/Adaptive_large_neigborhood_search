@@ -71,7 +71,7 @@ void Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatr
                                   std::vector<Vehicle> &vehicles) {
     D.clear();
     auto r = generateRandomNumber(1, (int)customers.size() - 1);
-    while (!customers[r].isRouted()) {
+    while (!customers[r].isRouted() || !customers[r].hasSpecificRequirements()) {
         r = generateRandomNumber(1, (int)customers.size() - 1);
     }
     D.emplace_back(r);
