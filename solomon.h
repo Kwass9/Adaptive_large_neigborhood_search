@@ -58,8 +58,6 @@ private:
     std::tuple<int, double> calculateC1(std::vector<int> route, std::vector<std::vector<double>> dMatrix,
                                                           int i, int u, double a1, double a2, bool doesNoiseApply, double min,
                                                           int minIndex, std::vector<double> pf);
-//    static bool checkIfCustomerAcceptsThisVehicle(const customer& customer, int routeIndex, int timeWindowIndex, const CustomersTimeWindow& timeWindow);
-    /**pokial bolo treba pushnut vozidlo v jednej ceste no uz je aj v inej pridelene kvoli sucasnej obsluhe*/
     bool checkIfCustomerCanBePushedInRoute(const Vehicle &vehicle, int u, double timeOfService,
                                            std::vector<customer> &customers, double waitingTime);
     void pushVehicleInOtherRoutes(Vehicle &vehicle, int u, double timeOfService,
@@ -78,6 +76,10 @@ private:
     static int doesNoiseApply();
     void finalPrint(std::vector<customer>& custs, std::vector<Vehicle>& vehicles);
     void insertSpecialRequirements(std::vector<customer>& custs, std::vector<Vehicle>& vehicles);
+    void insertBeginingOfRoute(std::vector<customer>& custs, std::vector<Vehicle>& vehicles, int routeIndex, bool criteria,
+                               std::vector<std::vector<double>> &dMatrix, std::vector<double> &timeWaitedAtCust);
+    void insertIntoNewRoute(std::vector<customer>& custs, std::vector<Vehicle>& vehicles, int routeIndex, int customerIndex,
+                            std::vector<std::vector<double>> &dMatrix, std::vector<double> &timeWaitedAtCust);
 };
 
 

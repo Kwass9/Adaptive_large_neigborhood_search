@@ -210,6 +210,7 @@ void Shaw_Removal::normalize(std::map<int, double>& map) {
     }
 }
 
+//TODO este je tu nechana 101 ked sa zmeni subor mozno sa to dogabe
 void Shaw_Removal::calculateD(const int &ro, std::vector<std::pair<int, double>>& L, int r, int s) {
     auto y = generateRandomDouble(0, 1);
     auto index = (int)std::pow(y, p) * (L.size() - 1);

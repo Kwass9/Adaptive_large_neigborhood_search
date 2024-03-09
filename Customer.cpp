@@ -155,7 +155,6 @@ double customer::getReadyTimeAt(double serviceTime) const {
     double highestReasonable = 0;
     for (const auto & timeWindow : timeWindows) {
         if (timeWindow.getReadyTime() <= serviceTime) {
-//            return timeWindow.getReadyTime();
             if (timeWindow.getReadyTime() >= highestReasonable) {
                 highestReasonable = timeWindow.getReadyTime();
             }
