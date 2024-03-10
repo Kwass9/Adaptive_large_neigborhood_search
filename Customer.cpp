@@ -11,7 +11,7 @@ customer::customer(int idNum, double x, double y, int specificRequirementsForVeh
     id = idNum;
     xcord = x;
     ycord = y;
-    routedStatus = false;
+//    routedStatus = false;
     this->specificRequirementsForVehicle = specificRequirementsForVehicle;
 }
 
@@ -20,11 +20,11 @@ customer::customer(const customer &customer) {
     id = customer.id;
     xcord = customer.xcord;
     ycord = customer.ycord;
-    routedStatus = customer.routedStatus;
+//    routedStatus = customer.routedStatus;
     timeWindows = customer.timeWindows;
     previouslyServedBy = customer.previouslyServedBy;
     previouslyServedByTime = customer.previouslyServedByTime;
-    waitingTimeForService = customer.waitingTimeForService;
+//    waitingTimeForService = customer.waitingTimeForService;
     specificRequirementsForVehicle = customer.specificRequirementsForVehicle;
 }
 
@@ -32,9 +32,9 @@ customer::~customer() {
     timeWindows.clear();
 }
 
-void customer::markAsRouted() {
-    routedStatus = true;
-}
+//void customer::markAsRouted() {
+//    routedStatus = true;
+//}
 
 double customer::getYcord() const {
     return ycord;
@@ -44,13 +44,13 @@ double customer::getXcord() const {
     return xcord;
 }
 
-bool customer::isRouted() const {
-    return routedStatus;
-}
+//bool customer::isRouted() const {
+//    return routedStatus;
+//}
 
-void customer::markAsUnrouted() {
-    routedStatus = false;
-}
+//void customer::markAsUnrouted() {
+//    routedStatus = false;
+//}
 
 unsigned int customer::getId() const {
     return id;
@@ -198,29 +198,29 @@ CustomersTimeWindow &customer::getTimeWindowAfterTime(double serviceTime) {
     return timeWindows[index];
 }
 
-std::vector<double> customer::getWaitingTimeForService() const {
-    return waitingTimeForService;
-}
-
-double customer::getWaitingTimeForServiceAt(int index) const {
-    return waitingTimeForService[index];
-}
-
-void customer::addWaitingTimeForService(double time) {
-    waitingTimeForService.push_back(time);
-}
-
-void customer::editWaitingTimeForService(double time, int index) {
-    waitingTimeForService[index] = time;
-}
-
-void customer::clearWaitingTimeForService() {
-    waitingTimeForService.clear();
-}
-
-void customer::setWaitingTimeForService(std::vector<double> times) {
-    waitingTimeForService = std::move(times);
-}
+//std::vector<double> customer::getWaitingTimeForService() const {
+//    return waitingTimeForService;
+//}
+//
+//double customer::getWaitingTimeForServiceAt(int index) const {
+//    return waitingTimeForService[index];
+//}
+//
+//void customer::addWaitingTimeForService(double time) {
+//    waitingTimeForService.push_back(time);
+//}
+//
+//void customer::editWaitingTimeForService(double time, int index) {
+//    waitingTimeForService[index] = time;
+//}
+//
+//void customer::clearWaitingTimeForService() {
+//    waitingTimeForService.clear();
+//}
+//
+//void customer::setWaitingTimeForService(std::vector<double> times) {
+//    waitingTimeForService = std::move(times);
+//}
 
 void customer::setPreviouslyServedByTimes(std::vector<double> times) {
     previouslyServedByTime = std::move(times);

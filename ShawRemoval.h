@@ -26,7 +26,8 @@ private:
     static void editSolution(std::vector<std::vector<double>> &distanceMatrix,
                              std::vector<customer> &customers,
                              std::vector<int> &D,
-                             std::vector<double>& waitingTime, std::vector<Vehicle> &vehicles);
+                             std::vector<double>& waitingTime, std::vector<Vehicle> &vehicles,
+                             std::vector<customer*> &unservedCustomers);
     void calculateD(const int &ro, std::vector<std::pair<int, double>>& L, int r, int s);
     void calculateL(std::vector<std::pair<int, double>>& L, int s);
     static void normalize(std::map<int ,double>& map);
@@ -39,7 +40,7 @@ public:
                         std::vector<customer> &customers,
                         const int &ro,
                         std::vector<double> &waitingTime,
-                        std::vector<Vehicle> &vehicles);
+                        std::vector<Vehicle> &vehicles, std::vector<customer*> &unservedCustomers);
 };
 
 

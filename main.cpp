@@ -199,6 +199,7 @@ int main(int argc, char * argv[]) {
         }
     }
 
+    std::vector<customer*> unservedCustomers;
     for (auto & customer : customers) {
         if (customer.getSpecificRequirementsForVehicle() != -1) {
             if (!vehicles[customer.getSpecificRequirementsForVehicle()].getIsWorking()) {
@@ -206,7 +207,9 @@ int main(int argc, char * argv[]) {
                 customer.setSpecificRequirementsForVehicle(-1);
             }
         }
+        unservedCustomers.push_back(&customer);
     }
+    unservedCustomers.erase(unservedCustomers.begin()); //odstranenie depa
 
 //-------------------------------------------------------------------------------------------------------------------
 
@@ -228,7 +231,7 @@ int main(int argc, char * argv[]) {
     double tau;
     int ro; //number of reguest removed in iteraton
 
-    auto *solomon = new class solomon(customers, alfa1, alfa2, lambda, q, startingCriteria, eta, vehicles);
+    auto *solomon = new class solomon(customers, alfa1, alfa2, lambda, q, startingCriteria, eta, vehicles, unservedCustomers);
 
     auto distanceMatrix = solomon->getDistanceMatrix();
     std::vector<std::vector<int>> routes;
@@ -254,10 +257,10 @@ int main(int argc, char * argv[]) {
         std::cout << "Iteracia: " << i << std::endl;
         ro = calculateRo(ksi, customers);
         std::cout << "ro: " << ro << std::endl;
-        shawRemoval->removeRequests(distanceMatrix, customers, ro, solomon->getWaitingTime(), vehicles);
-        solomon->run(customers, ro, vehicles);
+        shawRemoval->removeRequests(distanceMatrix, customers, ro, solomon->getWaitingTime(), vehicles, unservedCustomers);
+        solomon->run(customers, unservedCustomers, vehicles);
 //        test->correctnessForCurrentSolution(customers, solomon->getTimeSchedule(), solomon->getRoutes(), solomon->getWaitingTime(), distanceMatrix, solomon->getUsedCapacity());
-        if (solomon->getUnvisitedCustomers() == 0) {
+        if (unservedCustomers.empty()) {
             simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(),vehicles, solomon->getWaitingTime());
         } else {
             simulatedAnnealing->updateTemperature();

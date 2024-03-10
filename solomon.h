@@ -14,19 +14,17 @@ class solomon {
 public:
     solomon(std::vector<customer> &customers, double alfa1, double alfa2,
             double lambda, double q, bool startingCriteria, double eta,
-            std::vector<Vehicle>& vehicles);
+            std::vector<Vehicle>& vehicles, std::vector<customer*>& unservedCustomers);
     ~solomon();
-    void run(std::vector<customer>& custs, int numberOfUnvisitedCustomers,
+    void run(std::vector<customer>& custs, std::vector<customer*>& unservedCustomers,
              std::vector<Vehicle>& vehicles);
     double getDistance() const;
     std::vector<double> &getWaitingTime();
     const std::vector<std::vector<double>> &getDistanceMatrix() const;
-    int getUnvisitedCustomers() const;
 
 private:
     std::vector<std::vector<double>> distanceMatrix;
     std::vector<double> timeWaitedAtCustomer;
-    int unvisitedCustomers;
     double alfa1;
     double alfa2;
     double lambda;
@@ -34,7 +32,6 @@ private:
     bool startingCriteria;
     double totalDistance; //este pojde von...
     double maxN;
-    int problemSize;
 
     static void calculateDistances(std::vector<customer> &customers, std::vector<std::vector<double>> &distanceMatrix);
     static std::vector<int> findCustomerWithEarliestDeadline(std::vector<customer> &customers);
@@ -58,16 +55,14 @@ private:
     std::tuple<int, double> calculateC1(std::vector<int> route, std::vector<std::vector<double>> dMatrix,
                                                           int i, int u, double a1, double a2, bool doesNoiseApply, double min,
                                                           int minIndex, std::vector<double> pf);
+//    static bool checkIfCustomerAcceptsThisVehicle(const customer& customer, int routeIndex, int timeWindowIndex, const CustomersTimeWindow& timeWindow);
+    /**pokial bolo treba pushnut vozidlo v jednej ceste no uz je aj v inej pridelene kvoli sucasnej obsluhe*/
     bool checkIfCustomerCanBePushedInRoute(const Vehicle &vehicle, int u, double timeOfService,
                                            std::vector<customer> &customers, double waitingTime);
-    void pushVehicleInOtherRoutes(Vehicle &vehicle, int u, double timeOfService,
-                                  std::vector<customer> &customers, const std::vector<std::vector<double>> &distMatrix
-                                  ,double waitingTime);
     static std::vector<std::tuple<int, int, int, int>> findOptimumForC2(std::vector<std::tuple<int, double, int, int, int>> &mnozinaC1, double lambda,
                                          std::vector<std::vector<double>> &distanceMatrix, std::vector<customer> &customers);
-    static void insertCustomerToRoad(Vehicle &vehicle, std::vector<std::tuple<int, int, int, int>> optimalInsertion,
-            std::vector<customer>& custs, const std::vector<std::vector<double>>& distanceMatrix,
-            std::vector<double>& timeWaitedAtCustomer);
+    static void insertCustomerToRoad(Vehicle& vehicle, std::vector<std::tuple<int, int, int, int>> optimalInsertion, std::vector<customer>& custs,
+                                     const std::vector<std::vector<double>>& distanceMatrix, std::vector<double>& timeWaitedAtCustomer, std::vector<customer*> &unservedCustomers);
     static void waitingTimeMath(std::vector<double> &timeWaitedAtCustomer, std::vector<double> &beginingOfService,
                          std::vector<int> &route, std::vector<customer> &customers, const std::vector<std::vector<double>> &distanceMatrix,
                          int index, double timeOfService, int u, int w);
@@ -75,11 +70,11 @@ private:
     double createNoise() const;
     static int doesNoiseApply();
     void finalPrint(std::vector<customer>& custs, std::vector<Vehicle>& vehicles);
-    void insertSpecialRequirements(std::vector<customer>& custs, std::vector<Vehicle>& vehicles);
-    void insertBeginingOfRoute(std::vector<customer>& custs, std::vector<Vehicle>& vehicles, int routeIndex, bool criteria,
-                               std::vector<std::vector<double>> &dMatrix, std::vector<double> &timeWaitedAtCust);
+    void insertSpecialRequirements(std::vector<customer>& customers, std::vector<Vehicle>& vehicles, std::vector<customer*> &unservedCustomers);
+    static void insertBeginingOfRoute(std::vector<customer>& custs, std::vector<Vehicle>& vehicles, int routeIndex, bool criteria,
+                               std::vector<std::vector<double>> &dMatrix, std::vector<double> &timeWaitedAtCust, std::vector<customer*> &unservedCustomers);
     void insertIntoNewRoute(std::vector<customer>& custs, std::vector<Vehicle>& vehicles, int routeIndex, int customerIndex,
-                            std::vector<std::vector<double>> &dMatrix, std::vector<double> &timeWaitedAtCust);
+                            std::vector<std::vector<double>> &dMatrix, std::vector<double> &timeWaitedAtCust, std::vector<customer*> &unservedCustomers);
 };
 
 

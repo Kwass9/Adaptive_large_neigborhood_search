@@ -15,20 +15,20 @@ private:
     double ycord;
     std::vector<int> previouslyServedBy = {};
     std::vector<double> previouslyServedByTime = {};
-    std::vector<double> waitingTimeForService = {};
-    bool routedStatus;
+//    std::vector<double> waitingTimeForService = {};
+//    bool routedStatus;
     std::vector<CustomersTimeWindow> timeWindows;
     int specificRequirementsForVehicle = - 1;
 public:
     customer(int idNum, double x, double y, int specificRequirementsForVehicle);
     ~customer();
     customer(customer const &customer);
-    void markAsRouted();
-    bool isRouted() const;
+//    void markAsRouted();
+//    bool isRouted() const;
     unsigned int getId() const;
     double getXcord() const;
     double getYcord() const;
-    void markAsUnrouted();
+//    void markAsUnrouted();
     void addPreviouslyServedBy(int vehicleId);
     std::vector<int> getPreviouslyServedBy() const;
     std::vector<double> getPreviouslyServedByTimes() const;
@@ -47,12 +47,12 @@ public:
     int getSpecificRequirementsForVehicle() const;
     void setSpecificRequirementsForVehicle(int vehicleId);
 
-    std::vector<double> getWaitingTimeForService() const;
-    double getWaitingTimeForServiceAt(int index) const;
-    void addWaitingTimeForService(double time);
-    void editWaitingTimeForService(double time, int index);
-    void clearWaitingTimeForService();
-    void setWaitingTimeForService(std::vector<double> times);
+//    std::vector<double> getWaitingTimeForService() const;
+//    double getWaitingTimeForServiceAt(int index) const;
+//    void addWaitingTimeForService(double time);
+//    void editWaitingTimeForService(double time, int index);
+//    void clearWaitingTimeForService();
+//    void setWaitingTimeForService(std::vector<double> times);
 
     bool isServedByEnoughVehicles() const;
     void createNewTimeWindow(double readyTime, double dueDate, double demand, double serviceTime);

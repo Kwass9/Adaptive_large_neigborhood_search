@@ -68,7 +68,8 @@ void Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatr
                                   std::vector<customer> &customers,
                                   const int &ro,
                                   std::vector<double> &waitingTime,
-                                  std::vector<Vehicle> &vehicles) {
+                                  std::vector<Vehicle> &vehicles,
+                                  std::vector<customer*> &unservedCustomers) {
     D.clear();
     auto r = generateRandomNumber(1, (int)customers.size() - 1);
     while (!customers[r].isRouted() || !customers[r].hasSpecificRequirements()) {
@@ -81,13 +82,14 @@ void Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatr
         calculateL(L, (int)customers.size()); //TODO toto bude treba skontrolovat este
         calculateD(ro,L, r, (int)customers.size()); //TODO toto bude treba skontrolovat este
     }
-    editSolution(distanceMatrix,customers,D,waitingTime, vehicles);
+    editSolution(distanceMatrix,customers,D,waitingTime, vehicles, unservedCustomers);
 }
 
 void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix,
                                 std::vector<customer> &customers,
                                 std::vector<int> &D,
-                                std::vector<double>& waitingTime, std::vector<Vehicle> &vehicles) {
+                                std::vector<double>& waitingTime, std::vector<Vehicle> &vehicles,
+                                std::vector<customer*> &unservedCustomers) {
 
     std::vector<std::vector<int>> routes;
     std::vector<std::vector<double>> timeSchedule;
@@ -102,6 +104,7 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
             for (int j = 1; j < timeSchedule[i].size(); ++j) {
                 if (routes[i][j] == k) {
                     customers[k].markAsUnrouted();
+                    unservedCustomers.emplace_back(&customers[k]);
                     std::cout << "ad as unrouted: " << k << std::endl;
                     waitingTime[k] = 0;
                     auto nWindows = customers[k].getTimeWindows().size();
