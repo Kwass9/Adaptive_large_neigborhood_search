@@ -34,8 +34,8 @@ private:
     double maxN;
 
     static void calculateDistances(std::vector<customer> &customers, std::vector<std::vector<double>> &distanceMatrix);
-    static std::vector<int> findCustomerWithEarliestDeadline(std::vector<customer> &customers);
-    static std::vector<int> findFurthestUnroutedCustomer(std::vector<std::vector<double>> &distanceMatrix, std::vector<customer> &customers);
+    static void findCustomerWithEarliestDeadline(std::vector<customer*> &customers);
+    static void findFurthestUnroutedCustomer(std::vector<std::vector<double>> &dMatrix, std::vector<customer*> &customers);
     static std::vector<double> calculatePushForward(const std::vector<int>& route, int u, int position,
                                                     const std::vector<double> &timeWaitedAtCustomer, const std::vector<std::vector<double>> &distanceMatrix,
                                                     const std::vector<customer> &customers, double timeOfService, double waitingTime, const std::vector<double> &beginingOfService,
@@ -51,11 +51,11 @@ private:
     std::vector<std::tuple<int, double, int, int, int>> findMinForC1(double a1, double a2, const std::vector<std::vector<double>> &dMatrix,
                                                            std::vector<customer> &custs,
                                                            const std::vector<double> &timeWaitedAtCust, int doesNoiseApply,
-                                                           const std::vector<Vehicle> &vehicles, int vehicleIndex);
+                                                           const std::vector<Vehicle> &vehicles, int vehicleIndex,
+                                                           std::vector<customer*> &unservedCusts);
     std::tuple<int, double> calculateC1(std::vector<int> route, std::vector<std::vector<double>> dMatrix,
                                                           int i, int u, double a1, double a2, bool doesNoiseApply, double min,
                                                           int minIndex, std::vector<double> pf);
-//    static bool checkIfCustomerAcceptsThisVehicle(const customer& customer, int routeIndex, int timeWindowIndex, const CustomersTimeWindow& timeWindow);
     /**pokial bolo treba pushnut vozidlo v jednej ceste no uz je aj v inej pridelene kvoli sucasnej obsluhe*/
     bool checkIfCustomerCanBePushedInRoute(const Vehicle &vehicle, int u, double timeOfService,
                                            std::vector<customer> &customers, double waitingTime);

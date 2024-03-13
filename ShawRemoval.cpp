@@ -72,8 +72,12 @@ void Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatr
                                   std::vector<customer*> &unservedCustomers) {
     D.clear();
     auto r = generateRandomNumber(1, (int)customers.size() - 1);
-    while (!customers[r].isRouted() || !customers[r].hasSpecificRequirements()) {
+    auto it = std::find_if(unservedCustomers.begin(), unservedCustomers.end(),
+                      [r](const customer* customerPtr) { return customerPtr->getId() == r; });
+    while (it != unservedCustomers.end() || customers[r].hasSpecificRequirements()) {
         r = generateRandomNumber(1, (int)customers.size() - 1);
+        it = std::find_if(unservedCustomers.begin(), unservedCustomers.end(),
+                          [r](const customer* customerPtr) { return customerPtr->getId() == r; });
     }
     D.emplace_back(r);
     std::vector<std::pair<int, double>> L;
@@ -103,7 +107,7 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
         for (int i = 0; i < timeSchedule.size(); ++i) {
             for (int j = 1; j < timeSchedule[i].size(); ++j) {
                 if (routes[i][j] == k) {
-                    customers[k].markAsUnrouted();
+//                    customers[k].markAsUnrouted();
                     unservedCustomers.emplace_back(&customers[k]);
                     std::cout << "ad as unrouted: " << k << std::endl;
                     waitingTime[k] = 0;

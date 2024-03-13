@@ -66,31 +66,17 @@ void solomon::calculateDistances(std::vector<customer> &customers, std::vector<s
     }
 }
 
-std::vector<int> solomon::findCustomerWithEarliestDeadline(std::vector<customer> &customers) {
-    std::vector<int> customerIDs;
-    for (int i = 1; i < customers.size(); ++i) {
-        if (!customers[i].isRouted()) {
-            customerIDs.push_back(i);
-        }
-    }
-    std::sort(customerIDs.begin(), customerIDs.end(), [&customers](int a, int b) {
-        return customers[a].getTimeWindows().back().getDueDate() < customers[b].getTimeWindows().back().getDueDate();
+void solomon::findCustomerWithEarliestDeadline(std::vector<customer*> &customers) {
+    std::sort(customers.begin(), customers.end(), [](customer *a, customer *b) {
+        return a->getTimeWindows().back().getDueDate() < b->getTimeWindows().back().getDueDate();
     });
-    return customerIDs;
 }
 
-std::vector<int> solomon::findFurthestUnroutedCustomer(std::vector<std::vector<double>> &distanceMatrix,
-                                                   std::vector<customer> &customers) {
-    std::vector<int> customerIDs;
-    for (int i = 1; i < customers.size(); ++i) {
-        if (!customers[i].isRouted()) {
-            customerIDs.push_back(i);
-        }
-    }
-    std::sort(customerIDs.begin(), customerIDs.end(),[&distanceMatrix](int a, int b) {
-                  return distanceMatrix[0][a] > distanceMatrix[0][b];
+void solomon::findFurthestUnroutedCustomer(std::vector<std::vector<double>> &dMatrix,
+                                                   std::vector<customer*> &customers) {
+    std::sort(customers.begin(), customers.end(),[&dMatrix](customer *a, customer *b) {
+                  return dMatrix[0][a->getId()] > dMatrix[0][b->getId()];
               });
-    return customerIDs;
 }
 
 std::vector<double> solomon::calculatePushForward(const std::vector<int> &route, int u, int position,
@@ -202,7 +188,8 @@ std::vector<std::tuple<int, double, int, int, int>>
 solomon::findMinForC1(const double a1, const double a2, const std::vector<std::vector<double>> &dMatrix,
                       std::vector<customer> &custs,
                       const std::vector<double> &timeWaitedAtCust, const int doesNoiseApply,
-                      const std::vector<Vehicle>& vehicles, int vehicleIndex) {
+                      const std::vector<Vehicle>& vehicles, int vehicleIndex,
+                      std::vector<customer*> &unservedCusts) {
     std::vector<std::tuple<int, double, int, int, int>> mnozinaC1;
     int minIndex = 0;
     auto maxCapacity = vehicles[vehicleIndex].getCapacity();
@@ -210,7 +197,7 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
     auto route = vehicles[vehicleIndex].getRoute();
     auto begOfServ = vehicles[vehicleIndex].getTimeSchedule();
 
-    for (int u = 1; u < custs.size(); ++u) {
+    for (int u = 1; u < unservedCusts.size(); ++u) {
         double min = INT_MAX - 1;
         std::vector<int> minIndexesLocal;
         std::vector<double> minLocal;
@@ -219,8 +206,7 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
 
         for (int w = 0; w < custs[u].getTimeWindows().size(); ++w) {
             auto timeWindow = custs[u].getTimeWindowAt(w);
-            if (!custs[u].isRouted()
-                && curUsedCap + timeWindow.getDemand() <= maxCapacity
+            if (curUsedCap + timeWindow.getDemand() <= maxCapacity
                 && timeWindow.getNumberOfVehiclesServing() < timeWindow.getVehiclesRequired()) {
 
 
@@ -432,14 +418,13 @@ void solomon::run(std::vector<customer> &custs, std::vector<customer*>& unserved
     auto useNoise = doesNoiseApply();
     int windowsUsed = 0;
 
-//    if (numberOfUnvisitedCustomers == problemSize) {
+    if (unservedCustomers.size() == custs.size()) {
         //TODO - insertBeginingOfRoute toto by sa dalo zjednotit s insertIntoNewRoute
-//        insertBeginingOfRoute(custs, vehicles, routeIndex, startingCriteria, distanceMatrix, timeWaitedAtCustomer, unservedCustomers);
-//    }
-    insertIntoNewRoute(custs, vehicles, routeIndex, startingCriteria, distanceMatrix, timeWaitedAtCustomer, unservedCustomers);
+        insertBeginingOfRoute(custs, vehicles, routeIndex, startingCriteria, distanceMatrix, timeWaitedAtCustomer, unservedCustomers);
+    }
     while (!unservedCustomers.empty()) {
         auto c1 = findMinForC1(alfa1, alfa2, distanceMatrix, custs,
-                               timeWaitedAtCustomer, useNoise, vehicles, routeIndex);
+                               timeWaitedAtCustomer, useNoise, vehicles, routeIndex, unservedCustomers);
         if (!c1.empty()) {
             auto c2 = findOptimumForC2(c1, lambda, distanceMatrix, custs);
             insertCustomerToRoad(vehicles[routeIndex], c2, custs, distanceMatrix, timeWaitedAtCustomer, unservedCustomers);
@@ -607,12 +592,11 @@ void solomon::insertSpecialRequirements(std::vector<customer>& custs, std::vecto
 void solomon::insertBeginingOfRoute(std::vector<customer>& custs, std::vector<Vehicle>& vehicles, int routeIndex, bool criteria,
                                     std::vector<std::vector<double>> &dMatrix, std::vector<double> &timeWaitedAtCust, std::vector<customer*> &unservedCustomers) {
     timeWaitedAtCust[custs.size()] = vehicles[routeIndex].getDueTimeAt(0); //prve casove okno koniec //este musim domysliet
-    auto index = criteria ? findFurthestUnroutedCustomer(dMatrix, custs)
-                     : findCustomerWithEarliestDeadline(custs);
-    auto indexSize = index.size();
+    criteria ? findFurthestUnroutedCustomer(dMatrix, unservedCustomers)
+                     : findCustomerWithEarliestDeadline(unservedCustomers);
     int dec = 0;
     while (vehicles[routeIndex].getRoute().size() <= 2) {
-        auto indexVybrateho = index[dec];
+        auto indexVybrateho = (int)unservedCustomers[dec]->getId();
         dec++;
         auto timeWinCustomerU = custs[indexVybrateho].getTimeWindowAt(0);
         auto timeWinCustomerJ = custs[0].getTimeWindowAt(0);
@@ -636,12 +620,12 @@ void solomon::insertBeginingOfRoute(std::vector<customer>& custs, std::vector<Ve
 void solomon::insertIntoNewRoute(std::vector<customer> &custs, std::vector<Vehicle> &vehicles, int routeIndex,
                                  int customerIndex, std::vector<std::vector<double>> &dMatrix,
                                  std::vector<double> &timeWaitedAtCust, std::vector<customer*> &unservedCustomers) {
-    auto index = startingCriteria ? findFurthestUnroutedCustomer(distanceMatrix, custs)
-                                  : findCustomerWithEarliestDeadline(custs);
-    auto indexSize = index.size();
+    startingCriteria ? findFurthestUnroutedCustomer(distanceMatrix, unservedCustomers)
+                                  : findCustomerWithEarliestDeadline(unservedCustomers);
+    auto indexSize = unservedCustomers.size();
     int dec = 0;
     while (vehicles[routeIndex].getRoute().size() <= 2 && indexSize != 0 && dec < indexSize) {
-        auto indexVybrateho = index[dec];
+        auto indexVybrateho = (int)unservedCustomers[dec]->getId();
         int correctWindow = 0;
         if (dec <= indexSize - 1) {
             dec++;

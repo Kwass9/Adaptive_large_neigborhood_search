@@ -248,7 +248,9 @@ int main(int argc, char * argv[]) {
     temperature = setInitialTemperature(w, solomon->getDistance());
 
     auto *simulatedAnnealing = new class SimulatedAnnealing(temperature, c);
-    simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), vehicles, solomon->getWaitingTime());
+    if (unservedCustomers.empty()) {
+        simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), vehicles, solomon->getWaitingTime());
+    }
     auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, (int)customers.size());
     int i = 0;
 //    auto *test = new class test(); //TODO prerobit, stale je stavany na stare riesenie nove nevie testovat
@@ -272,7 +274,6 @@ int main(int argc, char * argv[]) {
     auto bestDistance = simulatedAnnealing->getBestSolution();
     auto bestWaitingTime = simulatedAnnealing->getBestWaitingTime();
     auto bestRoutes = simulatedAnnealing->getBestRoutes();
-
 //    -------------------------------------------------------------------------------------------------------------------
 
     std::cout << "BestSchedule" << std::endl;
@@ -297,6 +298,10 @@ int main(int argc, char * argv[]) {
     std::cout << "BestDistance" << std::endl;
     std::cout << bestDistance << std::endl;
     std::cout << i << std::endl;
+
+    for (auto & unservedCustomer : unservedCustomers) {
+        std::cout << unservedCustomer->getId() << " ";
+    }
 
 //    std::cout << "Test results: " << test->getUncorectnessCounter() << std::endl;
 
