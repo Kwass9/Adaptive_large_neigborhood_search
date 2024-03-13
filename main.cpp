@@ -253,17 +253,17 @@ int main(int argc, char * argv[]) {
     }
     auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, (int)customers.size());
     int i = 0;
-//    auto *test = new class test(); //TODO prerobit, stale je stavany na stare riesenie nove nevie testovat
-//    test->correctnessForCurrentSolution(customers, timeSchedule, routes, solomon->getWaitingTime(), distanceMatrix, usedCapacity, vehicles);
+    auto *test = new class test(); //TODO prerobit, stale je stavany na stare riesenie nove nevie testovat
+    test->correctnessForCurrentSolution(customers, timeSchedule, routes, solomon->getWaitingTime(), distanceMatrix, usedCapacity, vehicles);
     while (i < 25000) {
         std::cout << "Iteracia: " << i << std::endl;
         ro = calculateRo(ksi, customers);
         std::cout << "ro: " << ro << std::endl;
         shawRemoval->removeRequests(distanceMatrix, customers, ro, solomon->getWaitingTime(), vehicles, unservedCustomers);
         solomon->run(customers, unservedCustomers, vehicles);
-//        test->correctnessForCurrentSolution(customers, solomon->getTimeSchedule(), solomon->getRoutes(), solomon->getWaitingTime(), distanceMatrix, solomon->getUsedCapacity());
         if (unservedCustomers.empty()) {
             simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(),vehicles, solomon->getWaitingTime());
+            test->correctnessForCurrentSolution(customers, simulatedAnnealing->getBestTimeSchedule(), simulatedAnnealing->getBestRoutes(), simulatedAnnealing->getBestWaitingTime(), distanceMatrix, usedCapacity, vehicles);
         } else {
             simulatedAnnealing->updateTemperature();
         }
@@ -274,6 +274,7 @@ int main(int argc, char * argv[]) {
     auto bestDistance = simulatedAnnealing->getBestSolution();
     auto bestWaitingTime = simulatedAnnealing->getBestWaitingTime();
     auto bestRoutes = simulatedAnnealing->getBestRoutes();
+    test->correctnessForCurrentSolution(customers, bestSchedule, bestRoutes, bestWaitingTime, distanceMatrix, usedCapacity, vehicles);
 //    -------------------------------------------------------------------------------------------------------------------
 
     std::cout << "BestSchedule" << std::endl;
@@ -303,9 +304,9 @@ int main(int argc, char * argv[]) {
         std::cout << unservedCustomer->getId() << " ";
     }
 
-//    std::cout << "Test results: " << test->getUncorectnessCounter() << std::endl;
+    std::cout << "Test results: " << test->getUncorectnessCounter() << std::endl;
 
-//    delete test;
+    delete test;
     delete solomon;
     delete simulatedAnnealing;
     delete shawRemoval;

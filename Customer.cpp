@@ -20,7 +20,6 @@ customer::customer(const customer &customer) {
     id = customer.id;
     xcord = customer.xcord;
     ycord = customer.ycord;
-//    routedStatus = customer.routedStatus;
     timeWindows = customer.timeWindows;
     previouslyServedBy = customer.previouslyServedBy;
     previouslyServedByTime = customer.previouslyServedByTime;
@@ -32,10 +31,6 @@ customer::~customer() {
     timeWindows.clear();
 }
 
-//void customer::markAsRouted() {
-//    routedStatus = true;
-//}
-
 double customer::getYcord() const {
     return ycord;
 }
@@ -43,14 +38,6 @@ double customer::getYcord() const {
 double customer::getXcord() const {
     return xcord;
 }
-
-//bool customer::isRouted() const {
-//    return routedStatus;
-//}
-
-//void customer::markAsUnrouted() {
-//    routedStatus = false;
-//}
 
 unsigned int customer::getId() const {
     return id;

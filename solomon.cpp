@@ -197,7 +197,8 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
     auto route = vehicles[vehicleIndex].getRoute();
     auto begOfServ = vehicles[vehicleIndex].getTimeSchedule();
 
-    for (int u = 1; u < unservedCusts.size(); ++u) {
+    for (auto & unservedCust : unservedCusts) {
+        int u = (int)unservedCust->getId();
         double min = INT_MAX - 1;
         std::vector<int> minIndexesLocal;
         std::vector<double> minLocal;
@@ -375,11 +376,11 @@ void solomon::insertCustomerToRoad(Vehicle& vehicle, std::vector<std::tuple<int,
         vehicle.setUsedCapacity(vehicle.getUsedCapacity() + timeWindowU.getDemand());
         timeWindowU.incrementCurentVehiclesServing();
         custs[u].addPreviouslyServedBy(vehicle.getId());
-        std::cout << "---------------------" << u << "--------------------------" << std::endl;
-        for (int k = 0; k < custs[u].getPreviouslyServedBy().size(); ++k) {
-            std::cout << custs[u].getPreviouslyServedBy()[k] << " ";
-        }
-        std::cout << std::endl;
+//        std::cout << "---------------------" << u << "--------------------------" << std::endl;
+//        for (int k = 0; k < custs[u].getPreviouslyServedBy().size(); ++k) {
+//            std::cout << custs[u].getPreviouslyServedBy()[k] << " ";
+//        }
+//        std::cout << std::endl;
         custs[u].addPreviouslyServedByTime(timeOfService);
     }
 //    if (custs[u].isServedByEnoughVehicles()) {
@@ -418,7 +419,7 @@ void solomon::run(std::vector<customer> &custs, std::vector<customer*>& unserved
     auto useNoise = doesNoiseApply();
     int windowsUsed = 0;
 
-    if (unservedCustomers.size() == custs.size()) {
+    if (unservedCustomers.size() == custs.size() - 1) {
         //TODO - insertBeginingOfRoute toto by sa dalo zjednotit s insertIntoNewRoute
         insertBeginingOfRoute(custs, vehicles, routeIndex, startingCriteria, distanceMatrix, timeWaitedAtCustomer, unservedCustomers);
     }
@@ -487,9 +488,9 @@ void solomon::finalPrint(std::vector<customer> &custs, std::vector<Vehicle> &veh
         auto r = v.getRoute();
         for (int j = 0; j <= v.getRoute().size() - 2; ++j) {
             totalDistance += distanceMatrix[r[j]][r[j + 1]];
-            std::cout << r[j] << " -> ";
+//            std::cout << r[j] << " -> ";
         }
-        std::cout << r[r.size() - 1] << std::endl;
+//        std::cout << r[r.size() - 1] << std::endl;
         totalDistance += distanceMatrix[r[r.size() - 2]][0];
         numberOfCustomersServed += (int)r.size() - 2;
         int j = (int)r.size() - 1;
@@ -497,18 +498,18 @@ void solomon::finalPrint(std::vector<customer> &custs, std::vector<Vehicle> &veh
     for (auto & v : vehicles) {
         auto ts = v.getTimeSchedule();
         for (double t : ts) {
-            std::cout << t << " ";
+//            std::cout << t << " ";
         }
-        std::cout << std::endl;
+//        std::cout << std::endl;
         auto t = ts.size() - 1;
         totalScheduleTime += (ts[t]);
     }
     for (int i = 1; i < timeWaitedAtCustomer.size() - 2; ++i) {
         waitingTimeInSchedule += timeWaitedAtCustomer[i];
     }
-    std::cout << "Total distance: " << totalDistance << std::endl;
-    std::cout << "Total schedule time: " << totalScheduleTime << std::endl;
-    std::cout << "Total waiting time: " << waitingTimeInSchedule << std::endl;
+//    std::cout << "Total distance: " << totalDistance << std::endl;
+//    std::cout << "Total schedule time: " << totalScheduleTime << std::endl;
+//    std::cout << "Total waiting time: " << waitingTimeInSchedule << std::endl;
 }
 
 bool solomon::checkIfCustomerCanBePushedInRoute(const Vehicle &vehicle, int u, double timeOfService,
