@@ -255,7 +255,7 @@ int main(int argc, char * argv[]) {
     int i = 0;
     auto *test = new class test(); //TODO prerobit, stale je stavany na stare riesenie nove nevie testovat
     test->correctnessForCurrentSolution(customers, timeSchedule, routes, solomon->getWaitingTime(), distanceMatrix, usedCapacity, vehicles);
-    while (i < 25000) {
+    while (i < 100) {
         std::cout << "Iteracia: " << i << std::endl;
         ro = calculateRo(ksi, customers);
         std::cout << "ro: " << ro << std::endl;

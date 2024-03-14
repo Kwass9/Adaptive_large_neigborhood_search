@@ -486,30 +486,23 @@ void solomon::finalPrint(std::vector<customer> &custs, std::vector<Vehicle> &veh
     auto numberOfCustomersServed = 0;
     for (auto & v : vehicles) {
         auto r = v.getRoute();
-        for (int j = 0; j <= v.getRoute().size() - 2; ++j) {
+        for (int j = 0; j <= r.size() - 2; ++j) {
             totalDistance += distanceMatrix[r[j]][r[j + 1]];
-//            std::cout << r[j] << " -> ";
         }
-//        std::cout << r[r.size() - 1] << std::endl;
         totalDistance += distanceMatrix[r[r.size() - 2]][0];
         numberOfCustomersServed += (int)r.size() - 2;
-        int j = (int)r.size() - 1;
     }
     for (auto & v : vehicles) {
         auto ts = v.getTimeSchedule();
-        for (double t : ts) {
-//            std::cout << t << " ";
-        }
-//        std::cout << std::endl;
         auto t = ts.size() - 1;
         totalScheduleTime += (ts[t]);
     }
     for (int i = 1; i < timeWaitedAtCustomer.size() - 2; ++i) {
         waitingTimeInSchedule += timeWaitedAtCustomer[i];
     }
-//    std::cout << "Total distance: " << totalDistance << std::endl;
-//    std::cout << "Total schedule time: " << totalScheduleTime << std::endl;
-//    std::cout << "Total waiting time: " << waitingTimeInSchedule << std::endl;
+    std::cout << "Total distance: " << totalDistance << std::endl;
+    std::cout << "Total schedule time: " << totalScheduleTime << std::endl;
+    std::cout << "Total waiting time: " << waitingTimeInSchedule << std::endl;
 }
 
 bool solomon::checkIfCustomerCanBePushedInRoute(const Vehicle &vehicle, int u, double timeOfService,
@@ -662,9 +655,9 @@ void solomon::insertIntoNewRoute(std::vector<customer> &custs, std::vector<Vehic
                 windowIndex = custs[indexVybrateho].getIndexOfTimeWindow(windowIt->getReadyTime(), windowIt->getDueDate());
                 timeOfService = prevServedByTime[windowIndex];
             }
-            if (timeOfService >= vehicles[routeIndex].getReadyTimeAt(timeOfService) + distanceMatrix[0][indexVybrateho]
-                && vehicles[routeIndex].getDueTimeAt(vehicles[routeIndex].getReadyTimeAt(timeOfService))
-                   >= timeOfService + distanceMatrix[indexVybrateho][0] + windowIt->getServiceTime() + windowIt->getServiceTime()) {
+            if (/**timeOfService >= vehicles[routeIndex].getReadyTimeAt(timeOfService) + distanceMatrix[0][indexVybrateho]
+                &&*/ vehicles[routeIndex].getDueTimeAt(vehicles[routeIndex].getReadyTimeAt(timeOfService))
+                   >= timeOfService + distanceMatrix[indexVybrateho][0] + windowIt->getServiceTime()) {
 
                 //TODO - checkIfCustomerCanBePushedInRoute toto uz riesi zrejme cize duplicitny kod
                 auto pf = calculatePushForward(vehicles[routeIndex].getRoute(), indexVybrateho, 1,
