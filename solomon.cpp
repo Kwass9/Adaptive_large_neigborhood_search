@@ -486,7 +486,7 @@ void solomon::finalPrint(std::vector<customer> &custs, std::vector<Vehicle> &veh
     auto numberOfCustomersServed = 0;
     for (auto & v : vehicles) {
         auto r = v.getRoute();
-        for (int j = 0; j <= r.size() - 2; ++j) {
+        for (int j = 0; j < r.size() - 2; ++j) {
             totalDistance += distanceMatrix[r[j]][r[j + 1]];
         }
         totalDistance += distanceMatrix[r[r.size() - 2]][0];
