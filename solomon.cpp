@@ -41,12 +41,10 @@ void solomon::calculateDistances(std::vector<customer> &customers,
         for (int j = 0; j <= customers.size(); ++j) {
             if (j < customers.size()) {
                 if (i == j) {
-                    this->distanceMatrix[i][j] = 0;
+//                    this->distanceMatrix[i][j] = 0;
                     distanceMatrix[i][j] = 0;
                 } else {
                     distanceMatrix[i][j] = distanceFunction(customers[i], customers[j]);
-//                    distanceMatrix[i][j] = sqrt(pow(customers[i].getXcord() - customers[j].getXcord(), 2) +
-//                                                pow(customers[i].getYcord() - customers[j].getYcord(), 2));
                 }
             }
             if (j == customers.size()) {
@@ -57,8 +55,6 @@ void solomon::calculateDistances(std::vector<customer> &customers,
     for (int i = 0; i <= customers.size(); ++i) {
         if (i < customers.size()) {
             distanceMatrix[i][customers.size()] = distanceFunction(customers[i], customers[0]);
-//            distanceMatrix[i][customers.size()] = sqrt(pow(customers[i].getXcord() - customers[0].getXcord(), 2) +
-//                                                       pow(customers[i].getYcord() - customers[0].getYcord(), 2));
         }
         if (i == customers.size()) {
             distanceMatrix[i][customers.size()] = 0;
@@ -88,7 +84,12 @@ solomon::haversineDistance() {
         double a = sin(dLat / 2) * sin(dLat / 2) +
                    sin(dLon / 2) * sin(dLon / 2) * cos(lat1) * cos(lat2);
         double c = 2 * atan2(sqrt(a), sqrt(1 - a));
-        return R * c;
+        double d = R * c * 1000; // Distance in m
+        double time = 0.015 * d + 1.0987; //regresia excel //cas v minutach
+        if (time > 40) {
+            time = 40;
+        }
+        return time;
     });
 }
 
@@ -267,6 +268,8 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
                         winJ = custs[route[i]].getTimeWindowAt(winJI);
                     }
 
+                    /**pri kontrole druheho okna nerata s pf prveho okna, tak vytvori cestu kde sa druhy v skutocnosti nezmesti uz*/
+
                     //TODO - checkIfCustomerCanBePushedInRoute toto uz riesi zrejme cize duplicitny kod
                     auto pf = calculatePushForward(route, u, i, timeWaitedAtCust,
                                                    dMatrix, custs, timeOfService, waitingTime, begOfServ, timeWindow, winJ);
@@ -285,9 +288,7 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
                     } else if (lema11(begOfServ, pf, route, custs, u, i, timeOfService, vehicles[vehicleIndex], timeWindow)) {
                         if (custs[u].getIndexOfPreviouslyServedBy(timeOfService) != -1) {
                             int vehIndex = custs[u].getIdOfPreviouslyServedBy(timeOfService);
-                            /**tu by mal este byt asi problem pokial sa pracuje s viacerymi oknami*/
                             waitingTime = timeWaitedAtCust[u];
-                            /**toto by teoreticky slo potom kontrolovat v cykle pre viac ciest - rozumej ak by bolo treba 3 service naraz*/
                             if (checkIfCustomerCanBePushedInRoute(vehicles[vehIndex], u, timeOfService, custs, waitingTime)) {
                                 auto res = calculateC1(route, dMatrix, i, u, a1, a2, doesNoiseApply, min, minIndex, pf);
                                 minIndex = std::get<0>(res);
@@ -457,11 +458,11 @@ void solomon::run(std::vector<customer> &custs, std::vector<customer*>& unserved
             insertCustomerToRoad(vehicles[routeIndex], c2, custs, distanceMatrix, timeWaitedAtCustomer, unservedCustomers);
         } else {
             routeIndex++;
+            if (routeIndex == vehicles.size()) {
+                break;
+            }
             timeWaitedAtCustomer[custs.size()] = vehicles[routeIndex].getDueTimeAt(0);
             insertIntoNewRoute(custs, vehicles, routeIndex, startingCriteria, distanceMatrix, timeWaitedAtCustomer, unservedCustomers);
-        }
-        if (routeIndex == vehicles.size()) {
-            break;
         }
     }
     finalPrint(custs, vehicles);
@@ -512,9 +513,12 @@ void solomon::finalPrint(std::vector<customer> &custs, std::vector<Vehicle> &veh
     auto numberOfCustomersServed = 0;
     for (auto & v : vehicles) {
         auto r = v.getRoute();
+        std::cout << v.getId() << ": ";
         for (int j = 0; j < r.size() - 2; ++j) {
             totalDistance += distanceMatrix[r[j]][r[j + 1]];
+            std::cout << r[j] << " ";
         }
+        std::cout << std::endl;
         totalDistance += distanceMatrix[r[r.size() - 2]][0];
         numberOfCustomersServed += (int)r.size() - 2;
     }
@@ -522,10 +526,13 @@ void solomon::finalPrint(std::vector<customer> &custs, std::vector<Vehicle> &veh
         auto ts = v.getTimeSchedule();
         auto t = ts.size() - 1;
         totalScheduleTime += (ts[t]);
+        std::cout << v.getId() << ": " << ts[t] << std::endl;
     }
     for (int i = 1; i < timeWaitedAtCustomer.size() - 2; ++i) {
         waitingTimeInSchedule += timeWaitedAtCustomer[i];
+        std::cout << timeWaitedAtCustomer[i];
     }
+    std::cout << std::endl;
     std::cout << "Total distance: " << totalDistance << std::endl;
     std::cout << "Total schedule time: " << totalScheduleTime << std::endl;
     std::cout << "Total waiting time: " << waitingTimeInSchedule << std::endl;
@@ -654,17 +661,10 @@ void solomon::insertIntoNewRoute(std::vector<customer> &custs, std::vector<Vehic
         }
         double timeOfService = 0;
         auto windows = custs[indexVybrateho].getTimeWindows();
-        std::vector<CustomersTimeWindow>::iterator windowIt;
-        std::vector<CustomersTimeWindow>::iterator windowItC;
-        for (windowIt = windows.begin(); windowIt != windows.end(); ++windowIt) {
-            if (!windowIt->isServedByEnoughVehicles()) {
-                timeOfService = windowIt->getReadyTime();
-                break;
-            }
-        }
+        auto windowIt = windows.begin();
         int winReq = 0;
-        for (windowItC = windows.begin(); windowItC != windows.end(); ++windowItC) {
-            if (!windowItC->isServedByEnoughVehicles()) {
+        for (auto & window : windows) {
+            if (!window.isServedByEnoughVehicles()) {
                 winReq++;
             }
         }
@@ -673,12 +673,22 @@ void solomon::insertIntoNewRoute(std::vector<customer> &custs, std::vector<Vehic
         }
         int position = 1;
         std::vector<std::tuple<int, int, int, int>> vec; //i,u,j,n
+        int windowIndex = 0;
         while (windowIt != windows.end()) {
+            while (windowIt->isServedByEnoughVehicles()) {
+                windowIndex++;
+                windowIt++;
+                if (windowIt == windows.end()) {
+                    break;
+                }
+           }
+            if (!windowIt->isServedByEnoughVehicles()) {
+                timeOfService = windowIt->getReadyTime();
+            }
             auto waitingTime = timeWaitedAtCustomer[indexVybrateho];
-            int windowIndex = 0;
             if (windowIt->getNumberOfVehiclesServing() != 0) {
                 auto prevServedByTime = custs[indexVybrateho].getPreviouslyServedByTimes();
-                windowIndex = custs[indexVybrateho].getIndexOfTimeWindow(windowIt->getReadyTime(), windowIt->getDueDate());
+                windowIndex = custs[indexVybrateho].getIndexOfTimeWindow(windowIt->getReadyTime(), windowIt->getDueDate()); /**neprepisal medzi iteraciami windowIndex*/
                 timeOfService = prevServedByTime[windowIndex];
             }
             if (/**timeOfService >= vehicles[routeIndex].getReadyTimeAt(timeOfService) + distanceMatrix[0][indexVybrateho]
@@ -706,6 +716,7 @@ void solomon::insertIntoNewRoute(std::vector<customer> &custs, std::vector<Vehic
                     }
                 }
             }
+            windowIndex++;
             windowIt++;
         }
     }

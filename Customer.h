@@ -15,20 +15,15 @@ private:
     double ycord;
     std::vector<int> previouslyServedBy = {};
     std::vector<double> previouslyServedByTime = {};
-//    std::vector<double> waitingTimeForService = {};
-//    bool routedStatus;
     std::vector<CustomersTimeWindow> timeWindows;
     int specificRequirementsForVehicle = - 1;
 public:
     customer(int idNum, double x, double y, int specificRequirementsForVehicle);
     ~customer();
     customer(customer const &customer);
-//    void markAsRouted();
-//    bool isRouted() const;
     unsigned int getId() const;
     double getXcord() const;
     double getYcord() const;
-//    void markAsUnrouted();
     void addPreviouslyServedBy(int vehicleId);
     std::vector<int> getPreviouslyServedBy() const;
     std::vector<double> getPreviouslyServedByTimes() const;

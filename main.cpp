@@ -34,7 +34,7 @@ double getAtributeForCustomer(std::string &str, const std::string& delimiter) {
         word = str.substr(0, cell);
         str.erase(0, cell + delimiter.length());
     }
-    return std::stoi(word);
+    return std::stod(word);
 }
 
 double processString(std::string &str, const std::string& delimiter) {
@@ -71,8 +71,9 @@ int main(int argc, char * argv[]) {
     std::vector<Vehicle> vehicles;
     bool startingCriteria; //premenna vybera ci sa zacina s najvzdialenejsim zakaznikom alebo s najskor zaciatocnou dobou
     std::string pathToVehicles;
+    std::string distPar;
 
-    if (argc == 8) {
+    if (argc == 9) {
         path = argv[1];
         //kvoli tomu ako sa win chova k specialnym znakom
         removeCharsFromString(path,"\"");
@@ -99,6 +100,7 @@ int main(int argc, char * argv[]) {
             std::cerr << "Not valid value of starting criteria" << std::endl;
         }
         pathToVehicles = argv[7];
+        distPar = argv[8]; // "euclidean" "haversine"
     } else {
         std::cend("Nespravny pocet argumentov");
     }
@@ -133,12 +135,12 @@ int main(int argc, char * argv[]) {
             double readyTime = processString(i, delimiter);
             double dueDate = processString(i, delimiter);
             double serviceTime = processString(i, delimiter);
-            int speacialRequirements = (int)processString(i, delimiter);
+            int specialRequirements = (int)processString(i, delimiter);
             if (!customers.empty()) {
                 //pokial su dve liny rovnake a maju rovnake casy obsluhy tak potrebuje obsluhu dvoch opatrovateliek naraz
                 customer& custBack = customers.back();
                 if (id == custBack.getId()) {
-                    if (custBack.doesTimeWindowExist(readyTime, dueDate)) {
+                    if (custBack.doesTimeWindowExist(readyTime, dueDate)) { /**pozor v subore su okna ktore su rovnake no neprekrivaju sa presne*/
                         auto winIndex = custBack.getIndexOfTimeWindow(readyTime, dueDate);
                         custBack.getTimeWindowAt(winIndex).incrementVehiclesRequired();
                     }
@@ -147,13 +149,16 @@ int main(int argc, char * argv[]) {
                     }
                 }
                 else {
-                    customer customer(id, x, y, speacialRequirements);
+                    customer customer(id, x, y, specialRequirements);
                     customer.createNewTimeWindow(readyTime, dueDate, demand, serviceTime);
                     customers.emplace_back(customer);
                 }
             } else {
-                customer customer(id, x, y, speacialRequirements);
+                customer customer(id, x, y, specialRequirements);
                 customer.createNewTimeWindow(readyTime, dueDate, demand, serviceTime);
+                if (readyTime == -1 || dueDate == -1 || serviceTime == -1) {
+                    customer.getTimeWindows().back().incrementCurentVehiclesServing();
+                }
                 customers.emplace_back(customer);
             }
         }
@@ -207,7 +212,9 @@ int main(int argc, char * argv[]) {
                 customer.setSpecificRequirementsForVehicle(-1);
             }
         }
-        unservedCustomers.push_back(&customer);
+        if (!customer.isServedByEnoughVehicles()) {
+            unservedCustomers.push_back(&customer);
+        }
     }
     unservedCustomers.erase(unservedCustomers.begin()); //odstranenie depa
 
@@ -232,10 +239,9 @@ int main(int argc, char * argv[]) {
     int ro; //number of reguest removed in iteraton
 
     auto *solomon = new class solomon(customers, alfa1, alfa2, lambda, q, startingCriteria, eta, vehicles, unservedCustomers);
-    std::string distPar = "euclideanDistance"; // "haversineDistance"
-    if (std::equal(distPar.begin(), distPar.end(), "euclideanDistance")) {
+    if (std::equal(distPar.begin(), distPar.end(), "euclidean")) {
         solomon->calculateDistances(customers, solomon::euclideanDistance());
-    } else if (std::equal(distPar.begin(), distPar.end(), "haversineDistance")) {
+    } else if (std::equal(distPar.begin(), distPar.end(), "haversine")) {
         solomon->calculateDistances(customers, solomon::haversineDistance());
     } else {
         std::cerr << "Not valid distance parameter" << std::endl;
@@ -264,12 +270,12 @@ int main(int argc, char * argv[]) {
     auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, (int)customers.size());
     int i = 0;
     auto *test = new class test();
-    test->correctnessForCurrentSolution(customers, timeSchedule, routes, solomon->getWaitingTime(), distanceMatrix, usedCapacity, vehicles);
-    while (i < 25000) {
+//    test->correctnessForCurrentSolution(customers, timeSchedule, routes, solomon->getWaitingTime(), distanceMatrix, usedCapacity, vehicles);
+    while (i < 1) {
         std::cout << "Iteracia: " << i << std::endl;
         ro = calculateRo(ksi, customers);
         std::cout << "ro: " << ro << std::endl;
-        shawRemoval->removeRequests(distanceMatrix, customers, ro, solomon->getWaitingTime(), vehicles, unservedCustomers);
+        shawRemoval->removeRequests(distanceMatrix, customers, ro, solomon->getWaitingTime(), vehicles, unservedCustomers); /**doplnit ze -1 neremovuje*/
         solomon->run(customers, unservedCustomers, vehicles);
         if (unservedCustomers.empty()) {
             simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(),vehicles, solomon->getWaitingTime());
