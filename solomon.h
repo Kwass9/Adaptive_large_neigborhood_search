@@ -6,6 +6,7 @@
 #define SOLOMON_SOLOMON_H
 
 #include <vector>
+#include <functional>
 #include "Customer.h"
 #include "Vehicle.h"
 
@@ -21,7 +22,10 @@ public:
     double getDistance() const;
     std::vector<double> &getWaitingTime();
     const std::vector<std::vector<double>> &getDistanceMatrix() const;
-
+    void insertSpecialRequirements(std::vector<customer>& customers, std::vector<Vehicle>& vehicles, std::vector<customer*> &unservedCustomers);
+    void calculateDistances(std::vector<customer> &customers, const std::function<double(const customer &c1, const customer &c2)>& distanceFunction);
+    static std::function<double(const customer &c1, const customer &c2)> euclideanDistance();
+    static std::function<double(const customer &c1, const customer &c2)> haversineDistance();
 private:
     std::vector<std::vector<double>> distanceMatrix;
     std::vector<double> timeWaitedAtCustomer;
@@ -33,7 +37,6 @@ private:
     double totalDistance; //este pojde von...
     double maxN;
 
-    static void calculateDistances(std::vector<customer> &customers, std::vector<std::vector<double>> &distanceMatrix);
     static void findCustomerWithEarliestDeadline(std::vector<customer*> &customers);
     static void findFurthestUnroutedCustomer(std::vector<std::vector<double>> &dMatrix, std::vector<customer*> &customers);
     static std::vector<double> calculatePushForward(const std::vector<int>& route, int u, int position,
@@ -70,7 +73,6 @@ private:
     double createNoise() const;
     static int doesNoiseApply();
     void finalPrint(std::vector<customer>& custs, std::vector<Vehicle>& vehicles);
-    void insertSpecialRequirements(std::vector<customer>& customers, std::vector<Vehicle>& vehicles, std::vector<customer*> &unservedCustomers);
     static void insertBeginingOfRoute(std::vector<customer>& custs, std::vector<Vehicle>& vehicles, int routeIndex, bool criteria,
                                std::vector<std::vector<double>> &dMatrix, std::vector<double> &timeWaitedAtCust, std::vector<customer*> &unservedCustomers);
     void insertIntoNewRoute(std::vector<customer>& custs, std::vector<Vehicle>& vehicles, int routeIndex, int customerIndex,

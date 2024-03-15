@@ -16,7 +16,7 @@ solomon::solomon(std::vector<customer> &customers, double alfa1, double alfa2,
                  double lambda, double q, bool startingCriteria, double eta,
                  std::vector<Vehicle>& vehicles, std::vector<customer*>& unservedCustomers) {
     totalDistance = INT_MAX - 1;
-    calculateDistances(customers, distanceMatrix);
+    distanceMatrix.resize(customers.size() + 1, std::vector<double>(customers.size() + 1, INT_MAX - 1));
     maxN = calculateMaxN(eta);
     this->alfa1 = alfa1;
     this->alfa2 = alfa2;
@@ -26,8 +26,8 @@ solomon::solomon(std::vector<customer> &customers, double alfa1, double alfa2,
     for (int i = 0; i <= customers.size(); ++i) {
         timeWaitedAtCustomer.push_back(0);
     }
-    insertSpecialRequirements(customers, vehicles, unservedCustomers);
-    run(customers, unservedCustomers, vehicles);
+//    insertSpecialRequirements(customers, vehicles, unservedCustomers);
+//    run(customers, unservedCustomers, vehicles);
 }
 
 solomon::~solomon() {
@@ -35,19 +35,18 @@ solomon::~solomon() {
 }
 
 
-void solomon::calculateDistances(std::vector<customer> &customers, std::vector<std::vector<double>> &distanceMatrix) {
-    for (int i = 0; i <= customers.size(); ++i) {
-        std::vector<double> distVec(customers.size() + 1, INT_MAX - 1);
-        distanceMatrix.push_back(distVec);
-    }
+void solomon::calculateDistances(std::vector<customer> &customers,
+                                 const std::function<double(const customer &c1, const customer &c2)>& distanceFunction) {
     for (int i = 0; i < customers.size(); ++i) {
         for (int j = 0; j <= customers.size(); ++j) {
             if (j < customers.size()) {
                 if (i == j) {
+                    this->distanceMatrix[i][j] = 0;
                     distanceMatrix[i][j] = 0;
                 } else {
-                    distanceMatrix[i][j] = sqrt(pow(customers[i].getXcord() - customers[j].getXcord(), 2) +
-                                                pow(customers[i].getYcord() - customers[j].getYcord(), 2));
+                    distanceMatrix[i][j] = distanceFunction(customers[i], customers[j]);
+//                    distanceMatrix[i][j] = sqrt(pow(customers[i].getXcord() - customers[j].getXcord(), 2) +
+//                                                pow(customers[i].getYcord() - customers[j].getYcord(), 2));
                 }
             }
             if (j == customers.size()) {
@@ -57,13 +56,40 @@ void solomon::calculateDistances(std::vector<customer> &customers, std::vector<s
     }
     for (int i = 0; i <= customers.size(); ++i) {
         if (i < customers.size()) {
-            distanceMatrix[i][customers.size()] = sqrt(pow(customers[i].getXcord() - customers[0].getXcord(), 2) +
-                                                       pow(customers[i].getYcord() - customers[0].getYcord(), 2));
+            distanceMatrix[i][customers.size()] = distanceFunction(customers[i], customers[0]);
+//            distanceMatrix[i][customers.size()] = sqrt(pow(customers[i].getXcord() - customers[0].getXcord(), 2) +
+//                                                       pow(customers[i].getYcord() - customers[0].getYcord(), 2));
         }
         if (i == customers.size()) {
             distanceMatrix[i][customers.size()] = 0;
         }
     }
+}
+
+std::function<double(const customer &c1, const customer &c2)>
+solomon::euclideanDistance() {
+    return ([](const customer &c1, const customer &c2) {
+        return sqrt(pow(c1.getXcord() - c2.getXcord(), 2) + pow(c1.getYcord() - c2.getYcord(), 2));
+    });
+}
+
+std::function<double(const customer &c1, const customer &c2)>
+solomon::haversineDistance() {
+    return ([](const customer &c1, const customer &c2) {
+        double R = 6371;
+        double lat1 = c1.getXcord();
+        double lon1 = c1.getYcord();
+        double lat2 = c2.getXcord();
+        double lon2 = c2.getYcord();
+        double dLat = (lat2 - lat1) * M_PI / 180;
+        double dLon = (lon2 - lon1) * M_PI / 180;
+        lat1 = lat1 * M_PI / 180;
+        lat2 = lat2 * M_PI / 180;
+        double a = sin(dLat / 2) * sin(dLat / 2) +
+                   sin(dLon / 2) * sin(dLon / 2) * cos(lat1) * cos(lat2);
+        double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+        return R * c;
+    });
 }
 
 void solomon::findCustomerWithEarliestDeadline(std::vector<customer*> &customers) {

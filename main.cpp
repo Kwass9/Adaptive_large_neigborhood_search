@@ -232,6 +232,16 @@ int main(int argc, char * argv[]) {
     int ro; //number of reguest removed in iteraton
 
     auto *solomon = new class solomon(customers, alfa1, alfa2, lambda, q, startingCriteria, eta, vehicles, unservedCustomers);
+    std::string distPar = "euclideanDistance"; // "haversineDistance"
+    if (std::equal(distPar.begin(), distPar.end(), "euclideanDistance")) {
+        solomon->calculateDistances(customers, solomon::euclideanDistance());
+    } else if (std::equal(distPar.begin(), distPar.end(), "haversineDistance")) {
+        solomon->calculateDistances(customers, solomon::haversineDistance());
+    } else {
+        std::cerr << "Not valid distance parameter" << std::endl;
+    }
+    solomon->insertSpecialRequirements(customers, vehicles, unservedCustomers);
+    solomon->run(customers, unservedCustomers, vehicles);
 
     auto distanceMatrix = solomon->getDistanceMatrix();
     std::vector<std::vector<int>> routes;
@@ -253,9 +263,9 @@ int main(int argc, char * argv[]) {
     }
     auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, (int)customers.size());
     int i = 0;
-    auto *test = new class test(); //TODO prerobit, stale je stavany na stare riesenie nove nevie testovat
+    auto *test = new class test();
     test->correctnessForCurrentSolution(customers, timeSchedule, routes, solomon->getWaitingTime(), distanceMatrix, usedCapacity, vehicles);
-    while (i < 100) {
+    while (i < 25000) {
         std::cout << "Iteracia: " << i << std::endl;
         ro = calculateRo(ksi, customers);
         std::cout << "ro: " << ro << std::endl;
