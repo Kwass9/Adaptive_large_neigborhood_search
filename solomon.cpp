@@ -349,7 +349,7 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
                                     minIndex = std::get<0>(res);
                                     min = std::get<1>(res);
                                     validTimeWindows[w] = true;
-                                    minIndexesLocal.emplace_back(minIndex);
+                                    minIndexesLocal.emplace_back(minIndex - 1); /**ta minus jedna lebo predtym je uz vlozeny predosly taky isty vrchol, no v realnej ceste nie je este*/
                                     minLocal.emplace_back(min);
                                     wLocal.emplace_back(w);
                                     /**fake route - creation*/
@@ -552,6 +552,16 @@ void solomon::run(std::vector<customer> &custs, std::vector<customer*>& unserved
             auto c2 = findOptimumForC2(c1, lambda, distanceMatrix, custs);
             insertCustomerToRoad(vehicles[routeIndex], c2, custs, distanceMatrix, timeWaitedAtCustomer, unservedCustomers);
         } else {
+            std::cout << "---------------------" << routeIndex << "--------------------------" << std::endl;
+            for (int i = 0; i < vehicles[routeIndex].getRoute().size(); ++i) {
+                std::cout << vehicles[routeIndex].getRoute()[i] << " ";
+            }
+            std::cout << std::endl;
+            for (double i : vehicles[routeIndex].getTimeSchedule()) {
+                std::cout << i << " ";
+            }
+            std::cout << std::endl;
+
             routeIndex++;
             if (routeIndex == vehicles.size()) {
                 break;
@@ -785,6 +795,10 @@ void solomon::insertIntoNewRoute(std::vector<customer> &custs, std::vector<Vehic
                 auto prevServedByTime = custs[indexVybrateho].getPreviouslyServedByTimes();
                 windowIndex = custs[indexVybrateho].getIndexOfTimeWindow(windowIt->getReadyTime(), windowIt->getDueDate()); /**neprepisal medzi iteraciami windowIndex*/
                 timeOfService = prevServedByTime[windowIndex];
+            }
+            if (timeOfService < vehicles[routeIndex].getAllTimeWindows()[0].first) {
+                waitingTime = vehicles[routeIndex].getAllTimeWindows()[0].first - timeOfService;
+                timeOfService = vehicles[routeIndex].getAllTimeWindows()[0].first;
             }
             if (/**timeOfService >= vehicles[routeIndex].getReadyTimeAt(timeOfService) + distanceMatrix[0][indexVybrateho]
                 &&*/ vehicles[routeIndex].getDueTimeAt(vehicles[routeIndex].getReadyTimeAt(timeOfService))
