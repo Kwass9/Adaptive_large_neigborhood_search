@@ -42,14 +42,8 @@ public:
     int getSpecificRequirementsForVehicle() const;
     void setSpecificRequirementsForVehicle(int vehicleId);
 
-//    std::vector<double> getWaitingTimeForService() const;
-//    double getWaitingTimeForServiceAt(int index) const;
-//    void addWaitingTimeForService(double time);
-//    void editWaitingTimeForService(double time, int index);
-//    void clearWaitingTimeForService();
-//    void setWaitingTimeForService(std::vector<double> times);
-
     bool isServedByEnoughVehicles() const;
+    bool wasServedByThisVehicleAtWindow(int vehicleID, int windowOrderNumber) const;
     void createNewTimeWindow(double readyTime, double dueDate, double demand, double serviceTime);
     CustomersTimeWindow & getTimeWindowAt(int index);
     std::vector<CustomersTimeWindow>& getTimeWindows();

@@ -241,71 +241,51 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
 
         std::vector<std::vector<int>> fakeRoutes;
         std::vector<std::vector<double>> fakeBegOfServ;
-//        std::vector<std::vector<double>> fakeTimeWaitedAtCust;
 
         for (int w = 0; w < custs[u].getTimeWindows().size(); ++w) {
-            auto timeWindow = custs[u].getTimeWindowAt(w);
-            if (curUsedCap + timeWindow.getDemand() <= maxCapacity
-                && timeWindow.getNumberOfVehiclesServing() < timeWindow.getVehiclesRequired()) {
+            if (!custs[u].wasServedByThisVehicleAtWindow(vehicleIndex, w)) {
+                auto timeWindow = custs[u].getTimeWindowAt(w);
+                if (curUsedCap + timeWindow.getDemand() <= maxCapacity
+                    && timeWindow.getNumberOfVehiclesServing() < timeWindow.getVehiclesRequired()) {
 
-                for (int i = 1; i < route.size(); ++i) {
+                    for (int i = 1; i < route.size(); ++i) {
 
-                    //TODO - checkIfCustomerCanBePushedInRoute toto uz riesi zrejme cize duplicitny kod
-                    if (w == 0) {
-                        double timeOfService;
-                        if (timeWindow.getNumberOfVehiclesServing() == 0) {
-                            auto timeWindowPredchodca = custs[route[i - 1]].getTimeWindowBeforeTime(begOfServ[i - 1]);
-                            timeOfService = begOfServ[i - 1]
-                                            + dMatrix[route[i - 1]][u]
-                                            + timeWindowPredchodca.getServiceTime();
-                        } else {
-                            auto times = custs[u].getPreviouslyServedByTimes();
-                            for (double time: times) {
-                                if (time > timeWindow.getReadyTime() && time < timeWindow.getDueDate()) {
-                                    timeOfService = time;
-                                    break;
+                        //TODO - checkIfCustomerCanBePushedInRoute toto uz riesi zrejme cize duplicitny kod
+                        if (w == 0) {
+                            double timeOfService;
+                            if (timeWindow.getNumberOfVehiclesServing() == 0) {
+                                auto timeWindowPredchodca = custs[route[i - 1]].getTimeWindowBeforeTime(begOfServ[i - 1]);
+                                timeOfService = begOfServ[i - 1]
+                                                + dMatrix[route[i - 1]][u]
+                                                + timeWindowPredchodca.getServiceTime();
+                            } else {
+                                auto times = custs[u].getPreviouslyServedByTimes();
+                                for (double time: times) {
+                                    if (time > timeWindow.getReadyTime() && time < timeWindow.getDueDate()) {
+                                        timeOfService = time;
+                                        break;
+                                    }
                                 }
                             }
-                        }
-                        double waitingTime = 0;
-                        if (timeWindow.getReadyTime() > timeOfService) {
-                            waitingTime = timeWindow.getReadyTime() - timeOfService;
-                            timeOfService = timeWindow.getReadyTime();
-                        }
-
-                        auto winJ = custs[0].getTimeWindowAt(0);
-                        if (i < route.size() - 1) {
-                            auto winJP = custs[route[i]].getTimeWindow(begOfServ[i]);
-                            auto winJI = custs[route[i]].getIndexOfTimeWindow(winJP.first, winJP.second);
-                            winJ = custs[route[i]].getTimeWindowAt(winJI);
-                        }
-                        auto pf = calculatePushForward(route, u, i, timeWaitedAtCust,
-                                                       dMatrix, custs, timeOfService, waitingTime, begOfServ, timeWindow, winJ);
-                        //pokial nebol este vlozeny do ziadnej inej trasy
-                        if (timeWindow.getNumberOfVehiclesServing() == 0) {
-                            if (lema11(begOfServ, pf, route, custs, u, i, timeOfService, vehicles[vehicleIndex], timeWindow)) {
-                                auto res = calculateC1(route, dMatrix, i, u, a1, a2, doesNoiseApply, min, minIndex, pf);
-                                minIndex = std::get<0>(res);
-                                min = std::get<1>(res);
-                                validTimeWindows[w] = true;
-                                minIndexesLocal.emplace_back(minIndex);
-                                minLocal.emplace_back(min);
-                                wLocal.emplace_back(w);
-                                /**fake route - creation, este dokoncit lebo cas tam nie je aktualizovany*/
-                                if (custs[u].getTimeWindows().size() > 1) {
-                                    fakeRoutes.emplace_back(route);
-                                    fakeBegOfServ.emplace_back(begOfServ);
-                                    calculateNewBeginings(pf, timeWaitedAtCustomer, fakeRoutes.back(), custs, i, fakeBegOfServ.back(), timeOfService, dMatrix, i);
-                                    fakeBegOfServ.back().insert(fakeBegOfServ.back().begin() + i, timeOfService);
-                                    fakeRoutes.back().insert(fakeRoutes.back().begin() + i, u);
-                                }
-//                            fakeTimeWaitedAtCust.emplace_back(timeWaitedAtCust);
+                            double waitingTime = 0;
+                            if (timeWindow.getReadyTime() > timeOfService) {
+                                waitingTime = timeWindow.getReadyTime() - timeOfService;
+                                timeOfService = timeWindow.getReadyTime();
                             }
-                        } else if (lema11(begOfServ, pf, route, custs, u, i, timeOfService, vehicles[vehicleIndex], timeWindow)) {
-                            if (custs[u].getIndexOfPreviouslyServedBy(timeOfService) != -1) {
-                                int vehIndex = custs[u].getIdOfPreviouslyServedBy(timeOfService);
-                                waitingTime = timeWaitedAtCust[u];
-                                if (checkIfCustomerCanBePushedInRoute(vehicles[vehIndex], u, timeOfService, custs, waitingTime)) {
+
+                            auto winJ = custs[0].getTimeWindowAt(0);
+                            if (i < route.size() - 1) {
+                                auto winJP = custs[route[i]].getTimeWindow(begOfServ[i]);
+                                auto winJI = custs[route[i]].getIndexOfTimeWindow(winJP.first, winJP.second);
+                                winJ = custs[route[i]].getTimeWindowAt(winJI);
+                            }
+                            auto pf = calculatePushForward(route, u, i, timeWaitedAtCust,
+                                                           dMatrix, custs, timeOfService, waitingTime, begOfServ,
+                                                           timeWindow, winJ);
+                            //pokial nebol este vlozeny do ziadnej inej trasy
+                            if (timeWindow.getNumberOfVehiclesServing() == 0) {
+                                if (lema11(begOfServ, pf, route, custs, u, i, timeOfService, vehicles[vehicleIndex],
+                                           timeWindow)) {
                                     auto res = calculateC1(route, dMatrix, i, u, a1, a2, doesNoiseApply, min, minIndex, pf);
                                     minIndex = std::get<0>(res);
                                     min = std::get<1>(res);
@@ -317,73 +297,74 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
                                     if (custs[u].getTimeWindows().size() > 1) {
                                         fakeRoutes.emplace_back(route);
                                         fakeBegOfServ.emplace_back(begOfServ);
-                                        calculateNewBeginings(pf, timeWaitedAtCustomer, fakeRoutes.back(), custs, i, fakeBegOfServ.back(), timeOfService, dMatrix, i);
-                                        fakeBegOfServ.back().insert(fakeBegOfServ.back().begin() + i, timeOfService);
-                                        fakeRoutes.back().insert(fakeRoutes.back().begin() + i, u);
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        int fRsize = (int)fakeRoutes.size();
-                        for (int x = 0; x < fRsize; ++x) {
-                            auto timeWindow = custs[u].getTimeWindowAt(w);
-                            auto timeWindowPredchodca = custs[fakeRoutes[x][i - 1]].getTimeWindowBeforeTime(
-                                    fakeBegOfServ[x][i - 1]);
-                            double timeOfService = fakeBegOfServ[x][i - 1]
-                                                   + dMatrix[fakeRoutes[x][i - 1]][u]
-                                                   + timeWindowPredchodca.getServiceTime();
-                            double waitingTime = 0;
-                            if (timeWindow.getReadyTime() > timeOfService) {
-                                waitingTime = timeWindow.getReadyTime() - timeOfService;
-                                timeOfService = timeWindow.getReadyTime();
-                            }
-                            auto winJ = custs[0].getTimeWindowAt(0);
-                            if (i < fakeRoutes[x].size() - 1) {
-                                auto winJP = custs[fakeRoutes[x][i]].getTimeWindow(fakeBegOfServ[x][i]);
-                                auto winJI = custs[fakeRoutes[x][i]].getIndexOfTimeWindow(winJP.first, winJP.second);
-                                winJ = custs[fakeRoutes[x][i]].getTimeWindowAt(winJI);
-                            }
-                            auto pf = calculatePushForward(fakeRoutes[x], u, i, timeWaitedAtCust,
-                                                           dMatrix, custs, timeOfService, waitingTime, fakeBegOfServ[x],
-                                                           timeWindow, winJ);
-                            //pokial nebol este vlozeny do ziadnej inej trasy
-                            if (timeWindow.getNumberOfVehiclesServing() == 0) {
-                                if (lema11(fakeBegOfServ[x], pf, fakeRoutes[x], custs, u, i, timeOfService,
-                                           vehicles[vehicleIndex], timeWindow)) {
-                                    auto res = calculateC1(fakeRoutes[x], dMatrix, i, u, a1, a2, doesNoiseApply, min,
-                                                           minIndex, pf);
-                                    minIndex = std::get<0>(res);
-                                    min = std::get<1>(res);
-                                    validTimeWindows[w] = true;
-                                    minIndexesLocal.emplace_back(minIndex - 1); /**ta minus jedna lebo predtym je uz vlozeny predosly taky isty vrchol, no v realnej ceste nie je este*/
-                                    minLocal.emplace_back(min);
-                                    wLocal.emplace_back(w);
-                                    /**fake route - creation*/
-                                    if (custs[u].getTimeWindows().size() > 1) {
-                                        fakeRoutes.emplace_back(fakeRoutes.back());
-                                        fakeBegOfServ.emplace_back(fakeBegOfServ.back());
                                         calculateNewBeginings(pf, timeWaitedAtCustomer, fakeRoutes.back(), custs, i,
                                                               fakeBegOfServ.back(), timeOfService, dMatrix, i);
                                         fakeBegOfServ.back().insert(fakeBegOfServ.back().begin() + i, timeOfService);
                                         fakeRoutes.back().insert(fakeRoutes.back().begin() + i, u);
                                     }
+    //                            fakeTimeWaitedAtCust.emplace_back(timeWaitedAtCust);
                                 }
-                                //fakeTimeWaitedAtCust.emplace_back(timeWaitedAtCust);
-                            } else if (lema11(fakeBegOfServ[x], pf, fakeRoutes[x], custs, u, i, timeOfService,
-                                              vehicles[vehicleIndex], timeWindow)) {
+                            } else if (lema11(begOfServ, pf, route, custs, u, i, timeOfService, vehicles[vehicleIndex],
+                                              timeWindow)) {
                                 if (custs[u].getIndexOfPreviouslyServedBy(timeOfService) != -1) {
                                     int vehIndex = custs[u].getIdOfPreviouslyServedBy(timeOfService);
                                     waitingTime = timeWaitedAtCust[u];
                                     if (checkIfCustomerCanBePushedInRoute(vehicles[vehIndex], u, timeOfService, custs,
                                                                           waitingTime)) {
-                                        auto res = calculateC1(fakeRoutes[x], dMatrix, i, u, a1, a2, doesNoiseApply,
-                                                               min,
-                                                               minIndex, pf);
+                                        auto res = calculateC1(route, dMatrix, i, u, a1, a2, doesNoiseApply, min, minIndex,
+                                                               pf);
                                         minIndex = std::get<0>(res);
                                         min = std::get<1>(res);
                                         validTimeWindows[w] = true;
                                         minIndexesLocal.emplace_back(minIndex);
+                                        minLocal.emplace_back(min);
+                                        wLocal.emplace_back(w);
+                                        /**fake route - creation, este dokoncit lebo cas tam nie je aktualizovany*/
+                                        if (custs[u].getTimeWindows().size() > 1) {
+                                            fakeRoutes.emplace_back(route);
+                                            fakeBegOfServ.emplace_back(begOfServ);
+                                            calculateNewBeginings(pf, timeWaitedAtCustomer, fakeRoutes.back(), custs, i,
+                                                                  fakeBegOfServ.back(), timeOfService, dMatrix, i);
+                                            fakeBegOfServ.back().insert(fakeBegOfServ.back().begin() + i, timeOfService);
+                                            fakeRoutes.back().insert(fakeRoutes.back().begin() + i, u);
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            int fRsize = (int) fakeRoutes.size();
+                            for (int x = 0; x < fRsize; ++x) {
+                                auto timeWindow = custs[u].getTimeWindowAt(w);
+                                auto timeWindowPredchodca = custs[fakeRoutes[x][i - 1]].getTimeWindowBeforeTime(
+                                        fakeBegOfServ[x][i - 1]);
+                                double timeOfService = fakeBegOfServ[x][i - 1]
+                                                       + dMatrix[fakeRoutes[x][i - 1]][u]
+                                                       + timeWindowPredchodca.getServiceTime();
+                                double waitingTime = 0;
+                                if (timeWindow.getReadyTime() > timeOfService) {
+                                    waitingTime = timeWindow.getReadyTime() - timeOfService;
+                                    timeOfService = timeWindow.getReadyTime();
+                                }
+                                auto winJ = custs[0].getTimeWindowAt(0);
+                                if (i < fakeRoutes[x].size() - 1) {
+                                    auto winJP = custs[fakeRoutes[x][i]].getTimeWindow(fakeBegOfServ[x][i]);
+                                    auto winJI = custs[fakeRoutes[x][i]].getIndexOfTimeWindow(winJP.first, winJP.second);
+                                    winJ = custs[fakeRoutes[x][i]].getTimeWindowAt(winJI);
+                                }
+                                auto pf = calculatePushForward(fakeRoutes[x], u, i, timeWaitedAtCust,
+                                                               dMatrix, custs, timeOfService, waitingTime, fakeBegOfServ[x],
+                                                               timeWindow, winJ);
+                                //pokial nebol este vlozeny do ziadnej inej trasy
+                                if (timeWindow.getNumberOfVehiclesServing() == 0) {
+                                    if (lema11(fakeBegOfServ[x], pf, fakeRoutes[x], custs, u, i, timeOfService,
+                                               vehicles[vehicleIndex], timeWindow)) {
+                                        auto res = calculateC1(fakeRoutes[x], dMatrix, i, u, a1, a2, doesNoiseApply, min,
+                                                               minIndex, pf);
+                                        minIndex = std::get<0>(res);
+                                        min = std::get<1>(res);
+                                        validTimeWindows[w] = true;
+                                        minIndexesLocal.emplace_back(minIndex -
+                                                                     1); /**ta minus jedna lebo predtym je uz vlozeny predosly taky isty vrchol, no v realnej ceste nie je este*/
                                         minLocal.emplace_back(min);
                                         wLocal.emplace_back(w);
                                         /**fake route - creation*/
@@ -394,6 +375,35 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
                                                                   fakeBegOfServ.back(), timeOfService, dMatrix, i);
                                             fakeBegOfServ.back().insert(fakeBegOfServ.back().begin() + i, timeOfService);
                                             fakeRoutes.back().insert(fakeRoutes.back().begin() + i, u);
+                                        }
+                                    }
+                                    //fakeTimeWaitedAtCust.emplace_back(timeWaitedAtCust);
+                                } else if (lema11(fakeBegOfServ[x], pf, fakeRoutes[x], custs, u, i, timeOfService,
+                                                  vehicles[vehicleIndex], timeWindow)) {
+                                    if (custs[u].getIndexOfPreviouslyServedBy(timeOfService) != -1) {
+                                        int vehIndex = custs[u].getIdOfPreviouslyServedBy(timeOfService);
+                                        waitingTime = timeWaitedAtCust[u];
+                                        if (checkIfCustomerCanBePushedInRoute(vehicles[vehIndex], u, timeOfService, custs,
+                                                                              waitingTime)) {
+                                            auto res = calculateC1(fakeRoutes[x], dMatrix, i, u, a1, a2, doesNoiseApply,
+                                                                   min,
+                                                                   minIndex, pf);
+                                            minIndex = std::get<0>(res);
+                                            min = std::get<1>(res);
+                                            validTimeWindows[w] = true;
+                                            minIndexesLocal.emplace_back(minIndex);
+                                            minLocal.emplace_back(min);
+                                            wLocal.emplace_back(w);
+                                            /**fake route - creation*/
+                                            if (custs[u].getTimeWindows().size() > 1) {
+                                                fakeRoutes.emplace_back(fakeRoutes.back());
+                                                fakeBegOfServ.emplace_back(fakeBegOfServ.back());
+                                                calculateNewBeginings(pf, timeWaitedAtCustomer, fakeRoutes.back(), custs, i,
+                                                                      fakeBegOfServ.back(), timeOfService, dMatrix, i);
+                                                fakeBegOfServ.back().insert(fakeBegOfServ.back().begin() + i,
+                                                                            timeOfService);
+                                                fakeRoutes.back().insert(fakeRoutes.back().begin() + i, u);
+                                            }
                                         }
                                     }
                                 }
@@ -408,7 +418,6 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
                 }
             }
         }
-        /**153ky dal po sebe no insertnute boli s 17 medzi nimi zrejme insert obabre index*/
         if (custs[u].getTimeWindows().size() > 1) {
             auto check = std::all_of(validTimeWindows.begin(), validTimeWindows.end(), [](bool a) {return a;});
             if (min < (int)(INT_MAX / 2) - 1 && check) {
@@ -510,16 +519,8 @@ void solomon::insertCustomerToRoad(Vehicle& vehicle, std::vector<std::tuple<int,
         vehicle.setUsedCapacity(vehicle.getUsedCapacity() + timeWindowU.getDemand());
         timeWindowU.incrementCurentVehiclesServing();
         custs[u].addPreviouslyServedBy(vehicle.getId());
-//        std::cout << "---------------------" << u << "--------------------------" << std::endl;
-//        for (int k = 0; k < custs[u].getPreviouslyServedBy().size(); ++k) {
-//            std::cout << custs[u].getPreviouslyServedBy()[k] << " ";
-//        }
-//        std::cout << std::endl;
         custs[u].addPreviouslyServedByTime(timeOfService);
     }
-//    if (custs[u].isServedByEnoughVehicles()) {
-//        custs[u].markAsRouted();
-//    }
 
     /**tu nebude treba cyklus ale bude stacit podmienka*/
     for (int i = 0; i < unservedCustomers.size(); ++i) {
@@ -633,11 +634,11 @@ void solomon::finalPrint(std::vector<customer> &custs, std::vector<Vehicle> &veh
     for (auto & v : vehicles) {
         auto r = v.getRoute();
         std::cout << v.getId() << ": ";
-        for (int j = 0; j < r.size() - 2; ++j) {
+        for (int j = 0; j <= r.size() - 2; ++j) {
             totalDistance += distanceMatrix[r[j]][r[j + 1]];
             std::cout << r[j] << " ";
         }
-        std::cout << std::endl;
+        std::cout << r[r.size() - 1] << std::endl;
         totalDistance += distanceMatrix[r[r.size() - 2]][0];
         numberOfCustomersServed += (int)r.size() - 2;
     }
@@ -649,7 +650,7 @@ void solomon::finalPrint(std::vector<customer> &custs, std::vector<Vehicle> &veh
     }
     for (int i = 1; i < timeWaitedAtCustomer.size() - 2; ++i) {
         waitingTimeInSchedule += timeWaitedAtCustomer[i];
-        std::cout << timeWaitedAtCustomer[i];
+        std::cout << i << ": " << timeWaitedAtCustomer[i] << std::endl;
     }
     std::cout << std::endl;
     std::cout << "Total distance: " << totalDistance << std::endl;

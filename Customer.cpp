@@ -23,7 +23,6 @@ customer::customer(const customer &customer) {
     timeWindows = customer.timeWindows;
     previouslyServedBy = customer.previouslyServedBy;
     previouslyServedByTime = customer.previouslyServedByTime;
-//    waitingTimeForService = customer.waitingTimeForService;
     specificRequirementsForVehicle = customer.specificRequirementsForVehicle;
 }
 
@@ -164,7 +163,7 @@ std::pair<double, double> customer::getTimeWindow(double serviceTime) const {
     return std::make_pair(beginingOfTheWindowTime, getDueTimeAt(beginingOfTheWindowTime));
 }
 
-CustomersTimeWindow &customer::getTimeWindowBeforeTime(double serviceTime) {
+CustomersTimeWindow & customer::getTimeWindowBeforeTime(double serviceTime) {
     int index = 0;
     for (int i = 0; i < timeWindows.size(); i++) {
         if (timeWindows[i].getReadyTime() <= serviceTime) {
@@ -184,30 +183,6 @@ CustomersTimeWindow &customer::getTimeWindowAfterTime(double serviceTime) {
     }
     return timeWindows[index];
 }
-
-//std::vector<double> customer::getWaitingTimeForService() const {
-//    return waitingTimeForService;
-//}
-//
-//double customer::getWaitingTimeForServiceAt(int index) const {
-//    return waitingTimeForService[index];
-//}
-//
-//void customer::addWaitingTimeForService(double time) {
-//    waitingTimeForService.push_back(time);
-//}
-//
-//void customer::editWaitingTimeForService(double time, int index) {
-//    waitingTimeForService[index] = time;
-//}
-//
-//void customer::clearWaitingTimeForService() {
-//    waitingTimeForService.clear();
-//}
-//
-//void customer::setWaitingTimeForService(std::vector<double> times) {
-//    waitingTimeForService = std::move(times);
-//}
 
 void customer::setPreviouslyServedByTimes(std::vector<double> times) {
     previouslyServedByTime = std::move(times);
@@ -237,4 +212,15 @@ void customer::setSpecificRequirementsForVehicle(int vehicleId) {
 
 int customer::getSpecificRequirementsForVehicle() const {
     return specificRequirementsForVehicle;
+}
+
+bool customer::wasServedByThisVehicleAtWindow(int vehicleID, int windowOrderNumber) const {
+    for (int i = 0; i < previouslyServedBy.size(); i++) {
+        if (previouslyServedBy[i] == vehicleID) {
+            if (previouslyServedByTime[i] >= timeWindows[windowOrderNumber].getReadyTime() && previouslyServedByTime[i] <= timeWindows[windowOrderNumber].getDueDate()) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
