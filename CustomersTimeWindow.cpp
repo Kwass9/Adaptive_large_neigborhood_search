@@ -76,6 +76,7 @@ int CustomersTimeWindow::getNumberOfVehiclesServing() const {
     return curentVehiclesServing;
 }
 
+/**zmenit na pole a vracat zaradom hodnoty podla mnozstva aktualne obsluhujucich vozidiel*/
 double CustomersTimeWindow::getDemand() const {
     return demand;
 }

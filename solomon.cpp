@@ -188,11 +188,18 @@ bool solomon::lema11(const std::vector<double> &beginingOfService, const std::ve
         int j = 0;
         while (pushForward[j] > 0.00000001 && j < route.size() - 1 && j < pushForward.size()) {
             auto nextService = beginingOfService[position + j] + pushForward[j];
+            double serviceTimeNext;
+            if (route[position + j] == customers.size()) {
+                serviceTimeNext = customers[0].getTimeWindowBeforeTime(beginingOfService[position + j]).getServiceTime();
+            } else {
+                serviceTimeNext = customers[route[position + j]].getTimeWindowBeforeTime(beginingOfService[position + j]).getServiceTime();
+            }
             auto timeWindowVehicle = vehicle.getTimeWindow(beginingOfServiceU);
-            if (route[position + j] == customers.size() && nextService <= timeWindowVehicle.second && nextService >= timeWindowVehicle.first) { //este asi bude treba kontrolovat nieco s distance matrix atd podla toho ci sa potrebuje opatrovatelka aj vratit (auto do depa)
+            if (route[position + j] == customers.size() && nextService + serviceTimeNext <= timeWindowVehicle.second && nextService >= timeWindowVehicle.first) { //este asi bude treba kontrolovat nieco s distance matrix atd podla toho ci sa potrebuje opatrovatelka aj vratit (auto do depa)
                 return true;
             }
-            if (nextService > timeWindowVehicle.second || nextService < timeWindowVehicle.first) {
+            /**asi pf uz berie v potaz hranu nie som si isty*/
+            if (nextService + serviceTimeNext /**+ distanceMatrix[route[position + j]][0]*/ > timeWindowVehicle.second || nextService < timeWindowVehicle.first) {
                 return false;
             }
             if (route[position + j] == customers.size()) {
@@ -487,7 +494,7 @@ void solomon::insertCustomerToRoad(Vehicle& vehicle, std::vector<std::tuple<int,
             timeWaitedAtCustomer[u] = 0;
         }
         auto winJ = custs[0].getTimeWindowAt(0);
-        if (i < route.size() - 1) {
+        if (i + j < route.size() - 1) {
             auto winJP = custs[route[i + j]].getTimeWindow(beginingOfService[i + j]);
             auto winJI = custs[route[i + j]].getIndexOfTimeWindow(winJP.first, winJP.second);
             winJ = custs[route[i + j]].getTimeWindowAt(winJI);
@@ -737,6 +744,9 @@ void solomon::insertBeginingOfRoute(std::vector<customer>& custs, std::vector<Ve
     while (vehicles[routeIndex].getRoute().size() <= 2) {
         auto indexVybrateho = (int)unservedCustomers[dec]->getId();
         dec++;
+        if (dec == unservedCustomers.size()) {
+            break;
+        }
         auto timeWinCustomerU = custs[indexVybrateho].getTimeWindowAt(0);
         auto timeWinCustomerJ = custs[0].getTimeWindowAt(0);
 
@@ -819,10 +829,11 @@ void solomon::insertIntoNewRoute(std::vector<customer> &custs, std::vector<Vehic
                                                vehicles[routeIndex].getTimeSchedule(),
                                                custs[indexVybrateho].getTimeWindowAt(position - 1),
                                                custs[0].getTimeWindowAt(0));
+                pf[0] += distanceMatrix[0][indexVybrateho]; //pf pridava len jednu hranu, druhu pridavam manualne lebo v pripadoch kde uz cesta doklada dalsie vrcholy staci jedna hrana
                 if (lema11(vehicles[routeIndex].getTimeSchedule(), pf,
                            vehicles[routeIndex].getRoute(), custs, indexVybrateho, 1,
                            timeOfService, vehicles[routeIndex], custs[indexVybrateho].getTimeWindowAt(position - 1))) {
-                    vec.emplace_back(1, indexVybrateho, windowIndex, custs[indexVybrateho].getTimeWindows().size()); //miesto nula musi byt cislo okna
+                    vec.emplace_back(1, indexVybrateho, windowIndex, winReq); //miesto nula musi byt cislo okna
                     correctWindow++;
                     position++;
                     if (correctWindow == winReq) {

@@ -47,7 +47,7 @@ private:
                                std::vector<int> &route, std::vector<customer>& customers, int zakaznikU,
                                std::vector<double> &beginingOfService, double timeOfService,
                                const std::vector<std::vector<double>> &distanceMatrix, int u);
-    static bool lema11(const std::vector<double> &beginingOfService, const std::vector<double> &pushForward,
+    bool lema11(const std::vector<double> &beginingOfService, const std::vector<double> &pushForward,
                        const std::vector<int> &route, std::vector<customer> &customers, int u, int position, double timeOfService,
                        const Vehicle &vehicle, const CustomersTimeWindow& timeWinCustomerU);
 
@@ -73,7 +73,7 @@ private:
     double createNoise() const;
     static int doesNoiseApply();
     void finalPrint(std::vector<customer>& custs, std::vector<Vehicle>& vehicles);
-    static void insertBeginingOfRoute(std::vector<customer>& custs, std::vector<Vehicle>& vehicles, int routeIndex, bool criteria,
+    void insertBeginingOfRoute(std::vector<customer>& custs, std::vector<Vehicle>& vehicles, int routeIndex, bool criteria,
                                std::vector<std::vector<double>> &dMatrix, std::vector<double> &timeWaitedAtCust, std::vector<customer*> &unservedCustomers);
     void insertIntoNewRoute(std::vector<customer>& custs, std::vector<Vehicle>& vehicles, int routeIndex, int customerIndex,
                             std::vector<std::vector<double>> &dMatrix, std::vector<double> &timeWaitedAtCust, std::vector<customer*> &unservedCustomers);
