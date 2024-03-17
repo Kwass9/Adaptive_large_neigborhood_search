@@ -464,12 +464,13 @@ void solomon::insertCustomerToRoad(Vehicle& vehicle, std::vector<std::tuple<int,
         CustomersTimeWindow& timeWindowU = custs[u].getTimeWindowAt(w);
         auto route = vehicle.getRoute();
         auto beginingOfService = vehicle.getTimeSchedule();
-        int predchodca = route[i - 1];
+        int predchodca = route[i + j - 1];
         double timeOfService;
         if (timeWindowU.getNumberOfVehiclesServing() == 0) {
-            timeOfService = beginingOfService[i - 1]
+            auto timeWindowPredchodca = custs[predchodca].getTimeWindowBeforeTime(beginingOfService[i + j - 1]);
+            timeOfService = beginingOfService[i + j - 1]
                                    + distanceMatrix[predchodca][u]
-                                   + custs[predchodca].getTimeWindows()[0].getServiceTime();
+                                   + timeWindowPredchodca.getServiceTime();
         } else {
             auto times = custs[u].getPreviouslyServedByTimes();
             for (double time : times) {
@@ -479,16 +480,20 @@ void solomon::insertCustomerToRoad(Vehicle& vehicle, std::vector<std::tuple<int,
                 }
             }
         }
-
         if (timeOfService < timeWindowU.getReadyTime()) {
             timeWaitedAtCustomer[u] = timeWindowU.getReadyTime() - timeOfService;
             timeOfService = timeWindowU.getReadyTime();
         } else {
             timeWaitedAtCustomer[u] = 0;
         }
-
+        auto winJ = custs[0].getTimeWindowAt(0);
+        if (i < route.size() - 1) {
+            auto winJP = custs[route[i + j]].getTimeWindow(beginingOfService[i + j]);
+            auto winJI = custs[route[i + j]].getIndexOfTimeWindow(winJP.first, winJP.second);
+            winJ = custs[route[i + j]].getTimeWindowAt(winJI);
+        }
         auto pf = calculatePushForward(route, u, i + j, timeWaitedAtCustomer, distanceMatrix, custs, timeOfService,
-                                       timeWaitedAtCustomer[u], beginingOfService, timeWindowU, custs[0].getTimeWindows()[0]);
+                                       timeWaitedAtCustomer[u], beginingOfService, timeWindowU, winJ);
         calculateNewBeginings(pf, timeWaitedAtCustomer, route, custs, i + j, beginingOfService, timeOfService,
                               distanceMatrix, u);
         vehicle.setTimeSchedule(beginingOfService);
@@ -508,6 +513,8 @@ void solomon::insertCustomerToRoad(Vehicle& vehicle, std::vector<std::tuple<int,
 //    if (custs[u].isServedByEnoughVehicles()) {
 //        custs[u].markAsRouted();
 //    }
+
+    /**tu nebude treba cyklus ale bude stacit podmienka*/
     for (int i = 0; i < unservedCustomers.size(); ++i) {
         if (unservedCustomers[i]->getId() == u && unservedCustomers[i]->isServedByEnoughVehicles()) {
             unservedCustomers.erase(unservedCustomers.begin() + i);
@@ -802,7 +809,7 @@ void solomon::insertIntoNewRoute(std::vector<customer> &custs, std::vector<Vehic
             }
             if (/**timeOfService >= vehicles[routeIndex].getReadyTimeAt(timeOfService) + distanceMatrix[0][indexVybrateho]
                 &&*/ vehicles[routeIndex].getDueTimeAt(vehicles[routeIndex].getReadyTimeAt(timeOfService))
-                   >= timeOfService + distanceMatrix[indexVybrateho][0] + windowIt->getServiceTime()) {
+                   >= timeOfService + 2 * distanceMatrix[indexVybrateho][0] + windowIt->getServiceTime()) {
 
                 //TODO - checkIfCustomerCanBePushedInRoute toto uz riesi zrejme cize duplicitny kod
                 auto pf = calculatePushForward(vehicles[routeIndex].getRoute(), indexVybrateho, 1,
