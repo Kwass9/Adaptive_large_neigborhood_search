@@ -565,9 +565,9 @@ void solomon::run(std::vector<customer> &custs, std::vector<customer*>& unserved
                                timeWaitedAtCustomer, useNoise, vehicles, routeIndex, unservedCustomers);
         if (!c1.empty()) {
             auto c2 = findOptimumForC2(c1, lambda, distanceMatrix, custs);
+            std::cout << "c2: " << std::get<0>(c2[0]) << " " << std::get<1>(c2[0]) << " " << std::get<2>(c2[0]) << " " << std::get<3>(c2[0]) << std::endl;
             insertCustomerToRoad(vehicles[routeIndex], c2, custs, distanceMatrix, timeWaitedAtCustomer, unservedCustomers);
         } else {
-            std::cout << "---------------------" << routeIndex << "--------------------------" << std::endl;
             for (int i = 0; i < vehicles[routeIndex].getRoute().size(); ++i) {
                 std::cout << vehicles[routeIndex].getRoute()[i] << " ";
             }
@@ -583,9 +583,15 @@ void solomon::run(std::vector<customer> &custs, std::vector<customer*>& unserved
             }
             timeWaitedAtCustomer[custs.size()] = vehicles[routeIndex].getDueTimeAt(0);
             insertIntoNewRoute(custs, vehicles, routeIndex, startingCriteria, distanceMatrix, timeWaitedAtCustomer, unservedCustomers);
+            std::cout << "---------------------" << routeIndex << "--------------------------" << std::endl;
+            for (int i = 0; i < vehicles[routeIndex].getRoute().size(); ++i) {
+                std::cout << vehicles[routeIndex].getRoute()[i] << " ";
+            }
+            std::cout << std::endl;
         }
     }
     finalPrint(custs, vehicles);
+    std::cout << "useNoise: " << useNoise << std::endl;
 }
 
 double solomon::getDistance() const {
@@ -805,6 +811,9 @@ void solomon::insertIntoNewRoute(std::vector<customer> &custs, std::vector<Vehic
                     break;
                 }
            }
+            if (windowIt == windows.end()) {
+                break;
+            }
             if (!windowIt->isServedByEnoughVehicles()) {
                 timeOfService = windowIt->getReadyTime();
             }
