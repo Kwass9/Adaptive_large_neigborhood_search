@@ -370,8 +370,8 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
                                         wLocal.emplace_back(w);
                                         /**fake route - creation*/
                                         if (custs[u].getTimeWindows().size() > 1) {
-                                            fakeRoutes.emplace_back(fakeRoutes.back());
-                                            fakeBegOfServ.emplace_back(fakeBegOfServ.back());
+                                            fakeRoutes.emplace_back(fakeRoutes[x]);
+                                            fakeBegOfServ.emplace_back(fakeBegOfServ[x]);
                                             /**tu si asi gabem ten waiting time*/
                                             calculateNewBeginings(pf, timeWaitedAtCustomer, fakeRoutes.back(), custs, i,
                                                                   fakeBegOfServ.back(), timeOfService, dMatrix, i);
@@ -397,8 +397,8 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
                                             wLocal.emplace_back(w);
                                             /**fake route - creation*/
                                             if (custs[u].getTimeWindows().size() > 1) {
-                                                fakeRoutes.emplace_back(fakeRoutes.back());
-                                                fakeBegOfServ.emplace_back(fakeBegOfServ.back());
+                                                fakeRoutes.emplace_back(fakeRoutes[x]);
+                                                fakeBegOfServ.emplace_back(fakeBegOfServ[x]);
                                                 calculateNewBeginings(pf, timeWaitedAtCustomer, fakeRoutes.back(), custs, i,
                                                                       fakeBegOfServ.back(), timeOfService, dMatrix, i);
                                                 fakeBegOfServ.back().insert(fakeBegOfServ.back().begin() + i,
@@ -419,19 +419,73 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
                 }
             }
         }
+
+        /**extremne carujem...*/
         if (custs[u].getTimeWindows().size() > 1) {
             auto check = std::all_of(validTimeWindows.begin(), validTimeWindows.end(), [](bool a) {return a;});
             if (min < (int)(INT_MAX / 2) - 1 && check) {
-                for (int i = 0; i < custs[u].getTimeWindows().size(); ++i) {
-                    double minFound = INT_MAX - 1;
-                    for (int j = 0; j < minIndexesLocal.size(); ++j) {
-                        if (wLocal[j] == i && minLocal[j] < minFound) {
-                            minIndex = j;
-                            minFound = minLocal[j];
+                std::vector<int> fullRoute;
+                int firstFound = 0;
+                int secondFound = 0;
+                double minFound = INT_MAX - 1;
+                for (int r = 0; r < fakeRoutes.size(); r++) {
+                    int check = 0;
+                    for (int j = 0; j < fakeRoutes[r].size(); j++) {
+                        if (j == u) {
+                            check++;
+                            if (firstFound == 0) {
+                                firstFound = j;
+                            } else {
+                                secondFound = j;
+                                break;
+                            }
                         }
                     }
-                    mnozinaC1.emplace_back(minIndexesLocal[minIndex], minLocal[minIndex], u, wLocal[minIndex], validTimeWindows.size());
+                    if (check == custs[u].getTimeWindows().size()) {
+                        fullRoute.emplace_back(r);
+                    } else {
+                        break;
+                    }
+
+                    /**asi nie som si isty*/ /**okno jedna*/
+                    for (int i = 0; i < fakeRoutes.size(); i++) {
+                        for (int j = 0; j < fakeRoutes[i].size(); j++) {
+                            if (fakeRoutes[i][j] == firstFound) {
+                                if (fakeRoutes[i][j + 1] == secondFound) {
+                                    mnozinaC1.emplace_back(minIndexesLocal[i], minLocal[i], u, wLocal[i], validTimeWindows.size());
+                                }
+                            }
+                        }
+                    }
+
+                    /**okno 2*/
+//                    if (minLocal[r] < minFound) {
+//                        minIndex = r;
+//                        minFound = minLocal[r];
+//                    }
+                    mnozinaC1.emplace_back(minIndexesLocal[r], minLocal[r], u, wLocal[r], validTimeWindows.size());
                 }
+
+                //                for (int i = 0; i < custs[u].getTimeWindows().size(); ++i) {
+//                    double minFound = INT_MAX - 1;
+//                    for (int j = 0; j < minIndexesLocal.size(); ++j) {
+//                            bool pass = false;
+//                            int allRight = 0;
+//                            for (int k : fakeRoutes[j]) {
+//                                if (k == u) {
+//                                    allRight++;
+//                                }
+//                            }
+//                            if (allRight == custs[u].getTimeWindows().size()) {
+//                                pass = true;
+//                            }
+//                        if (wLocal[j] == i && minLocal[j] < minFound) {
+//                            minIndex = j;
+//                            minFound = minLocal[j];
+//                        }
+//                    }
+//                    mnozinaC1.emplace_back(minIndexesLocal[minIndex], minLocal[minIndex], u, wLocal[minIndex], validTimeWindows.size());
+//                }
             }
         }
     }

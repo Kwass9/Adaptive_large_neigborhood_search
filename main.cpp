@@ -273,7 +273,7 @@ int main(int argc, char * argv[]) {
     auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, (int)customers.size());
     int i = 0;
     auto *test = new class test();
-//    test->correctnessForCurrentSolution(customers, timeSchedule, routes, solomon->getWaitingTime(), distanceMatrix, usedCapacity, vehicles);
+    test->correctnessForCurrentSolution(customers, timeSchedule, routes, solomon->getWaitingTime(), distanceMatrix, usedCapacity, vehicles);
     while (i < 0) {
         std::cout << "Iteracia: " << i << std::endl;
         ro = calculateRo(ksi, customers);
@@ -323,7 +323,7 @@ int main(int argc, char * argv[]) {
 //        std::cout << unservedCustomer->getId() << " ";
 //    }
 
-//    std::cout << "Test results: " << test->getUncorectnessCounter() << std::endl;
+    std::cout << "Test results: " << test->getUncorectnessCounter() << std::endl;
 
     delete test;
     delete solomon;
