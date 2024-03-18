@@ -77,6 +77,11 @@ private:
                                std::vector<std::vector<double>> &dMatrix, std::vector<double> &timeWaitedAtCust, std::vector<customer*> &unservedCustomers);
     void insertIntoNewRoute(std::vector<customer>& custs, std::vector<Vehicle>& vehicles, int routeIndex, int customerIndex,
                             std::vector<std::vector<double>> &dMatrix, std::vector<double> &timeWaitedAtCust, std::vector<customer*> &unservedCustomers);
+    static void c1Minimums(int minIndex, double min, std::vector<int> &minIndexesLocal, std::vector<double> &minValuesLocal, std::vector<int> &wLocal,
+                    std::vector<bool> &validTimeWindows, int w);
+    static void fakeRouteLogic(std::vector<std::vector<int>> &routes, std::vector<double> &timeWaitedAtCustomer, std::vector<double> &pf, std::vector<std::vector<double>> &beginingOfService,
+                        std::vector<customer> &customers, int u, int position, double timeOfService, const std::vector<std::vector<double>> &distanceMatrix, int i,
+                        std::vector<int> &fakeRoute, std::vector<double> &fakeBegOfServ);
 };
 
 

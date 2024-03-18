@@ -60,28 +60,24 @@ void test::correctnessForCurrentSolution(const std::vector<customer> &customers,
         if (routeIndex == -1) {
             uncorectnessCounter++;
         }
-
-        if (routeIndex >= bestSchedule.size() ||
-            customerIndexInRoute >= bestSchedule[routeIndex].size()) {
-            int nope = 0;
-            for (int i = 0; i < customer.getTimeWindows().size(); ++i) {
-                if (bestSchedule[routeIndex][customerIndexInRoute] + waitingTime[customer.getId() - 1] < customer.getTimeWindows()[i].getReadyTime() ||
-                    bestSchedule[routeIndex][customerIndexInRoute] > customer.getTimeWindows()[i].getDueDate()) {
-                       nope++;
-                }
-                if (nope == customer.getTimeWindows().size()) {
-                    uncorectnessCounter++;
+        if (customer.getTimeWindows()[0].getReadyTime() != -1) {
+            if (routeIndex >= bestSchedule.size() ||
+                customerIndexInRoute >= bestSchedule[routeIndex].size()) {
+                int nope = 0;
+                for (int i = 0; i < customer.getTimeWindows().size(); ++i) {
+                    if (bestSchedule[routeIndex][customerIndexInRoute] + waitingTime[customer.getId() - 1] < customer.getTimeWindows()[i].getReadyTime() ||
+                        bestSchedule[routeIndex][customerIndexInRoute] > customer.getTimeWindows()[i].getDueDate()) {
+                           nope++;
+                    }
+                    if (nope == customer.getTimeWindows().size()) {
+                        uncorectnessCounter++;
+                    }
                 }
             }
-
-
-//            std::cout << "bestSchedule: " << bestSchedule[routeIndex][customerIndexInRoute] << std::endl;
-//            std::cout << "customer ready time: " << customer.getReadyTime() << std::endl;
-//            std::cout << "customer due date: " << customer.getDueDate() << std::endl;
-//            std::cout << "routeIndex: " << routeIndex << std::endl;
-//            std::cout << "customerIndexInRoute: " << customerIndexInRoute << std::endl;
         }
     }
+
+    /**nascitavanie asi nebude pracovat spravne s waiting timom + vrcholy ktore budu pozadovat dve obsluhy naraz tak nescita spravne myslim*/
     for (size_t i = 0; i < bestRoutes.size(); ++i) {
         double routeTime = vehicles[i].getReadyTimeAt(0); //este nevie pracovat s viac casovymi oknami pre jedno vozidlo
         for (size_t j = 0; j < bestRoutes[i].size(); ++j) {
@@ -97,8 +93,8 @@ void test::correctnessForCurrentSolution(const std::vector<customer> &customers,
                 routeTime += distanceMatrix[bestRoutes[i][j - 1]][0];
             }
             if (routeTime > bestSchedule[i][j] + 0.00001 || routeTime < bestSchedule[i][j ] - 0.00001) {
-                std::cout << "routeTime: " << routeTime << " i: " << i << " j: " << j << std::endl;
-                std::cout << "bestSchedule: " << bestSchedule[i][j] << std::endl;
+//                std::cout << "routeTime: " << routeTime << " i: " << i << " j: " << j << std::endl;
+//                std::cout << "bestSchedule: " << bestSchedule[i][j] << std::endl;
                 uncorectnessCounter++;
             }
             if (j < bestRoutes[i].size() - 1 && j > 0) {
@@ -106,7 +102,7 @@ void test::correctnessForCurrentSolution(const std::vector<customer> &customers,
                 routeTime += 10;
             }
 
-
+            /**pridat kontrolu cakania*/
 
 
 //            for (int k = 0; k < usedCapacity.size(); ++k) {

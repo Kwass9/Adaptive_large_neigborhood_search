@@ -323,6 +323,7 @@ int main(int argc, char * argv[]) {
 //        std::cout << unservedCustomer->getId() << " ";
 //    }
 
+    std::cout << std::endl;
     std::cout << "Test results: " << test->getUncorectnessCounter() << std::endl;
 
     delete test;
