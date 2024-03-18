@@ -118,7 +118,7 @@ std::vector<double> solomon::calculatePushForward(const std::vector<int> &route,
     if (route.size() > 2 && j != customers.size()) {
         if (timeWinCustomerJ.getDueDate() > timeOfService + timeWinCustomerU.getServiceTime() + distanceMatrix[u][j]) {
             pf.emplace_back(std::max(0.0,distanceMatrix[i][u] + distanceMatrix[u][j] + timeWinCustomerU.getServiceTime()
-                                                  - distanceMatrix[i][j] - timeWaitedAtCustomer[j] + waitingTime));
+                                                  - distanceMatrix[i][j] - timeWaitedAtCustomer[j] + waitingTime)); /**co sa snazim docielit tym -time[j]*/
         }   else {
             pf.emplace_back(INT_MAX - 1);
         }
@@ -234,6 +234,7 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
     for (auto & unservedCust : unservedCusts) {
         int u = (int)unservedCust->getId();
         double min = INT_MAX - 1;
+        minIndex = 0;
         std::vector<int> minIndexesLocal;
         std::vector<double> minLocal;
         std::vector<int> wLocal;
@@ -243,12 +244,14 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
         std::vector<std::vector<double>> fakeBegOfServ;
 
         for (int w = 0; w < custs[u].getTimeWindows().size(); ++w) {
+            min = INT_MAX - 1;
+            minIndex = 0;
             if (!custs[u].wasServedByThisVehicleAtWindow(vehicleIndex, w)) {
                 auto timeWindow = custs[u].getTimeWindowAt(w);
                 if (curUsedCap + timeWindow.getDemand() <= maxCapacity
                     && timeWindow.getNumberOfVehiclesServing() < timeWindow.getVehiclesRequired()) {
 
-                    for (int i = 1; i < route.size(); ++i) {
+                    for (int i = 1 + w; i < route.size(); ++i) {
 
                         //TODO - checkIfCustomerCanBePushedInRoute toto uz riesi zrejme cize duplicitny kod
                         if (w == 0) {
@@ -302,7 +305,6 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
                                         fakeBegOfServ.back().insert(fakeBegOfServ.back().begin() + i, timeOfService);
                                         fakeRoutes.back().insert(fakeRoutes.back().begin() + i, u);
                                     }
-    //                            fakeTimeWaitedAtCust.emplace_back(timeWaitedAtCust);
                                 }
                             } else if (lema11(begOfServ, pf, route, custs, u, i, timeOfService, vehicles[vehicleIndex],
                                               timeWindow)) {
@@ -363,21 +365,20 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
                                         minIndex = std::get<0>(res);
                                         min = std::get<1>(res);
                                         validTimeWindows[w] = true;
-                                        minIndexesLocal.emplace_back(minIndex -
-                                                                     1); /**ta minus jedna lebo predtym je uz vlozeny predosly taky isty vrchol, no v realnej ceste nie je este*/
+                                        minIndexesLocal.emplace_back(minIndex - 1);
                                         minLocal.emplace_back(min);
                                         wLocal.emplace_back(w);
                                         /**fake route - creation*/
                                         if (custs[u].getTimeWindows().size() > 1) {
                                             fakeRoutes.emplace_back(fakeRoutes.back());
                                             fakeBegOfServ.emplace_back(fakeBegOfServ.back());
+                                            /**tu si asi gabem ten waiting time*/
                                             calculateNewBeginings(pf, timeWaitedAtCustomer, fakeRoutes.back(), custs, i,
                                                                   fakeBegOfServ.back(), timeOfService, dMatrix, i);
                                             fakeBegOfServ.back().insert(fakeBegOfServ.back().begin() + i, timeOfService);
                                             fakeRoutes.back().insert(fakeRoutes.back().begin() + i, u);
                                         }
                                     }
-                                    //fakeTimeWaitedAtCust.emplace_back(timeWaitedAtCust);
                                 } else if (lema11(fakeBegOfServ[x], pf, fakeRoutes[x], custs, u, i, timeOfService,
                                                   vehicles[vehicleIndex], timeWindow)) {
                                     if (custs[u].getIndexOfPreviouslyServedBy(timeOfService) != -1) {
@@ -437,7 +438,6 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
     return mnozinaC1;
 }
 
-/**slo by pridat nejaku logiku okolo viacerych okien nejak vazit benefit ich vlozenia alebo cosy*/
 std::vector<std::tuple<int, int, int, int>> solomon::findOptimumForC2(std::vector<std::tuple<int, double, int, int, int>> &mnozinaC1, double lambda,
                                               std::vector<std::vector<double>> &distanceMatrix,
                                               std::vector<customer> &customers) {
@@ -564,8 +564,20 @@ void solomon::run(std::vector<customer> &custs, std::vector<customer*>& unserved
         auto c1 = findMinForC1(alfa1, alfa2, distanceMatrix, custs,
                                timeWaitedAtCustomer, useNoise, vehicles, routeIndex, unservedCustomers);
         if (!c1.empty()) {
+            for (int i = 1; i < c1.size(); ++i) {
+//                std::get<0>(c1[i - 1]) < std::get<0>(c1[i]) &&
+//                if (std::get<1>(c1[i - 1]) == std::get<1>(c1[i]) && useNoise == 1) {
+//                    std::cout << "--------------------rovnake----------------------" << std::endl;
+//                    std::cout << "c1: " << std::get<0>(c1[i - 1]) << " " << std::get<1>(c1[i - 1]) << " " << std::get<2>(c1[i - 1]) << " " << std::get<3>(c1[i - 1]) << std::endl;
+                    std::cout << "c1: " << std::get<0>(c1[i]) << " " << std::get<1>(c1[i]) << " " << std::get<2>(c1[i]) << " " << std::get<3>(c1[i]) << std::endl;
+////                    std::cout << "--------------------rovnake----------------------" << std::endl;
+//                }
+            }
             auto c2 = findOptimumForC2(c1, lambda, distanceMatrix, custs);
             std::cout << "c2: " << std::get<0>(c2[0]) << " " << std::get<1>(c2[0]) << " " << std::get<2>(c2[0]) << " " << std::get<3>(c2[0]) << std::endl;
+            if (c2.size() > 1) {
+                std::cout << "c2: " << std::get<0>(c2[1]) << " " << std::get<1>(c2[1]) << " " << std::get<2>(c2[1]) << " " << std::get<3>(c2[1]) << std::endl;
+            }
             insertCustomerToRoad(vehicles[routeIndex], c2, custs, distanceMatrix, timeWaitedAtCustomer, unservedCustomers);
         } else {
             for (int i = 0; i < vehicles[routeIndex].getRoute().size(); ++i) {

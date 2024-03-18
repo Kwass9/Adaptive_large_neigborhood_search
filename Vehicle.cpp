@@ -156,7 +156,7 @@ int Vehicle::getNumberOfCustomers() const {
 double Vehicle::getReadyTimeAt(double customersTime) const {
     double lowest = INT_MAX;
     for (int i = (int)readyTime.size() - 1; i >= 0; i--) {
-        if (readyTime[i] <= customersTime) {
+        if (readyTime[i] - 0.00001 <= customersTime) {
             return readyTime[i];
         }
         if (readyTime[i] < lowest) {
@@ -168,7 +168,7 @@ double Vehicle::getReadyTimeAt(double customersTime) const {
 
 double Vehicle::getDueTimeAt(double customersTime) const {
     for (double i : dueTime) {
-        if (i >= customersTime) {
+        if (i + 0.00001 >= customersTime) {
             return i;
         }
     }
