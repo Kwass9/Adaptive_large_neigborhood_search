@@ -265,12 +265,7 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
                                 timeOfService = timeWindow.getReadyTime();
                             }
 
-                            auto winJ = custs[0].getTimeWindowAt(0);
-                            if (i < route.size() - 1) {
-                                auto winJP = custs[route[i]].getTimeWindow(begOfServ[i]);
-                                auto winJI = custs[route[i]].getIndexOfTimeWindow(winJP.first, winJP.second);
-                                winJ = custs[route[i]].getTimeWindowAt(winJI);
-                            }
+                            auto winJ = findWindowJ(route, begOfServ, custs, i);
                             auto pf = calculatePushForward(route, u, i, timeWaitedAtCust,
                                                            dMatrix, custs, timeOfService, waitingTime, begOfServ,
                                                            timeWindow, winJ);
@@ -283,15 +278,10 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
                                     min = std::get<1>(res);
                                     c1Minimums(minIndex, min, minIndexesLocal, minLocal, wLocal, validTimeWindows, w);
                                     /**fake route - creation*/
-                                    if (custs[u].getTimeWindows().size() > 1) {
-                                        fakeRoutes.emplace_back(route);
-                                        fakeBegOfServ.emplace_back(begOfServ);
-                                        calculateNewBeginings(pf, fakeTimes[i], fakeRoutes.back(), custs, i,
-                                                              fakeBegOfServ.back(), timeOfService, dMatrix, u);
-                                        fakeBegOfServ.back().insert(fakeBegOfServ.back().begin() + i, timeOfService);
-                                        fakeRoutes.back().insert(fakeRoutes.back().begin() + i, u);
+                                    if (w == 0 || (int)fakeRoutes.size() != 0) {
+                                        fakeRouteLogic(fakeRoutes, fakeTimes[i], pf, fakeBegOfServ, custs, u,
+                                                       timeOfService, dMatrix, i, route, begOfServ);
                                     }
-//                                    fakeRouteLogic(fakeRoutes, fakeTimes[i], pf, fakeBegOfServ, custs, u, timeOfService, dMatrix, i, fakeRoutes.back(), fakeBegOfServ.back());
                                 }
                             } else if (lema11(begOfServ, pf, route, custs, u, i, timeOfService, vehicles[vehicleIndex],
                                               timeWindow)) {
@@ -306,7 +296,9 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
                                         min = std::get<1>(res);
                                         c1Minimums(minIndex, min, minIndexesLocal, minLocal, wLocal, validTimeWindows, w);
                                         /**fake route - creation*/
-                                        fakeRouteLogic(fakeRoutes, fakeTimes[i], pf, fakeBegOfServ, custs, u, timeOfService, dMatrix, i, fakeRoutes.back(), fakeBegOfServ.back());
+                                        if (w == 0 || (int)fakeRoutes.size() != 0) {
+                                            fakeRouteLogic(fakeRoutes, fakeTimes[i], pf, fakeBegOfServ, custs, u, timeOfService, dMatrix, i, route, begOfServ);
+                                        }
                                     }
                                 }
                             }
@@ -324,12 +316,7 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
                                     waitingTime = timeWindow.getReadyTime() - timeOfService;
                                     timeOfService = timeWindow.getReadyTime();
                                 }
-                                auto winJ = custs[0].getTimeWindowAt(0);
-                                if (i < fakeRoutes[x].size() - 1) {
-                                    auto winJP = custs[fakeRoutes[x][i]].getTimeWindow(fakeBegOfServ[x][i]);
-                                    auto winJI = custs[fakeRoutes[x][i]].getIndexOfTimeWindow(winJP.first, winJP.second);
-                                    winJ = custs[fakeRoutes[x][i]].getTimeWindowAt(winJI);
-                                }
+                                auto winJ = findWindowJ(fakeRoutes[x], fakeBegOfServ[x], custs, i);
                                 auto pf = calculatePushForward(fakeRoutes[x], u, i, timeWaitedAtCust,
                                                                dMatrix, custs, timeOfService, waitingTime, fakeBegOfServ[x],
                                                                timeWindow, winJ);
@@ -343,15 +330,11 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
                                         min = std::get<1>(res);
                                         c1Minimums(minIndex, min, minIndexesLocal, minLocal, wLocal, validTimeWindows, w);
                                         /**fake route - creation*/
-                                        if (custs[u].getTimeWindows().size() > 1) {
-                                            fakeRoutes.emplace_back(fakeRoutes[x]);
-                                            fakeBegOfServ.emplace_back(fakeBegOfServ[x]);
-                                            calculateNewBeginings(pf, fakeTimes[i], fakeRoutes.back(), custs, i,
-                                                                  fakeBegOfServ.back(), timeOfService, dMatrix, u);
-                                            fakeBegOfServ.back().insert(fakeBegOfServ.back().begin() + i, timeOfService);
-                                            fakeRoutes.back().insert(fakeRoutes.back().begin() + i, u);
+                                        if (w == 0 || (int)fakeRoutes.size() != 0) {
+                                            auto r = fakeRoutes[x];
+                                            auto b = fakeBegOfServ[x];
+                                            fakeRouteLogic(fakeRoutes, fakeTimes[i], pf, fakeBegOfServ, custs, u, timeOfService, dMatrix, i, r, b);
                                         }
-//                                        fakeRouteLogic(fakeRoutes, fakeTimes[i], pf, fakeBegOfServ, custs, u, timeOfService, dMatrix, i, fakeRoutes[x], fakeBegOfServ[x]);
                                     }
                                 } else if (lema11(fakeBegOfServ[x], pf, fakeRoutes[x], custs, u, i, timeOfService,
                                                   vehicles[vehicleIndex], timeWindow)) {
@@ -367,7 +350,11 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
                                             min = std::get<1>(res);
                                             c1Minimums(minIndex, min, minIndexesLocal, minLocal, wLocal, validTimeWindows, w);
                                             /**fake route - creation*/
-                                            fakeRouteLogic(fakeRoutes, fakeTimes[i], pf, fakeBegOfServ, custs, u, timeOfService, dMatrix, i, fakeRoutes[x], fakeBegOfServ[x]);
+                                            if (w == 0 || (int)fakeRoutes.size() != 0) {
+                                                auto r = fakeRoutes[x];
+                                                auto b = fakeBegOfServ[x];
+                                                fakeRouteLogic(fakeRoutes, fakeTimes[i], pf, fakeBegOfServ, custs, u, timeOfService, dMatrix, i, r, b);
+                                            }
                                         }
                                     }
                                 }
@@ -685,7 +672,6 @@ bool solomon::checkIfCustomerCanBePushedInRoute(const Vehicle &vehicle, int u, d
     auto window = customers[u].getTimeWindow(timeOfService);
     auto windowIndex = customers[u].getIndexOfTimeWindow(window.first, window.second);
     auto windowU = customers[u].getTimeWindowAt(windowIndex);
-
     int positionInRoute;
     for (int i = 1; i < route.size() - 1; ++i) {
         if (route[i] == u && (timeSchedule[i] <= timeOfService + 0.00001 || timeSchedule[i] >= timeOfService - 0.00001)) {
@@ -832,7 +818,7 @@ void solomon::insertIntoNewRoute(std::vector<customer> &custs, std::vector<Vehic
             auto waitingTime = timeWaitedAtCustomer[indexVybrateho];
             if (windowIt->getNumberOfVehiclesServing() != 0) {
                 auto prevServedByTime = custs[indexVybrateho].getPreviouslyServedByTimes();
-                windowIndex = custs[indexVybrateho].getIndexOfTimeWindow(windowIt->getReadyTime(), windowIt->getDueDate()); /**neprepisal medzi iteraciami windowIndex*/
+                windowIndex = custs[indexVybrateho].getIndexOfTimeWindow(windowIt->getReadyTime(), windowIt->getDueDate());
                 timeOfService = prevServedByTime[windowIndex];
             }
             if (timeOfService < vehicles[routeIndex].getAllTimeWindows()[0].first) {
@@ -882,15 +868,39 @@ void solomon::c1Minimums(int minIndex, double min, std::vector<int> &minIndexesL
 
 void solomon::fakeRouteLogic(std::vector<std::vector<int>> &routes, std::vector<double> &timeWaitedAtCustomer, std::vector<double> &pf,
                              std::vector<std::vector<double>> &beginingOfService, std::vector<customer> &customers, int u,
-                        double timeOfService, const std::vector<std::vector<double>> &distanceMatrix, int i, std::vector<int> &fakeRoute,
+                        double timeOfService, const std::vector<std::vector<double>> &distanceMatrix, int i, std::vector<int> &route,
                         std::vector<double> &fakeBegOfServ) {
-//    fakeRouteLogic(fakeRoutes, fakeTimes[i], pf, fakeBegOfServ, custs, u, timeOfService, dMatrix, i, fakeRoutes.back(), fakeBegOfServ.back());
     if (customers[u].getTimeWindows().size() > 1) {
-        routes.emplace_back(fakeRoute);
+        routes.emplace_back(route);
         beginingOfService.emplace_back(fakeBegOfServ);
-        calculateNewBeginings(pf, timeWaitedAtCustomer, fakeRoute, customers, i,
+        calculateNewBeginings(pf, timeWaitedAtCustomer, route, customers, i,
                               fakeBegOfServ, timeOfService, distanceMatrix, u);
         beginingOfService.back().insert(beginingOfService.back().begin() + i, timeOfService);
         routes.back().insert(routes.back().begin() + i, u);
     }
+}
+
+CustomersTimeWindow solomon::findWindowJ(std::vector<int>& route, std::vector<double>& begOfServ, std::vector<customer>& customers, int i) {
+    auto winJ = customers[0].getTimeWindowAt(0);
+    if (i < route.size() - 1) {
+        auto winJP = customers[route[i]].getTimeWindow(begOfServ[i]);
+        auto winJI = customers[route[i]].getIndexOfTimeWindow(winJP.first, winJP.second);
+        return customers[route[i]].getTimeWindowAt(winJI);
+    }
+    return winJ;
+}
+
+void solomon::workWithRoute() {
+//    auto res = calculateC1(fakeRoutes[x], dMatrix, i, u, a1, a2, doesNoiseApply,
+//                           min,
+//                           minIndex, pf);
+//    minIndex = std::get<0>(res);
+//    min = std::get<1>(res);
+//    c1Minimums(minIndex, min, minIndexesLocal, minLocal, wLocal, validTimeWindows, w);
+//    /**fake route - creation*/
+//    if (w == 0 || (int)fakeRoutes.size() != 0) {
+//        auto r = fakeRoutes[x];
+//        auto b = fakeBegOfServ[x];
+//        fakeRouteLogic(fakeRoutes, fakeTimes[i], pf, fakeBegOfServ, custs, u, timeOfService, dMatrix, i, r, b);
+//    }
 }

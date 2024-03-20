@@ -81,7 +81,9 @@ private:
                     std::vector<bool> &validTimeWindows, int w);
     static void fakeRouteLogic(std::vector<std::vector<int>> &routes, std::vector<double> &timeWaitedAtCustomer, std::vector<double> &pf, std::vector<std::vector<double>> &beginingOfService,
                         std::vector<customer> &customers, int u, double timeOfService, const std::vector<std::vector<double>> &distanceMatrix, int i,
-                        std::vector<int> &fakeRoute, std::vector<double> &fakeBegOfServ);
+                        std::vector<int> &route, std::vector<double> &fakeBegOfServ);
+    void workWithRoute();
+    static CustomersTimeWindow findWindowJ(std::vector<int>& route, std::vector<double>& begOfServ, std::vector<customer>& customers, int i);
 };
 
 
