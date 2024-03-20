@@ -65,7 +65,7 @@ void test::correctnessForCurrentSolution(const std::vector<customer> &customers,
                 customerIndexInRoute >= bestSchedule[routeIndex].size()) {
                 int nope = 0;
                 for (int i = 0; i < customer.getTimeWindows().size(); ++i) {
-                    if (bestSchedule[routeIndex][customerIndexInRoute] + waitingTime[customer.getId() - 1] < customer.getTimeWindows()[i].getReadyTime() ||
+                    if (bestSchedule[routeIndex][customerIndexInRoute] + waitingTime[customer.getId()] < customer.getTimeWindows()[i].getReadyTime() ||
                         bestSchedule[routeIndex][customerIndexInRoute] > customer.getTimeWindows()[i].getDueDate()) {
                            nope++;
                     }
@@ -91,26 +91,27 @@ void test::correctnessForCurrentSolution(const std::vector<customer> &customers,
                         }
                     }
                 }
+                /**este nehlada spravne index 2*/
             } else if (timeWindows[i].getNumberOfVehiclesServing() == 2 && servedBy.size() == 2) {
-                auto indexFIrst = 0;
+                auto indexFirst = 0;
+                auto r1 = 0;
                 auto indexSecond = 0;
-                for (int j = 0; j < bestRoutes[servedBy[0]].size(); j++) {
-                    if (bestRoutes[servedBy[0]][j] == customer.getId()) {
-                        if (indexFIrst == 0) {
-                            indexFIrst = j;
-                        } else {
-                            indexSecond = j;
-                        }
-                        if (bestSchedule[servedBy[0]][j] + waitingTime[customer.getId()] < timeWindows[i].getReadyTime() ||
-                            bestSchedule[servedBy[0]][j] > timeWindows[i].getDueDate()) {
-                            uncorectnessCounter++;
+                auto r2 = 0;
+                for (int k = 0; k < servedBy.size(); k++) {
+                    for (int j = 0; j < bestRoutes[servedBy[k]].size(); j++) {
+                        if (bestRoutes[servedBy[k]][j] == customer.getId()) {
+                            if (indexFirst == 0) {
+                                indexFirst = j;
+                                r1 = servedBy[k];
+                            } else {
+                                indexSecond = j;
+                                r2 = servedBy[k];
+                            }
                         }
                     }
                 }
-                //predchadza
-                if (!bestSchedule[servedBy[0]][indexFIrst] + timeWindows[i].getServiceTime() + waitingTime[customer.getId()] < bestSchedule[servedBy[1]][indexSecond]
-                    || !bestSchedule[servedBy[0]][indexFIrst] + waitingTime[customer.getId()] < bestSchedule[servedBy[0]].back()
-                    || !bestSchedule[servedBy[0]][indexSecond] + waitingTime[customer.getId()] < bestSchedule[servedBy[0]].back()) {
+                if (!bestSchedule[r1][indexFirst] > timeWindows[i].getDueDate() || !bestSchedule[r2][indexSecond] > timeWindows[i].getDueDate()
+                    || bestSchedule[r1][indexFirst] != bestSchedule[r2][indexSecond]) {
                     uncorectnessCounter++;
                 }
             } else if (timeWindows[i].getNumberOfVehiclesServing() == 1 && servedBy.size() == 2) {

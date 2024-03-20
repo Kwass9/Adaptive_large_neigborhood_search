@@ -267,13 +267,13 @@ int main(int argc, char * argv[]) {
     if (unservedCustomers.empty()) {
         simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), vehicles, solomon->getWaitingTime());
     }
+    auto *test = new class test();
     for (auto & unservedCustomer : unservedCustomers) {
         std::cout << unservedCustomer->getId() << " ";
+        test->correctnessForCurrentSolution(customers, timeSchedule, routes, solomon->getWaitingTime(), distanceMatrix, usedCapacity, vehicles);
     }
     auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, (int)customers.size());
     int i = 0;
-    auto *test = new class test();
-    test->correctnessForCurrentSolution(customers, timeSchedule, routes, solomon->getWaitingTime(), distanceMatrix, usedCapacity, vehicles);
     while (i < 0) {
         std::cout << "Iteracia: " << i << std::endl;
         ro = calculateRo(ksi, customers);
@@ -282,7 +282,7 @@ int main(int argc, char * argv[]) {
         solomon->run(customers, unservedCustomers, vehicles);
         if (unservedCustomers.empty()) {
             simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(),vehicles, solomon->getWaitingTime());
-            test->correctnessForCurrentSolution(customers, simulatedAnnealing->getBestTimeSchedule(), simulatedAnnealing->getBestRoutes(), simulatedAnnealing->getBestWaitingTime(), distanceMatrix, usedCapacity, vehicles);
+//            test->correctnessForCurrentSolution(customers, simulatedAnnealing->getBestTimeSchedule(), simulatedAnnealing->getBestRoutes(), simulatedAnnealing->getBestWaitingTime(), distanceMatrix, usedCapacity, vehicles);
         } else {
             simulatedAnnealing->updateTemperature();
         }
@@ -323,7 +323,7 @@ int main(int argc, char * argv[]) {
 //        std::cout << unservedCustomer->getId() << " ";
 //    }
 
-    std::cout << std::endl;
+//    std::cout << std::endl;
     std::cout << "Test results: " << test->getUncorectnessCounter() << std::endl;
 
     delete test;
