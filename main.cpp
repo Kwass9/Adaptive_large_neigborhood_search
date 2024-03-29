@@ -6,6 +6,7 @@
 #include <tuple>
 #include <valarray>
 #include <random>
+#include <chrono>
 #include "Customer.h"
 #include "solomon.h"
 #include "SimulatedAnnealing.h"
@@ -157,63 +158,66 @@ int main(int argc, char * argv[]) {
     double tau;
     int ro; //number of reguest removed in iteraton
 
-    auto *solomon = new class solomon(customers, alfa1, alfa2, lambda, q, startingCriteria, eta);
-    auto distanceMatrix = solomon->getDistanceMatrix();
+        std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+        auto *solomon = new class solomon(customers, alfa1, alfa2, lambda, q, startingCriteria, eta);
+        auto distanceMatrix = solomon->getDistanceMatrix();
 
-    temperature = setInitialTemperature(w, solomon->getDistance());
+        temperature = setInitialTemperature(w, solomon->getDistance());
 
-    auto *simulatedAnnealing = new class SimulatedAnnealing(temperature, c);
-    simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime(), solomon->getUsedCapacity());
-    auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, customers.size());
-    int i = 0;
-    auto *test = new class test();
-    test->correctnessForCurrentSolution(customers, solomon->getTimeSchedule(), solomon->getRoutes(), solomon->getWaitingTime(), distanceMatrix, solomon->getUsedCapacity());
-    while (i < 25000) {
-        std::cout << "Iteracia: " << i << std::endl;
-        ro = calculateRo(ksi, customers);
-        std::cout << "ro: " << ro << std::endl;
-        shawRemoval->removeRequests(distanceMatrix,customers, solomon->getRoutes(), solomon->getTimeSchedule(), ro, solomon->getWaitingTime(), solomon->getUsedCapacity());
-        solomon->run(customers, ro);
-        test->correctnessForCurrentSolution(customers, solomon->getTimeSchedule(), solomon->getRoutes(), solomon->getWaitingTime(), distanceMatrix, solomon->getUsedCapacity());
+        auto *simulatedAnnealing = new class SimulatedAnnealing(temperature, c);
         simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime(), solomon->getUsedCapacity());
-        i++;
-    }
-
-    auto bestSchedule = simulatedAnnealing->getBestTimeSchedule();
-    auto bestDistance = simulatedAnnealing->getBestSolution();
-    auto bestWaitingTime = simulatedAnnealing->getBestWaitingTime();
-    auto bestRoutes = simulatedAnnealing->getBestRoutes();
-
-//    -------------------------------------------------------------------------------------------------------------------
-
-    std::cout << "BestSchedule" << std::endl;
-    for (auto & r : bestSchedule) {
-        for (double j : r) {
-            std::cout << j << " ";
+        auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, customers.size());
+        int i = 0;
+        auto *test = new class test();
+        test->correctnessForCurrentSolution(customers, solomon->getTimeSchedule(), solomon->getRoutes(), solomon->getWaitingTime(), distanceMatrix, solomon->getUsedCapacity());
+        while (i < 25000) {
+//            std::cout << "Iteracia: " << i << std::endl;
+            ro = calculateRo(ksi, customers);
+    //        std::cout << "ro: " << ro << std::endl;
+            shawRemoval->removeRequests(distanceMatrix,customers, solomon->getRoutes(), solomon->getTimeSchedule(), ro, solomon->getWaitingTime(), solomon->getUsedCapacity());
+            solomon->run(customers, ro);
+            test->correctnessForCurrentSolution(customers, solomon->getTimeSchedule(), solomon->getRoutes(), solomon->getWaitingTime(), distanceMatrix, solomon->getUsedCapacity());
+            simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), solomon->getRoutes(), solomon->getTimeSchedule(), solomon->getWaitingTime(), solomon->getUsedCapacity());
+            i++;
         }
-        std::cout << std::endl;
-    }
-    std::cout << "BestRoutes" << std::endl;
-    for (auto & r : bestRoutes) {
-        for (double j : r) {
-            std::cout << j << " ";
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        auto bestSchedule = simulatedAnnealing->getBestTimeSchedule();
+        auto bestDistance = simulatedAnnealing->getBestSolution();
+        auto bestWaitingTime = simulatedAnnealing->getBestWaitingTime();
+        auto bestRoutes = simulatedAnnealing->getBestRoutes();
+
+    //    -------------------------------------------------------------------------------------------------------------------
+
+
+        double totalScheduleTime = 0;
+        for (auto & r : bestSchedule) {
+            totalScheduleTime += r.back();
         }
-        std::cout << std::endl;
-    }
-    std::cout << "BestWaitingTime" << std::endl;
-    for (double r : bestWaitingTime) {
-        std::cout << r << " ";
-    }
-    std::cout << std::endl;
-    std::cout << "BestDistance" << std::endl;
-    std::cout << bestDistance << std::endl;
-    std::cout << i << std::endl;
 
-    std::cout << "Test results: " << test->getUncorectnessCounter() << std::endl;
-
-    delete test;
-    delete solomon;
-    delete simulatedAnnealing;
-    delete shawRemoval;
+        double totalWaitingTime = 0;
+        for (int r = 0; r < bestWaitingTime.size() - 1; r++) {
+            totalWaitingTime += bestWaitingTime[r];
+        }
+        std::string criteria;
+        if (startingCriteria) {
+            criteria = "a";
+        } else {
+            criteria = "b";
+        }
+        std::cout <<
+        q << ","
+        << lambda << ","
+        << alfa1 << ","
+        << alfa2 << ","
+        << criteria << ","
+        << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << ","
+        << bestDistance << ","
+        << totalScheduleTime
+        << "," << bestRoutes.size()
+        << "," << totalWaitingTime << std::endl;
+        delete test;
+        delete solomon;
+        delete simulatedAnnealing;
+        delete shawRemoval;
     return 0;
 }
