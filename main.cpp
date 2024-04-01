@@ -331,10 +331,10 @@ int main(int argc, char * argv[]) {
         }
         std::cout << std::endl;
     }
-    std::cout << "BestWaitingTime" << std::endl;
-    for (int i = 0; i < bestWaitingTime.size() - 1; ++i) {
-        std::cout << i << " :" << bestWaitingTime[i] << " " << std::endl;
-    }
+//    std::cout << "BestWaitingTime" << std::endl;
+//    for (int i = 0; i < bestWaitingTime.size(); ++i) {
+//        std::cout << i << " :" << bestWaitingTime[i] << " " << std::endl;
+//    }
     std::cout << std::endl;
     std::cout << "BestDistance" << std::endl;
     std::cout << bestDistance << std::endl;

@@ -572,15 +572,15 @@ void solomon::run(std::vector<customer> &custs, std::vector<customer*>& unserved
         insertBeginingOfRoute(custs, vehicles, routeIndex, startingCriteria, distanceMatrix, timeWaitedAtCustomer, unservedCustomers);
     }
     while (!unservedCustomers.empty()) {
-//        for (int i = 0; i < custs[104].getPreviouslyServedByTimes().size(); ++i) {
-//            std::cout << "------?" << custs[104].getPreviouslyServedByTimes()[i] << " ";
-//        }
-//        std::cout << std::endl;
+        for (int i = 0; i < custs[104].getPreviouslyServedByTimes().size(); ++i) {
+            std::cout << "------?" << custs[104].getPreviouslyServedByTimes()[i] << " ";
+        }
+        std::cout << std::endl;
         auto c1 = findMinForC1(alfa1, alfa2, distanceMatrix, custs,
                                timeWaitedAtCustomer, useNoise, vehicles, routeIndex, unservedCustomers);
-//        for (int i = 0; i < custs[104].getPreviouslyServedByTimes().size(); ++i) {
-//            std::cout << "------!" << custs[104].getPreviouslyServedByTimes()[i] << " ";
-//        }
+        for (int i = 0; i < custs[104].getPreviouslyServedByTimes().size(); ++i) {
+            std::cout << "------!" << custs[104].getPreviouslyServedByTimes()[i] << " ";
+        }
         if (!c1.empty()) {
             for (int i = 1; i < c1.size(); ++i) {
 //                std::get<0>(c1[i - 1]) < std::get<0>(c1[i]) &&
@@ -596,13 +596,13 @@ void solomon::run(std::vector<customer> &custs, std::vector<customer*>& unserved
 //            if (c2.size() > 1) {
 //                std::cout << "c2: " << std::get<0>(c2[1]) << " " << std::get<1>(c2[1]) << " " << std::get<2>(c2[1]) << " " << std::get<3>(c2[1]) << std::endl;
 //            }
-//            for (int i = 0; i < custs[104].getPreviouslyServedByTimes().size(); ++i) {
-//                std::cout << "------/" << custs[104].getPreviouslyServedByTimes()[i] << " ";
-//            }
+            for (int i = 0; i < custs[104].getPreviouslyServedByTimes().size(); ++i) {
+                std::cout << "------/" << custs[104].getPreviouslyServedByTimes()[i] << " ";
+            }
             insertCustomerToRoad(vehicles[routeIndex], c2, custs, distanceMatrix, timeWaitedAtCustomer, unservedCustomers);
-//            for (int i = 0; i < custs[104].getPreviouslyServedByTimes().size(); ++i) {
-//                std::cout << "------<" << custs[104].getPreviouslyServedByTimes()[i] << " ";
-//            }
+            for (int i = 0; i < custs[104].getPreviouslyServedByTimes().size(); ++i) {
+                std::cout << "------<" << custs[104].getPreviouslyServedByTimes()[i] << " ";
+            }
         } else {
             for (int i = 0; i < vehicles[routeIndex].getRoute().size(); ++i) {
                 std::cout << vehicles[routeIndex].getRoute()[i] << " ";

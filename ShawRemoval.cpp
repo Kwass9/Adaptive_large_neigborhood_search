@@ -86,6 +86,10 @@ void Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatr
         calculateL(L, (int)customers.size()); //TODO toto bude treba skontrolovat este
         calculateD(ro,L, r, (int)customers.size()); //TODO toto bude treba skontrolovat este
     }
+//    for (int i : D) {
+//        std::cout << i << " ";
+//    }
+//    std::cout << std::endl;
     editSolution(distanceMatrix,customers,D,waitingTime, vehicles, unservedCustomers);
 }
 
@@ -107,9 +111,9 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
         for (int i = 0; i < timeSchedule.size(); ++i) {
             for (int j = 1; j < timeSchedule[i].size(); ++j) {
                 if (routes[i][j] == k) {
-//                    customers[k].markAsUnrouted();
-                    unservedCustomers.emplace_back(&customers[k]);
-//                    std::cout << "ad as unrouted: " << k << std::endl;
+                    if (std::find(unservedCustomers.begin(), unservedCustomers.end(), &customers[k]) == unservedCustomers.end()) {
+                        unservedCustomers.emplace_back(&customers[k]);
+                    }
                     waitingTime[k] = 0;
                     auto nWindows = customers[k].getTimeWindows().size();
 
@@ -219,7 +223,6 @@ void Shaw_Removal::normalize(std::map<int, double>& map) {
     }
 }
 
-//TODO este je tu nechana 101 ked sa zmeni subor mozno sa to dogabe
 void Shaw_Removal::calculateD(const int &ro, std::vector<std::pair<int, double>>& L, int r, int s) {
     auto y = generateRandomDouble(0, 1);
     auto index = (int)std::pow(y, p) * (L.size() - 1);
@@ -235,7 +238,7 @@ void Shaw_Removal::calculateD(const int &ro, std::vector<std::pair<int, double>>
     }
     if (D.size() < ro) { //TODO toto bude treba skontrolovat este
         r = generateRandomNumber(1, s - 1);
-        while (std::find(D.begin(), D.end(), r) != D.end() || r == 0 || r == 101) { //pokial r je v D vyber nove r
+        while (std::find(D.begin(), D.end(), r) != D.end()) { //pokial r je v D vyber nove r
             r = generateRandomNumber(1, s - 1);
         }
     }

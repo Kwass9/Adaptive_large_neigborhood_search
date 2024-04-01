@@ -121,16 +121,16 @@ void test::correctnessForCurrentSolution(const std::vector<customer> &customers,
                 }
             } else if (timeWindows[i].getNumberOfVehiclesServing() == 1 && servedBy.size() == 2) {
                 auto index = -1;
-                auto r = -1;
+                auto r = servedBy[i];
                 int counter = 0;
-                for (int k = 0; k < servedBy.size(); k++) {
-                    for (int j = 0; j < bestRoutes[servedBy[k]].size(); j++) {
-                        if (bestRoutes[servedBy[k]][j] == customer.getId()) {
+//                for (int k = 0; k < servedBy.size(); k++) {
+                    for (int j = 0; j < bestRoutes[servedBy[i]].size(); j++) {
+                        if (bestRoutes[servedBy[i]][j] == customer.getId()) {
                             index = j;
-                            if (r == -1 && k == 1) {
-                                uncorectnessCounter++;
-                            }
-                            r = servedBy[k];
+//                            if (r == -1 && k == 1) {
+//                                uncorectnessCounter++;
+//                            }
+//                            r = servedBy[k];
                             if (counter == i) {
                                 break;
                             }
@@ -143,7 +143,7 @@ void test::correctnessForCurrentSolution(const std::vector<customer> &customers,
                         std::cout << r << " " << index << std::endl;
                         std::cout << "3" << std::endl;
                     }
-                }
+//                }
             } else if (timeWindows[i].getNumberOfVehiclesServing() == 2 && servedBy.size() == 3) {
                 auto indexFirst = 0;
                 auto r1 = servedBy[0];
