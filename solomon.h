@@ -52,10 +52,10 @@ private:
                        const Vehicle &vehicle, const CustomersTimeWindow& timeWinCustomerU);
 
     std::vector<std::tuple<int, double, int, int, int>> findMinForC1(double a1, double a2, const std::vector<std::vector<double>> &dMatrix,
-                                                                     std::vector<customer> &custs,
-                                                                     const std::vector<double> &timeWaitedAtCust, int doesNoiseApply,
-                                                                     const std::vector<Vehicle> &vehicles, int vehicleIndex,
-                                                                     std::vector<customer*> &unservedCusts);
+                                                                     std::vector<customer> custs,
+                                                                     const std::vector<double> timeWaitedAtCust, int doesNoiseApply,
+                                                                     const std::vector<Vehicle> vehicles, int vehicleIndex,
+                                                                     std::vector<customer*> unservedCusts);
     std::tuple<int, double> calculateC1(std::vector<int> route, std::vector<std::vector<double>> dMatrix,
                                                           int i, int u, double a1, double a2, bool doesNoiseApply, double min,
                                                           int minIndex, std::vector<double> pf);

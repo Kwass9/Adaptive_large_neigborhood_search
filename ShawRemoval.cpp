@@ -116,9 +116,11 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
                     auto winP = customers[k].getTimeWindow(timeSchedule[i][j]);
                     auto winIndex = customers[k].getIndexOfTimeWindow(winP.first, winP.second);
                     auto win = customers[k].getTimeWindows()[winIndex];
-                    customers[k].getTimeWindows()[winIndex].decrementCurentVehiclesServing();
 //                    std::cout << "serving: " << customers[k].getTimeWindows()[winIndex].getNumberOfVehiclesServing() << " | " << std::endl;
                     vehicles[i].setUsedCapacity(vehicles[i].getUsedCapacity() - win.getDemand());
+                    for (int i = 0; i < nWindows; ++i) {
+                        customers[k].getTimeWindows()[winIndex].setCurrenVehiclesServing(0);
+                    }
 //                    std::cout << "removed: " << k << " from route: " << i << std::endl;
                     timeSchedule[i].erase(timeSchedule[i].begin() + j);
                     routes[i].erase(routes[i].begin() + j);

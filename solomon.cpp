@@ -72,8 +72,8 @@ solomon::haversineDistance() {
         double c = 2 * atan2(sqrt(a), sqrt(1 - a));
         double d = R * c * 1000; // Distance in m
         double time = 0.015 * d + 1.0987; //regresia excel //cas v minutach
-        if (time > 40) {
-            time = 40;
+        if (time > 15) {
+            time = 15;
         }
         return time;
     });
@@ -206,10 +206,10 @@ bool solomon::lema11(const std::vector<double> &beginingOfService, const std::ve
 
 std::vector<std::tuple<int, double, int, int, int>>
 solomon::findMinForC1(const double a1, const double a2, const std::vector<std::vector<double>> &dMatrix,
-                      std::vector<customer> &custs,
-                      const std::vector<double> &timeWaitedAtCust, const int doesNoiseApply,
-                      const std::vector<Vehicle>& vehicles, int vehicleIndex,
-                      std::vector<customer*> &unservedCusts) {
+                      std::vector<customer> custs,
+                      const std::vector<double> timeWaitedAtCust, const int doesNoiseApply,
+                      const std::vector<Vehicle> vehicles, int vehicleIndex,
+                      std::vector<customer*> unservedCusts) {
     std::vector<std::tuple<int, double, int, int, int>> mnozinaC1;
     int minIndex = 0;
     auto maxCapacity = vehicles[vehicleIndex].getCapacity();
@@ -273,19 +273,19 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
                             if (timeWindow.getNumberOfVehiclesServing() == 0) {
                                 if (lema11(begOfServ, pf, route, custs, u, i, timeOfService, vehicles[vehicleIndex],
                                            timeWindow)) {
-//                                    auto res = calculateC1(route, dMatrix, i, u, a1, a2, doesNoiseApply, min, minIndex, pf);
-//                                    minIndex = std::get<0>(res);
-//                                    min = std::get<1>(res);
-//                                    c1Minimums(minIndex, min, minIndexesLocal, minLocal, wLocal, validTimeWindows, w);
-//                                    /**fake route - creation*/
-//                                    if (w == 0 || (int)fakeRoutes.size() != 0) {
-//                                        fakeRouteLogic(fakeRoutes, fakeTimes[i], pf, fakeBegOfServ, custs, u,
-//                                                       timeOfService, dMatrix, i, route, begOfServ);
-//                                    }
+                                    auto res = calculateC1(route, dMatrix, i, u, a1, a2, doesNoiseApply, min, minIndex, pf);
+                                    minIndex = std::get<0>(res);
+                                    min = std::get<1>(res);
+                                    c1Minimums(minIndex, min, minIndexesLocal, minLocal, wLocal, validTimeWindows, w);
+                                    /**fake route - creation*/
+                                    if (w == 0 || (int)fakeRoutes.size() != 0) {
+                                        fakeRouteLogic(fakeRoutes, fakeTimes[i], pf, fakeBegOfServ, custs, u,
+                                                       timeOfService, dMatrix, i, route, begOfServ);
+                                    }
 
-                                      workWithRoute(fakeRoutes, i, dMatrix, i, u, a1, a2, doesNoiseApply, min, minIndex,
-                                                  minIndexesLocal, minLocal, wLocal, validTimeWindows, w, fakeBegOfServ,
-                                                  custs, timeOfService, timeWaitedAtCust, pf, fakeTimes);
+//                                      workWithRoute(fakeRoutes, i, dMatrix, i, u, a1, a2, doesNoiseApply, min, minIndex,
+//                                                  minIndexesLocal, minLocal, wLocal, validTimeWindows, w, fakeBegOfServ,
+//                                                  custs, timeOfService, timeWaitedAtCust, pf, fakeTimes);
                                 }
                             } else if (lema11(begOfServ, pf, route, custs, u, i, timeOfService, vehicles[vehicleIndex],
                                               timeWindow)) {
@@ -294,18 +294,18 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
                                     waitingTime = timeWaitedAtCust[u];
                                     if (checkIfCustomerCanBePushedInRoute(vehicles[vehIndex], u, timeOfService, custs,
                                                                           waitingTime)) {
-//                                        auto res = calculateC1(route, dMatrix, i, u, a1, a2, doesNoiseApply, min, minIndex, pf);
-//                                        minIndex = std::get<0>(res);
-//                                        min = std::get<1>(res);
-//                                        c1Minimums(minIndex, min, minIndexesLocal, minLocal, wLocal, validTimeWindows, w);
-//                                        /**fake route - creation*/
-//                                        if (w == 0 || (int)fakeRoutes.size() != 0) {
-//                                            fakeRouteLogic(fakeRoutes, fakeTimes[i], pf, fakeBegOfServ, custs, u, timeOfService, dMatrix, i, route, begOfServ);
-//                                        }
+                                        auto res = calculateC1(route, dMatrix, i, u, a1, a2, doesNoiseApply, min, minIndex, pf);
+                                        minIndex = std::get<0>(res);
+                                        min = std::get<1>(res);
+                                        c1Minimums(minIndex, min, minIndexesLocal, minLocal, wLocal, validTimeWindows, w);
+                                        /**fake route - creation*/
+                                        if (w == 0 || (int)fakeRoutes.size() != 0) {
+                                            fakeRouteLogic(fakeRoutes, fakeTimes[i], pf, fakeBegOfServ, custs, u, timeOfService, dMatrix, i, route, begOfServ);
+                                        }
 
-                                        workWithRoute(fakeRoutes, i, dMatrix, i, u, a1, a2, doesNoiseApply, min, minIndex,
-                                                      minIndexesLocal, minLocal, wLocal, validTimeWindows, w, fakeBegOfServ,
-                                                      custs, timeOfService, timeWaitedAtCust, pf, fakeTimes);
+//                                        workWithRoute(fakeRoutes, i, dMatrix, i, u, a1, a2, doesNoiseApply, min, minIndex,
+//                                                      minIndexesLocal, minLocal, wLocal, validTimeWindows, w, fakeBegOfServ,
+//                                                      custs, timeOfService, timeWaitedAtCust, pf, fakeTimes);
                                     }
                                 }
                             }
@@ -331,21 +331,21 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
                                 if (timeWindow.getNumberOfVehiclesServing() == 0) {
                                     if (lema11(fakeBegOfServ[x], pf, fakeRoutes[x], custs, u, i, timeOfService,
                                                vehicles[vehicleIndex], timeWindow)) {
-//                                        auto res = calculateC1(fakeRoutes[x], dMatrix, i, u, a1, a2, doesNoiseApply, min,
-//                                                               minIndex, pf);
-//                                        minIndex = std::get<0>(res);
-//                                        min = std::get<1>(res);
-//                                        c1Minimums(minIndex, min, minIndexesLocal, minLocal, wLocal, validTimeWindows, w);
-//                                        /**fake route - creation*/
-//                                        if (w == 0 || (int)fakeRoutes.size() != 0) {
-//                                            auto r = fakeRoutes[x];
-//                                            auto b = fakeBegOfServ[x];
-//                                            fakeRouteLogic(fakeRoutes, fakeTimes[i], pf, fakeBegOfServ, custs, u, timeOfService, dMatrix, i, r, b);
-//                                        }
+                                        auto res = calculateC1(fakeRoutes[x], dMatrix, i, u, a1, a2, doesNoiseApply, min,
+                                                               minIndex, pf);
+                                        minIndex = std::get<0>(res);
+                                        min = std::get<1>(res);
+                                        c1Minimums(minIndex, min, minIndexesLocal, minLocal, wLocal, validTimeWindows, w);
+                                        /**fake route - creation*/
+                                        if (w == 0 || (int)fakeRoutes.size() != 0) {
+                                            auto r = fakeRoutes[x];
+                                            auto b = fakeBegOfServ[x];
+                                            fakeRouteLogic(fakeRoutes, fakeTimes[i], pf, fakeBegOfServ, custs, u, timeOfService, dMatrix, i, r, b);
+                                        }
 
-                                        workWithRoute(fakeRoutes, x, dMatrix, i, u, a1, a2, doesNoiseApply, min,
-                                                     minIndex, minIndexesLocal, minLocal, wLocal, validTimeWindows, w,
-                                                     fakeBegOfServ, custs, timeOfService, timeWaitedAtCust, pf, fakeTimes);
+//                                        workWithRoute(fakeRoutes, x, dMatrix, i, u, a1, a2, doesNoiseApply, min,
+//                                                     minIndex, minIndexesLocal, minLocal, wLocal, validTimeWindows, w,
+//                                                     fakeBegOfServ, custs, timeOfService, timeWaitedAtCust, pf, fakeTimes);
                                     }
                                 } else if (lema11(fakeBegOfServ[x], pf, fakeRoutes[x], custs, u, i, timeOfService,
                                                   vehicles[vehicleIndex], timeWindow)) {
@@ -355,21 +355,21 @@ solomon::findMinForC1(const double a1, const double a2, const std::vector<std::v
                                         if (checkIfCustomerCanBePushedInRoute(vehicles[vehIndex], u, timeOfService, custs,
                                                                               waitingTime)) {
 
-                                            workWithRoute(fakeRoutes, x, dMatrix, i, u, a1, a2, doesNoiseApply, min,
-                                                         minIndex, minIndexesLocal, minLocal, wLocal, validTimeWindows, w,
-                                                         fakeBegOfServ, custs, timeOfService, timeWaitedAtCust, pf, fakeTimes);
-                                            //                                            auto res = calculateC1(fakeRoutes[x], dMatrix, i, u, a1, a2, doesNoiseApply,
-//                                                                   min,
-//                                                                   minIndex, pf);
-//                                            minIndex = std::get<0>(res);
-//                                            min = std::get<1>(res);
-//                                            c1Minimums(minIndex, min, minIndexesLocal, minLocal, wLocal, validTimeWindows, w);
-//                                            /**fake route - creation*/
-//                                            if (w == 0 || (int)fakeRoutes.size() != 0) {
-//                                                auto r = fakeRoutes[x];
-//                                                auto b = fakeBegOfServ[x];
-//                                                fakeRouteLogic(fakeRoutes, fakeTimes[i], pf, fakeBegOfServ, custs, u, timeOfService, dMatrix, i, r, b);
-//                                            }
+//                                            workWithRoute(fakeRoutes, x, dMatrix, i, u, a1, a2, doesNoiseApply, min,
+//                                                         minIndex, minIndexesLocal, minLocal, wLocal, validTimeWindows, w,
+//                                                         fakeBegOfServ, custs, timeOfService, timeWaitedAtCust, pf, fakeTimes);
+                                                                                        auto res = calculateC1(fakeRoutes[x], dMatrix, i, u, a1, a2, doesNoiseApply,
+                                                                   min,
+                                                                   minIndex, pf);
+                                            minIndex = std::get<0>(res);
+                                            min = std::get<1>(res);
+                                            c1Minimums(minIndex, min, minIndexesLocal, minLocal, wLocal, validTimeWindows, w);
+                                            /**fake route - creation*/
+                                            if (w == 0 || (int)fakeRoutes.size() != 0) {
+                                                auto r = fakeRoutes[x];
+                                                auto b = fakeBegOfServ[x];
+                                                fakeRouteLogic(fakeRoutes, fakeTimes[i], pf, fakeBegOfServ, custs, u, timeOfService, dMatrix, i, r, b);
+                                            }
                                         }
                                     }
                                 }
@@ -470,7 +470,12 @@ void solomon::insertCustomerToRoad(Vehicle& vehicle, std::vector<std::tuple<int,
     for (int j = 0; j < n; ++j) {
         int i = std::get<0>(optimalInsertion[j]);
         int w = std::get<2>(optimalInsertion[j]);
-
+        if (u == 104) {
+            std::cout << u << std::endl;
+            std::cout << i << std::endl;
+            std::cout << w << std::endl;
+            std::cout << n << std::endl;
+        }
         CustomersTimeWindow& timeWindowU = custs[u].getTimeWindowAt(w);
         auto route = vehicle.getRoute();
         auto beginingOfService = vehicle.getTimeSchedule();
@@ -481,6 +486,9 @@ void solomon::insertCustomerToRoad(Vehicle& vehicle, std::vector<std::tuple<int,
             timeOfService = beginingOfService[i + j - 1]
                                    + distanceMatrix[predchodca][u]
                                    + timeWindowPredchodca.getServiceTime();
+            if (u == 104) {
+                std::cout << "timeOfService: " << timeOfService << std::endl;
+            }
         } else {
             auto times = custs[u].getPreviouslyServedByTimes();
             for (double time : times) {
@@ -495,6 +503,10 @@ void solomon::insertCustomerToRoad(Vehicle& vehicle, std::vector<std::tuple<int,
             timeOfService = timeWindowU.getReadyTime();
         } else {
             timeWaitedAtCustomer[u] = 0;
+        }
+        if (u == 104) {
+            std::cout << "timeOfService: " << timeOfService << std::endl;
+            std::cout << "timeWaitedAtCustomer: " << timeWaitedAtCustomer[u] << std::endl;
         }
         auto winJ = custs[0].getTimeWindowAt(0);
         if (i + j < route.size() - 1) {
@@ -514,6 +526,11 @@ void solomon::insertCustomerToRoad(Vehicle& vehicle, std::vector<std::tuple<int,
         timeWindowU.incrementCurentVehiclesServing();
         custs[u].addPreviouslyServedBy(vehicle.getId());
         custs[u].addPreviouslyServedByTime(timeOfService);
+        if (u == 104) {
+            std::cout << "timeOfService: " << custs[u].getPreviouslyServedByTimes().back() << std::endl;
+            std::cout << "served by: " << custs[u].getPreviouslyServedBy().back() << std::endl;
+            std::cout << "timeWaitedAtCustomer: " << timeWaitedAtCustomer[u] << std::endl;
+        }
     }
 
     /**tu nebude treba cyklus ale bude stacit podmienka*/
@@ -555,8 +572,15 @@ void solomon::run(std::vector<customer> &custs, std::vector<customer*>& unserved
         insertBeginingOfRoute(custs, vehicles, routeIndex, startingCriteria, distanceMatrix, timeWaitedAtCustomer, unservedCustomers);
     }
     while (!unservedCustomers.empty()) {
+//        for (int i = 0; i < custs[104].getPreviouslyServedByTimes().size(); ++i) {
+//            std::cout << "------?" << custs[104].getPreviouslyServedByTimes()[i] << " ";
+//        }
+//        std::cout << std::endl;
         auto c1 = findMinForC1(alfa1, alfa2, distanceMatrix, custs,
                                timeWaitedAtCustomer, useNoise, vehicles, routeIndex, unservedCustomers);
+//        for (int i = 0; i < custs[104].getPreviouslyServedByTimes().size(); ++i) {
+//            std::cout << "------!" << custs[104].getPreviouslyServedByTimes()[i] << " ";
+//        }
         if (!c1.empty()) {
             for (int i = 1; i < c1.size(); ++i) {
 //                std::get<0>(c1[i - 1]) < std::get<0>(c1[i]) &&
@@ -572,16 +596,22 @@ void solomon::run(std::vector<customer> &custs, std::vector<customer*>& unserved
 //            if (c2.size() > 1) {
 //                std::cout << "c2: " << std::get<0>(c2[1]) << " " << std::get<1>(c2[1]) << " " << std::get<2>(c2[1]) << " " << std::get<3>(c2[1]) << std::endl;
 //            }
+//            for (int i = 0; i < custs[104].getPreviouslyServedByTimes().size(); ++i) {
+//                std::cout << "------/" << custs[104].getPreviouslyServedByTimes()[i] << " ";
+//            }
             insertCustomerToRoad(vehicles[routeIndex], c2, custs, distanceMatrix, timeWaitedAtCustomer, unservedCustomers);
+//            for (int i = 0; i < custs[104].getPreviouslyServedByTimes().size(); ++i) {
+//                std::cout << "------<" << custs[104].getPreviouslyServedByTimes()[i] << " ";
+//            }
         } else {
-//            for (int i = 0; i < vehicles[routeIndex].getRoute().size(); ++i) {
-//                std::cout << vehicles[routeIndex].getRoute()[i] << " ";
-//            }
-//            std::cout << std::endl;
-//            for (double i : vehicles[routeIndex].getTimeSchedule()) {
-//                std::cout << i << " ";
-//            }
-//            std::cout << std::endl;
+            for (int i = 0; i < vehicles[routeIndex].getRoute().size(); ++i) {
+                std::cout << vehicles[routeIndex].getRoute()[i] << " ";
+            }
+            std::cout << std::endl;
+            for (double i : vehicles[routeIndex].getTimeSchedule()) {
+                std::cout << i << " ";
+            }
+            std::cout << std::endl;
 
             routeIndex++;
             if (routeIndex == vehicles.size()) {
@@ -591,12 +621,16 @@ void solomon::run(std::vector<customer> &custs, std::vector<customer*>& unserved
                 routeIndex++;
             }
             timeWaitedAtCustomer[custs.size()] = vehicles[routeIndex].getDueTimeAt(0);
+            std::cout << "---------------------" << routeIndex << "--------------------------" << std::endl;
             insertIntoNewRoute(custs, vehicles, routeIndex, startingCriteria, distanceMatrix, timeWaitedAtCustomer, unservedCustomers);
-//            std::cout << "---------------------" << routeIndex << "--------------------------" << std::endl;
-//            for (int i = 0; i < vehicles[routeIndex].getRoute().size(); ++i) {
-//                std::cout << vehicles[routeIndex].getRoute()[i] << " ";
-//            }
-//            std::cout << std::endl;
+            for (int i = 0; i < vehicles[routeIndex].getRoute().size(); ++i) {
+                std::cout << vehicles[routeIndex].getRoute()[i] << " ";
+            }
+            std::cout << std::endl;
+            for (double i : vehicles[routeIndex].getTimeSchedule()) {
+                std::cout << i << " ";
+            }
+            std::cout << std::endl;
         }
     }
     finalPrint(custs, vehicles);

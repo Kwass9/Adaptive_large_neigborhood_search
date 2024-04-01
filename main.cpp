@@ -264,68 +264,89 @@ int main(int argc, char * argv[]) {
     temperature = setInitialTemperature(w, solomon->getDistance());
 
     auto *simulatedAnnealing = new class SimulatedAnnealing(temperature, c);
-    if (unservedCustomers.empty()) {
+    auto *test = new class test();
+    if (unservedCustomers.size() == 8) {
+        test->correctnessForCurrentSolution(customers, timeSchedule, routes, solomon->getWaitingTime(), distanceMatrix, usedCapacity, vehicles);
         simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), vehicles, solomon->getWaitingTime());
     }
-    auto *test = new class test();
+    std::cout << "Number of unserved customers: " << unservedCustomers.size() << std::endl;
     for (auto & unservedCustomer : unservedCustomers) {
         std::cout << unservedCustomer->getId() << " ";
-        test->correctnessForCurrentSolution(customers, timeSchedule, routes, solomon->getWaitingTime(), distanceMatrix, usedCapacity, vehicles);
+    }
+    std::cout << std::endl;
+    std::cout << test->getUncorectnessCounter() << std::endl;
+    auto servedBy = customers[104].getPreviouslyServedBy();
+    auto servedByTime = customers[104].getPreviouslyServedByTimes();
+    for (int i = 0; i < servedBy.size(); ++i) {
+        std::cout << servedBy[i] << " " << servedByTime[i] << std::endl;
+    }
+    for (int i = 0; i < servedBy.size(); ++i) {
+        for (int j = 0; j < vehicles[servedBy[i]].getRoute().size(); ++j) {
+            std::cout << vehicles[servedBy[i]].getRoute()[j] << " ";
+        }
+        std::cout << std::endl;
+        for (int j = 0; j < timeSchedule[servedBy[i]].size(); ++j) {
+            std::cout << timeSchedule[servedBy[i]][j] << " ";
+        }
+        std::cout << std::endl;
     }
     auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, (int)customers.size());
     int i = 0;
-    while (i < 0) {
+    while (i < 1000) {
         std::cout << "Iteracia: " << i << std::endl;
         ro = calculateRo(ksi, customers);
         std::cout << "ro: " << ro << std::endl;
+        std::cout << "Number of unserved customers: " << unservedCustomers.size() << std::endl;
         shawRemoval->removeRequests(distanceMatrix, customers, ro, solomon->getWaitingTime(), vehicles, unservedCustomers); /**doplnit ze -1 neremovuje*/
         solomon->run(customers, unservedCustomers, vehicles);
-        if (unservedCustomers.empty()) {
+        if (unservedCustomers.size() == 8) {
             simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(),vehicles, solomon->getWaitingTime());
-//            test->correctnessForCurrentSolution(customers, simulatedAnnealing->getBestTimeSchedule(), simulatedAnnealing->getBestRoutes(), simulatedAnnealing->getBestWaitingTime(), distanceMatrix, usedCapacity, vehicles);
+            test->correctnessForCurrentSolution(customers, simulatedAnnealing->getBestTimeSchedule(), simulatedAnnealing->getBestRoutes(), simulatedAnnealing->getBestWaitingTime(), distanceMatrix, usedCapacity, vehicles);
         } else {
             simulatedAnnealing->updateTemperature();
         }
         i++;
     }
 
-//    auto bestSchedule = simulatedAnnealing->getBestTimeSchedule();
-//    auto bestDistance = simulatedAnnealing->getBestSolution();
-//    auto bestWaitingTime = simulatedAnnealing->getBestWaitingTime();
-//    auto bestRoutes = simulatedAnnealing->getBestRoutes();
-//    test->correctnessForCurrentSolution(customers, bestSchedule, bestRoutes, bestWaitingTime, distanceMatrix, usedCapacity, vehicles);
-//    -------------------------------------------------------------------------------------------------------------------
+    auto bestSchedule = simulatedAnnealing->getBestTimeSchedule();
+    auto bestDistance = simulatedAnnealing->getBestSolution();
+    auto bestWaitingTime = simulatedAnnealing->getBestWaitingTime();
+    auto bestRoutes = simulatedAnnealing->getBestRoutes();
+    if (unservedCustomers.empty()) {
+        test->correctnessForCurrentSolution(customers, bestSchedule, bestRoutes, bestWaitingTime, distanceMatrix, usedCapacity, vehicles);
+    }
+//-------------------------------------------------------------------------------------------------------------------
 
-//    std::cout << "BestSchedule" << std::endl;
-//    for (auto & r : bestSchedule) {
-//        for (double j : r) {
-//            std::cout << j << " ";
-//        }
-//        std::cout << std::endl;
-//    }
-//    std::cout << "BestRoutes" << std::endl;
-//    for (auto & r : bestRoutes) {
-//        for (double j : r) {
-//            std::cout << j << " ";
-//        }
-//        std::cout << std::endl;
-//    }
-//    std::cout << "BestWaitingTime" << std::endl;
-//    for (int i = 0; i < bestWaitingTime.size(); ++i) {
-//        std::cout << i << " :" << bestWaitingTime[i] << " " << std::endl;
-//    }
-//    std::cout << std::endl;
-//    std::cout << "BestDistance" << std::endl;
-//    std::cout << bestDistance << std::endl;
-//    std::cout << i << std::endl;
-//
-//    for (auto & unservedCustomer : unservedCustomers) {
-//        std::cout << unservedCustomer->getId() << " ";
-//    }
+    std::cout << "BestSchedule" << std::endl;
+    for (auto & r : bestSchedule) {
+        for (double j : r) {
+            std::cout << j << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "BestRoutes" << std::endl;
+    for (auto & r : bestRoutes) {
+        for (double j : r) {
+            std::cout << j << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "BestWaitingTime" << std::endl;
+    for (int i = 0; i < bestWaitingTime.size() - 1; ++i) {
+        std::cout << i << " :" << bestWaitingTime[i] << " " << std::endl;
+    }
+    std::cout << std::endl;
+    std::cout << "BestDistance" << std::endl;
+    std::cout << bestDistance << std::endl;
+    std::cout << i << std::endl;
 
-//    std::cout << std::endl;
+    for (auto & unservedCustomer : unservedCustomers) {
+        std::cout << unservedCustomer->getId() << " ";
+    }
+
+    std::cout << std::endl;
     std::cout << "Test results: " << test->getUncorectnessCounter() << std::endl;
-
+    std::cout << "Number of unserved customers: " << unservedCustomers.size() << std::endl;
     delete test;
     delete solomon;
     delete simulatedAnnealing;
