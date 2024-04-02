@@ -62,6 +62,10 @@ private:
     /**pokial bolo treba pushnut vozidlo v jednej ceste no uz je aj v inej pridelene kvoli sucasnej obsluhe*/
     bool checkIfCustomerCanBePushedInRoute(const Vehicle &vehicle, int u, double timeOfService,
                                            std::vector<customer> &customers, double waitingTime);
+    bool checkIfCustomerIsServedMultipleTimesAndNeedToBePushed(Vehicle vehicle, int position, std::vector<customer> customers, std::vector<double> pf);
+//    void pushCustomerInRoute(std::vector<Vehicle>& vehicles, Vehicle& vehicle, std::vector<double> &timeWaitedAtCustomer,
+//                             std::vector<double> &beginingOfService, std::vector<customer> &customers,
+//                             int u, int position, double timeOfService, double waitingTime);
     static std::vector<std::tuple<int, int, int, int>> findOptimumForC2(std::vector<std::tuple<int, double, int, int, int>> &mnozinaC1, double lambda,
                                          std::vector<std::vector<double>> &distanceMatrix, std::vector<customer> &customers);
     static void insertCustomerToRoad(Vehicle& vehicle, std::vector<std::tuple<int, int, int, int>> optimalInsertion, std::vector<customer>& custs,

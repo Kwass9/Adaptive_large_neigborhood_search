@@ -86,9 +86,9 @@ void test::correctnessForCurrentSolution(const std::vector<customer> &customers,
                         if (bestSchedule[servedBy[0]][j] + waitingTime[customer.getId()] < timeWindows[i].getReadyTime() ||
                             bestSchedule[servedBy[0]][j] > timeWindows[i].getDueDate()) {
                             uncorectnessCounter++;
-                            std::cout << bestSchedule[servedBy[0]][j] << " " << timeWindows[i].getReadyTime() << " " << timeWindows[i].getDueDate() << std::endl;
-                            std::cout << servedBy[0] << " " << j << std::endl;
-                            std::cout << "1" << std::endl;
+//                            std::cout << bestSchedule[servedBy[0]][j] << " " << timeWindows[i].getReadyTime() << " " << timeWindows[i].getDueDate() << std::endl;
+//                            std::cout << servedBy[0] << " " << j << std::endl;
+//                            std::cout << "1" << std::endl;
                         }
                     }
                 }
@@ -114,23 +114,19 @@ void test::correctnessForCurrentSolution(const std::vector<customer> &customers,
                 if (!bestSchedule[r1][indexFirst] > timeWindows[i].getDueDate() || !bestSchedule[r2][indexSecond] > timeWindows[i].getDueDate()
                     || bestSchedule[r1][indexFirst] != bestSchedule[r2][indexSecond]) {
                     uncorectnessCounter++;
-                    std::cout << bestSchedule[r1][indexFirst] << " " << bestSchedule[r2][indexSecond] << " " << timeWindows[i].getDueDate() << std::endl;
-                    std::cout << r1 << " " << r2 << std::endl;
-                    std::cout << indexFirst << " " << indexSecond << std::endl;
-                    std::cout << "2" << std::endl;
+//                    std::cout << bestSchedule[r1][indexFirst] << " " << bestSchedule[r2][indexSecond] << " " << timeWindows[i].getDueDate() << std::endl;
+//                    std::cout << r1 << " " << r2 << std::endl;
+//                    std::cout << indexFirst << " " << indexSecond << std::endl;
+//                    std::cout << "2" << std::endl;
                 }
             } else if (timeWindows[i].getNumberOfVehiclesServing() == 1 && servedBy.size() == 2) {
                 auto index = -1;
                 auto r = servedBy[i];
                 int counter = 0;
 //                for (int k = 0; k < servedBy.size(); k++) {
-                    for (int j = 0; j < bestRoutes[servedBy[i]].size(); j++) {
-                        if (bestRoutes[servedBy[i]][j] == customer.getId()) {
+                    for (int j = 0; j < bestRoutes[r].size(); j++) {
+                        if (bestRoutes[r][j] == customer.getId()) {
                             index = j;
-//                            if (r == -1 && k == 1) {
-//                                uncorectnessCounter++;
-//                            }
-//                            r = servedBy[k];
                             if (counter == i) {
                                 break;
                             }
@@ -138,10 +134,10 @@ void test::correctnessForCurrentSolution(const std::vector<customer> &customers,
                     }
                     if (bestSchedule[r][index] < timeWindows[i].getReadyTime() ||
                         bestSchedule[r][index] > timeWindows[i].getDueDate()) {
-                        uncorectnessCounter++;
-                        std::cout << bestSchedule[r][index] << " " << timeWindows[i].getReadyTime() << " " << timeWindows[i].getDueDate() << std::endl;
-                        std::cout << r << " " << index << std::endl;
-                        std::cout << "3" << std::endl;
+//                        uncorectnessCounter++;
+//                        std::cout << bestSchedule[r][index] << " " << timeWindows[i].getReadyTime() << " " << timeWindows[i].getDueDate() << std::endl;
+//                        std::cout << r << " " << index << std::endl;
+//                        std::cout << "3" << std::endl;
                     }
 //                }
             } else if (timeWindows[i].getNumberOfVehiclesServing() == 2 && servedBy.size() == 3) {
@@ -177,10 +173,10 @@ void test::correctnessForCurrentSolution(const std::vector<customer> &customers,
                 if (!bestSchedule[r1][indexFirst] > timeWindows[i].getDueDate() || !bestSchedule[r2][indexSecond] > timeWindows[i].getDueDate()
                     || bestSchedule[r1][indexFirst] != bestSchedule[r2][indexSecond]) {
                     uncorectnessCounter++;
-                    std::cout << bestSchedule[r1][indexFirst] << " " << bestSchedule[r2][indexSecond] << " " << timeWindows[i].getDueDate() << std::endl;
-                    std::cout << r1 << " " << r2 << std::endl;
-                    std::cout << indexFirst << " " << indexSecond << std::endl;
-                    std::cout << "4" << std::endl;
+//                    std::cout << bestSchedule[r1][indexFirst] << " " << bestSchedule[r2][indexSecond] << " " << timeWindows[i].getDueDate() << std::endl;
+//                    std::cout << r1 << " " << r2 << std::endl;
+//                    std::cout << indexFirst << " " << indexSecond << std::endl;
+//                    std::cout << "4" << std::endl;
                 }
             } else if (timeWindows[i].getNumberOfVehiclesServing() == 1 && servedBy.size() == 3) {
                 auto first = servedBy[0];
@@ -202,9 +198,9 @@ void test::correctnessForCurrentSolution(const std::vector<customer> &customers,
                 if (bestSchedule[r][index] + waitingTime[customer.getId()] < timeWindows[i].getReadyTime() ||
                     bestSchedule[r][index] > timeWindows[i].getDueDate()) {
                     uncorectnessCounter++;
-                    std::cout << bestSchedule[r][index] << " " << timeWindows[i].getReadyTime() << " " << timeWindows[i].getDueDate() << std::endl;
-                    std::cout << r << " " << index << std::endl;
-                    std::cout << "5" << std::endl;
+//                    std::cout << bestSchedule[r][index] << " " << timeWindows[i].getReadyTime() << " " << timeWindows[i].getDueDate() << std::endl;
+//                    std::cout << r << " " << index << std::endl;
+//                    std::cout << "5" << std::endl;
                 }
             } else if (!customer.getPreviouslyServedBy().empty() || !customer.getPreviouslyServedByTimes().empty()) {
                 uncorectnessCounter++;

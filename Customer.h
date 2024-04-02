@@ -57,6 +57,8 @@ public:
     std::pair<double, double> getTimeWindow(double serviceTime) const;
     CustomersTimeWindow & getTimeWindowBeforeTime(double serviceTime);
     CustomersTimeWindow & getTimeWindowAfterTime(double serviceTime);
+
+    void clearPreviouslyServedByTime();
 };
 
 

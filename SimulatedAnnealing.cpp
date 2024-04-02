@@ -60,7 +60,7 @@ void SimulatedAnnealing::tryToAcceptNewSolution(double newSolution, std::vector<
     }
 
     if (newSolution < currentSolution - 0.0001) {
-        std::cout << "New better solution: " << newSolution << std::endl;
+//        std::cout << "New better solution: " << newSolution << std::endl;
         currentSolution = newSolution;
         currentRoutes.clear();
         currentRoutes = newRoutes;
@@ -94,9 +94,9 @@ void SimulatedAnnealing::tryToAcceptNewSolution(double newSolution, std::vector<
             currentTimeSchedule = newTimeSchedule;
             currentWaitingTime = newWaitingTime;
             currentUsedCapacity = newUsedCapacity;
-            std::cout << "Accept new solution: " << newSolution << std::endl;
+//            std::cout << "Accept new solution: " << newSolution << std::endl;
         } else {
-            std::cout << "Reject new solution: " << newSolution << std::endl;
+//            std::cout << "Reject new solution: " << newSolution << std::endl;
             for (int i = 0; i < vehicles.size(); ++i) {
                 vehicles[i].setRoute(currentRoutes[i]);
                 vehicles[i].setTimeSchedule(currentTimeSchedule[i]);

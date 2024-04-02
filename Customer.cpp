@@ -224,3 +224,7 @@ bool customer::wasServedByThisVehicleAtWindow(int vehicleID, int windowOrderNumb
     }
     return false;
 }
+
+void customer::clearPreviouslyServedByTime() {
+    previouslyServedByTime.clear();
+}

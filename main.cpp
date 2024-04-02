@@ -269,35 +269,35 @@ int main(int argc, char * argv[]) {
         test->correctnessForCurrentSolution(customers, timeSchedule, routes, solomon->getWaitingTime(), distanceMatrix, usedCapacity, vehicles);
         simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), vehicles, solomon->getWaitingTime());
     }
-    std::cout << "Number of unserved customers: " << unservedCustomers.size() << std::endl;
-    for (auto & unservedCustomer : unservedCustomers) {
-        std::cout << unservedCustomer->getId() << " ";
-    }
-    std::cout << std::endl;
-    std::cout << test->getUncorectnessCounter() << std::endl;
-    auto servedBy = customers[104].getPreviouslyServedBy();
-    auto servedByTime = customers[104].getPreviouslyServedByTimes();
-    for (int i = 0; i < servedBy.size(); ++i) {
-        std::cout << servedBy[i] << " " << servedByTime[i] << std::endl;
-    }
-    for (int i = 0; i < servedBy.size(); ++i) {
-        for (int j = 0; j < vehicles[servedBy[i]].getRoute().size(); ++j) {
-            std::cout << vehicles[servedBy[i]].getRoute()[j] << " ";
-        }
-        std::cout << std::endl;
-        for (int j = 0; j < timeSchedule[servedBy[i]].size(); ++j) {
-            std::cout << timeSchedule[servedBy[i]][j] << " ";
-        }
-        std::cout << std::endl;
-    }
+//    std::cout << "Number of unserved customers: " << unservedCustomers.size() << std::endl;
+//    for (auto & unservedCustomer : unservedCustomers) {
+//        std::cout << unservedCustomer->getId() << " ";
+//    }
+//    std::cout << std::endl;
+//    std::cout << test->getUncorectnessCounter() << std::endl;
+//    auto servedBy = customers[104].getPreviouslyServedBy();
+//    auto servedByTime = customers[104].getPreviouslyServedByTimes();
+//    for (int i = 0; i < servedBy.size(); ++i) {
+//        std::cout << servedBy[i] << " " << servedByTime[i] << std::endl;
+//    }
+//    for (int i = 0; i < servedBy.size(); ++i) {
+//        for (int j = 0; j < vehicles[servedBy[i]].getRoute().size(); ++j) {
+//            std::cout << vehicles[servedBy[i]].getRoute()[j] << " ";
+//        }
+//        std::cout << std::endl;
+//        for (int j = 0; j < timeSchedule[servedBy[i]].size(); ++j) {
+//            std::cout << timeSchedule[servedBy[i]][j] << " ";
+//        }
+//        std::cout << std::endl;
+//    }
     auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, (int)customers.size());
     int i = 0;
-    while (i < 1000) {
-        std::cout << "Iteracia: " << i << std::endl;
+    while (i < 25000) {
+//        std::cout << "Iteracia: " << i << std::endl;
         ro = calculateRo(ksi, customers);
-        std::cout << "ro: " << ro << std::endl;
-        std::cout << "Number of unserved customers: " << unservedCustomers.size() << std::endl;
-        shawRemoval->removeRequests(distanceMatrix, customers, ro, solomon->getWaitingTime(), vehicles, unservedCustomers); /**doplnit ze -1 neremovuje*/
+//        std::cout << "ro: " << ro << std::endl;
+//        std::cout << "Number of unserved customers: " << unservedCustomers.size() << std::endl;
+        shawRemoval->removeRequests(distanceMatrix, customers, ro, solomon->getWaitingTime(), vehicles, unservedCustomers);
         solomon->run(customers, unservedCustomers, vehicles);
         if (unservedCustomers.size() == 8) {
             simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(),vehicles, solomon->getWaitingTime());
@@ -306,6 +306,28 @@ int main(int argc, char * argv[]) {
             simulatedAnnealing->updateTemperature();
         }
         i++;
+//        if (customers[104].getTimeWindows()[0].isServedByEnoughVehicles()) {
+//            auto t = customers[104].getPreviouslyServedByTimes();
+//            auto servedBy = customers[104].getPreviouslyServedBy();
+//            int a = 0;
+//            int b = 0;
+//            if (t[0] != t[1]) {
+//                std::cout << t[i] << " ";
+//            }
+//            for (int j = 0; j < vehicles[servedBy[0]].getRoute().size(); ++j) {
+//                if (vehicles[servedBy[0]].getRoute()[j] == 104) {
+//                    a = vehicles[servedBy[0]].getTimeSchedule()[j];
+//                }
+//            }
+//            for (int j = 0; j < vehicles[servedBy[1]].getRoute().size(); ++j) {
+//                if (vehicles[servedBy[1]].getRoute()[j] == 104) {
+//                    b = vehicles[servedBy[1]].getTimeSchedule()[j];
+//                }
+//            }
+//            if (a != b && a != 0 && b != 0) {
+//                std::cout << a << " " << b << std::endl;
+//            }
+//        }
     }
 
     auto bestSchedule = simulatedAnnealing->getBestTimeSchedule();
@@ -331,6 +353,20 @@ int main(int argc, char * argv[]) {
         }
         std::cout << std::endl;
     }
+
+    std::vector<std::pair<int, double>> printResVec;
+    std::cout << "Best r/s " << std::endl;
+    for (int j = 0; j < bestRoutes.size(); ++j) {
+        for (int k = 0; k < bestRoutes[j].size(); ++k) {
+            printResVec.emplace_back(bestRoutes[j][k], bestSchedule[j][k]);
+        }
+    }
+    std::sort(printResVec.begin(), printResVec.end(), [&](std::pair<int, double> a, std::pair<int, double> b) { return a.first < b.first; });
+    for (auto & i : printResVec) {
+        std::cout << "{ " << i.first << " " << i.second << " }" << std::endl;
+    }
+
+
 //    std::cout << "BestWaitingTime" << std::endl;
 //    for (int i = 0; i < bestWaitingTime.size(); ++i) {
 //        std::cout << i << " :" << bestWaitingTime[i] << " " << std::endl;
@@ -338,15 +374,24 @@ int main(int argc, char * argv[]) {
     std::cout << std::endl;
     std::cout << "BestDistance" << std::endl;
     std::cout << bestDistance << std::endl;
-    std::cout << i << std::endl;
+//    std::cout << i << std::endl;
 
-    for (auto & unservedCustomer : unservedCustomers) {
-        std::cout << unservedCustomer->getId() << " ";
-    }
+//    for (auto & unservedCustomer : unservedCustomers) {
+//        std::cout << unservedCustomer->getId() << " ";
+//    }
 
     std::cout << std::endl;
     std::cout << "Test results: " << test->getUncorectnessCounter() << std::endl;
-    std::cout << "Number of unserved customers: " << unservedCustomers.size() << std::endl;
+//    std::cout << "Number of unserved customers: " << unservedCustomers.size() << std::endl;
+
+    for (auto & i : distanceMatrix) {
+        for (double j : i) {
+            std::cout << j << " ";
+        }
+        std::cout << std::endl;
+    }
+
+
     delete test;
     delete solomon;
     delete simulatedAnnealing;
