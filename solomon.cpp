@@ -669,12 +669,13 @@ void solomon::run(std::vector<customer> &custs, std::vector<customer*>& unserved
             if (routeIndex == vehicles.size()) {
                 break;
             }
-            while (!vehicles[routeIndex].getIsWorking()) {
-                routeIndex++;
-            }
-            timeWaitedAtCustomer[custs.size()] = vehicles[routeIndex].getDueTimeAt(0);
+            if (vehicles[routeIndex].getRoute().size() == 2) {
+                while (!vehicles[routeIndex].getIsWorking()) {
+                    routeIndex++;
+                }
+                timeWaitedAtCustomer[custs.size()] = vehicles[routeIndex].getDueTimeAt(0);
 //            std::cout << "---------------------" << routeIndex << "--------------------------" << std::endl;
-            insertIntoNewRoute(custs, vehicles, routeIndex, startingCriteria, distanceMatrix, timeWaitedAtCustomer, unservedCustomers);
+                insertIntoNewRoute(custs, vehicles, routeIndex, startingCriteria, distanceMatrix, timeWaitedAtCustomer, unservedCustomers);
 //            for (int i = 0; i < vehicles[routeIndex].getRoute().size(); ++i) {
 //                std::cout << vehicles[routeIndex].getRoute()[i] << " ";
 //            }
@@ -683,6 +684,7 @@ void solomon::run(std::vector<customer> &custs, std::vector<customer*>& unserved
 //                std::cout << i << " ";
 //            }
 //            std::cout << std::endl;
+            }
         }
     }
     finalPrint(custs, vehicles);

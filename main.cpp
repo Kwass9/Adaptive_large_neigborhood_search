@@ -294,6 +294,19 @@ int main(int argc, char * argv[]) {
     int i = 0;
     while (i < 25000) {
 //        std::cout << "Iteracia: " << i << std::endl;
+//        std::cout << "customer 124:" << std::endl;
+//        std::cout << "-----------------------------------------------" << std::endl;
+//        for (const auto & vehicle : vehicles) {
+//            for (int j = 0; j < vehicle.getRoute().size(); ++j) {
+//                if (vehicle.getRoute()[j] == 124) {
+//                    std::cout << vehicle.getTimeSchedule()[j] << " ";
+//                }
+//            }
+//        }
+//        std::cout << "-----------------------------------------------" << std::endl;
+//        for (int k = 0; k < customers[124].getPreviouslyServedBy().size(); k++) {
+//            std::cout << customers[124].getPreviouslyServedBy()[k] << " " << customers[124].getPreviouslyServedByTimes()[k] << std::endl;
+//        }
         ro = calculateRo(ksi, customers);
 //        std::cout << "ro: " << ro << std::endl;
 //        std::cout << "Number of unserved customers: " << unservedCustomers.size() << std::endl;
@@ -361,7 +374,7 @@ int main(int argc, char * argv[]) {
             printResVec.emplace_back(bestRoutes[j][k], bestSchedule[j][k]);
         }
     }
-    std::sort(printResVec.begin(), printResVec.end(), [&](std::pair<int, double> a, std::pair<int, double> b) { return a.first < b.first; });
+    std::sort(printResVec.begin(), printResVec.end(), [&](std::pair<int, double> a, std::pair<int, double> b) { return a.first < b.first && a.second < b.second; });
     for (auto & i : printResVec) {
         std::cout << "{ " << i.first << " " << i.second << " }" << std::endl;
     }
@@ -384,12 +397,12 @@ int main(int argc, char * argv[]) {
     std::cout << "Test results: " << test->getUncorectnessCounter() << std::endl;
 //    std::cout << "Number of unserved customers: " << unservedCustomers.size() << std::endl;
 
-    for (auto & i : distanceMatrix) {
-        for (double j : i) {
-            std::cout << j << " ";
-        }
-        std::cout << std::endl;
-    }
+//    for (auto & i : distanceMatrix) {
+//        for (double j : i) {
+//            std::cout << j << " ";
+//        }
+//        std::cout << std::endl;
+//    }
 
 
     delete test;

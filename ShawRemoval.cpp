@@ -107,7 +107,19 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
         for (int i = 0; i < timeSchedule.size(); ++i) {
             for (int j = 1; j < timeSchedule[i].size(); ++j) {
                 if (routes[i][j] == k) {
-//                    std::cout << "Removing customer: " << k << std::endl;
+//                    if (!customers[124].getPreviouslyServedBy().empty()) {
+//                        auto ser124 = customers[124].getPreviouslyServedBy()[0];
+//                            if (ser124 == i) {
+//                            std::cout << "removing: " << k << std::endl;
+//                            for (int l : routes[i]) {
+//                                std::cout << l << " ";
+//                            }
+//                            std::cout << std::endl;
+//                            for (double l : timeSchedule[i]) {
+//                                std::cout << l << " ";
+//                            }
+//                        }
+//                    }
                     if (std::find(unservedCustomers.begin(), unservedCustomers.end(), &customers[k]) == unservedCustomers.end()) {
                         unservedCustomers.emplace_back(&customers[k]);
                     }
@@ -175,7 +187,7 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
 //                        }
 //                        ++l;
 //                    }
-                    j--;
+                    j = 0;
                 }
             }
         }
@@ -204,19 +216,44 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
                 if (newTimeOfService < winNasledovnik.getReadyTime()) {
                     timeSchedule[i][nasledovnik] = winNasledovnik.getReadyTime();
                     vehicles[i].setTimeSchedule(timeSchedule[i]);
-                    auto iServ = customers[indexNasledovnik].findIndexOfPreviouslyServedBy(i);
-                    customers[indexNasledovnik].editPreviouslyServedByTime(winNasledovnik.getReadyTime(), iServ);
+                    auto servedByTimeToEdit = customers[indexNasledovnik].getPreviouslyServedByTimes()[winIndexNasledovnik];
+                    customers[indexNasledovnik].editPreviouslyServedByTime(winNasledovnik.getReadyTime(), servedByTimeToEdit);
                     waitingTime[indexNasledovnik] = winNasledovnik.getReadyTime() - newTimeOfService;
                 } else {
                     timeSchedule[i][nasledovnik] = newTimeOfService;
                     vehicles[i].setTimeSchedule(timeSchedule[i]);
-                    auto iServ = customers[indexNasledovnik].findIndexOfPreviouslyServedBy(i);
-                    customers[indexNasledovnik].editPreviouslyServedByTime(winNasledovnik.getReadyTime(), iServ);
+                    if (indexNasledovnik != 0) {
+                        auto servedByTimeToEdit = customers[indexNasledovnik].getPreviouslyServedByTimes()[winIndexNasledovnik];
+                        customers[indexNasledovnik].editPreviouslyServedByTime(winNasledovnik.getReadyTime(), servedByTimeToEdit);
+                    } else {
+                        auto servedByTimeToEdit = timeSchedule[i][timeSchedule[i].size() - 1];
+                        customers[indexNasledovnik].editPreviouslyServedByTime(winNasledovnik.getReadyTime(), servedByTimeToEdit);
+                    }
                     waitingTime[indexNasledovnik] = 0;
                 }
             }
         }
     }
+//    if (!customers[124].getPreviouslyServedBy().empty()) {
+//        auto ser124 = customers[124].getPreviouslyServedBy()[0];
+//        for (int i = 0; i < routes[ser124].size(); i++) {
+//            for (int l : routes[ser124]) {
+//                std::cout << l << " ";
+//            }
+//            std::cout << std::endl;
+//            for (double l : timeSchedule[ser124]) {
+//                std::cout << l << " ";
+//            }
+//            std::cout << std::endl;
+//        }
+//        for (int i = 0; i < customers[124].getPreviouslyServedBy().size(); i++) {
+//            std::cout << customers[124].getPreviouslyServedBy()[i] << " ";
+//        }
+//        std::cout << std::endl;
+//        for (int i = 0; i < customers[124].getPreviouslyServedByTimes().size(); ++i) {
+//            std::cout << customers[124].getPreviouslyServedByTimes()[i] << " ";
+//        }
+//    }
 }
 
 int Shaw_Removal::generateRandomNumber(int min, int max) {

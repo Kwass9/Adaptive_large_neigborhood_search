@@ -72,7 +72,7 @@ void customer::addPreviouslyServedByTime(double time) {
 
 void customer::editPreviouslyServedByTime(double time, double position) {
     for (double & i : previouslyServedByTime) {
-        if (i == position) {
+        if (i <= position + 0.0001 && i >= position - 0.0001) {
             i = time;
         }
     }
@@ -151,7 +151,7 @@ double customer::getReadyTimeAt(double serviceTime) const {
 
 double customer::getDueTimeAt(double serviceTime) const {
     for (const auto & timeWindow : timeWindows) {
-        if (timeWindow.getDueDate() >= serviceTime) {
+        if (timeWindow.getDueDate() > serviceTime) {
             return timeWindow.getDueDate();
         }
     }
