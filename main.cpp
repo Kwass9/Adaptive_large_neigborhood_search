@@ -293,7 +293,10 @@ int main(int argc, char * argv[]) {
     auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, (int)customers.size());
     int i = 0;
     while (i < 25000) {
-//        std::cout << "Iteracia: " << i << std::endl;
+//        if (i % 1000 == 1) {
+//            std::cout << "Iteracia: " << i << std::endl;
+//        }
+//
 //        std::cout << "customer 124:" << std::endl;
 //        std::cout << "-----------------------------------------------" << std::endl;
 //        for (const auto & vehicle : vehicles) {
@@ -352,6 +355,18 @@ int main(int argc, char * argv[]) {
     }
 //-------------------------------------------------------------------------------------------------------------------
 
+    for (int j = 0; j < bestSchedule.size(); ++j) {
+        for (int k = 0; k < bestSchedule[j].size(); ++k) {
+            if (k == bestSchedule[j].size() - 1) {
+                std::cout << "{ " << bestSchedule[j][k] << " " << bestRoutes[j][k] << " }" << std::endl;
+            } else {
+                auto node = bestRoutes[j][k];
+                auto nodeNext = bestRoutes[j][k + 1];
+                std::cout << " { " << bestSchedule[j][k] << " " << node << " }" << "- " << distanceMatrix[node][nodeNext] <<  " ->";
+            }
+        }
+        std::cout << std::endl;
+    }
     std::cout << "BestSchedule" << std::endl;
     for (auto & r : bestSchedule) {
         for (double j : r) {
@@ -374,7 +389,7 @@ int main(int argc, char * argv[]) {
             printResVec.emplace_back(bestRoutes[j][k], bestSchedule[j][k]);
         }
     }
-    std::sort(printResVec.begin(), printResVec.end(), [&](std::pair<int, double> a, std::pair<int, double> b) { return a.first < b.first && a.second < b.second; });
+    std::sort(printResVec.begin(), printResVec.end(), [&](std::pair<int, double> a, std::pair<int, double> b) { return a.first < b.first ; });
     for (auto & i : printResVec) {
         std::cout << "{ " << i.first << " " << i.second << " }" << std::endl;
     }
