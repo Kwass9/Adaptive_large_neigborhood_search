@@ -74,6 +74,8 @@ solomon::haversineDistance() {
         double time = 0.015 * d + 1.0987; //regresia excel //cas v minutach
         if (time > 40) {
             time = 40;
+        } else if (time < 1.1) {
+            time = 0;
         }
         return time;
     });

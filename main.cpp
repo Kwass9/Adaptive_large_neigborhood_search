@@ -261,7 +261,8 @@ int main(int argc, char * argv[]) {
         timeSchedule.push_back(ts);
         usedCapacity.push_back(uc);
     }
-    temperature = setInitialTemperature(w, solomon->getDistance());
+    /**docasne vymenena solomon->getTemperature*/
+    temperature = setInitialTemperature(w, 3000);
 
     auto *simulatedAnnealing = new class SimulatedAnnealing(temperature, c);
     auto *test = new class test();
@@ -319,6 +320,7 @@ int main(int argc, char * argv[]) {
             simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(),vehicles, solomon->getWaitingTime());
             test->correctnessForCurrentSolution(customers, simulatedAnnealing->getBestTimeSchedule(), simulatedAnnealing->getBestRoutes(), simulatedAnnealing->getBestWaitingTime(), distanceMatrix, usedCapacity, vehicles);
         } else {
+//            std::cout << simulatedAnnealing->getTemperature() << std::endl;
             simulatedAnnealing->updateTemperature();
         }
         i++;
@@ -408,8 +410,8 @@ int main(int argc, char * argv[]) {
 //        std::cout << unservedCustomer->getId() << " ";
 //    }
 
-    std::cout << std::endl;
-    std::cout << "Test results: " << test->getUncorectnessCounter() << std::endl;
+//    std::cout << std::endl;
+//    std::cout << "Test results: " << test->getUncorectnessCounter() << std::endl;
 //    std::cout << "Number of unserved customers: " << unservedCustomers.size() << std::endl;
 
 //    for (auto & i : distanceMatrix) {
