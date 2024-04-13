@@ -107,19 +107,6 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
         for (int i = 0; i < timeSchedule.size(); ++i) {
             for (int j = 1; j < timeSchedule[i].size(); ++j) {
                 if (routes[i][j] == k) {
-//                    if (!customers[124].getPreviouslyServedBy().empty()) {
-//                        auto ser124 = customers[124].getPreviouslyServedBy()[0];
-//                            if (ser124 == i) {
-//                            std::cout << "removing: " << k << std::endl;
-//                            for (int l : routes[i]) {
-//                                std::cout << l << " ";
-//                            }
-//                            std::cout << std::endl;
-//                            for (double l : timeSchedule[i]) {
-//                                std::cout << l << " ";
-//                            }
-//                        }
-//                    }
                     if (std::find(unservedCustomers.begin(), unservedCustomers.end(), &customers[k]) == unservedCustomers.end()) {
                         unservedCustomers.emplace_back(&customers[k]);
                     }

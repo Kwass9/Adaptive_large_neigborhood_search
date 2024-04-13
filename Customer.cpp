@@ -71,9 +71,11 @@ void customer::addPreviouslyServedByTime(double time) {
 }
 
 void customer::editPreviouslyServedByTime(double time, double position) {
-    for (double & i : previouslyServedByTime) {
-        if (i <= position + 0.0001 && i >= position - 0.0001) {
-            i = time;
+    if (!previouslyServedByTime.empty()) {
+        for (double & i : previouslyServedByTime) {
+            if (i <= position + 0.0001 && i >= position - 0.0001) {
+                i = time;
+            }
         }
     }
 }

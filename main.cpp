@@ -270,46 +270,11 @@ int main(int argc, char * argv[]) {
         test->correctnessForCurrentSolution(customers, timeSchedule, routes, solomon->getWaitingTime(), distanceMatrix, usedCapacity, vehicles);
         simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), vehicles, solomon->getWaitingTime());
     }
-//    std::cout << "Number of unserved customers: " << unservedCustomers.size() << std::endl;
-//    for (auto & unservedCustomer : unservedCustomers) {
-//        std::cout << unservedCustomer->getId() << " ";
-//    }
-//    std::cout << std::endl;
-//    std::cout << test->getUncorectnessCounter() << std::endl;
-//    auto servedBy = customers[104].getPreviouslyServedBy();
-//    auto servedByTime = customers[104].getPreviouslyServedByTimes();
-//    for (int i = 0; i < servedBy.size(); ++i) {
-//        std::cout << servedBy[i] << " " << servedByTime[i] << std::endl;
-//    }
-//    for (int i = 0; i < servedBy.size(); ++i) {
-//        for (int j = 0; j < vehicles[servedBy[i]].getRoute().size(); ++j) {
-//            std::cout << vehicles[servedBy[i]].getRoute()[j] << " ";
-//        }
-//        std::cout << std::endl;
-//        for (int j = 0; j < timeSchedule[servedBy[i]].size(); ++j) {
-//            std::cout << timeSchedule[servedBy[i]][j] << " ";
-//        }
-//        std::cout << std::endl;
-//    }
     auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, (int)customers.size());
-    int i = 0;
+    int i = 25000;
     while (i < 25000) {
 //        if (i % 1000 == 1) {
-//            std::cout << "Iteracia: " << i << std::endl;
-//        }
-//
-//        std::cout << "customer 124:" << std::endl;
-//        std::cout << "-----------------------------------------------" << std::endl;
-//        for (const auto & vehicle : vehicles) {
-//            for (int j = 0; j < vehicle.getRoute().size(); ++j) {
-//                if (vehicle.getRoute()[j] == 124) {
-//                    std::cout << vehicle.getTimeSchedule()[j] << " ";
-//                }
-//            }
-//        }
-//        std::cout << "-----------------------------------------------" << std::endl;
-//        for (int k = 0; k < customers[124].getPreviouslyServedBy().size(); k++) {
-//            std::cout << customers[124].getPreviouslyServedBy()[k] << " " << customers[124].getPreviouslyServedByTimes()[k] << std::endl;
+            std::cout << "Iteracia: " << i << std::endl;
 //        }
         ro = calculateRo(ksi, customers);
 //        std::cout << "ro: " << ro << std::endl;
@@ -324,28 +289,6 @@ int main(int argc, char * argv[]) {
             simulatedAnnealing->updateTemperature();
         }
         i++;
-//        if (customers[104].getTimeWindows()[0].isServedByEnoughVehicles()) {
-//            auto t = customers[104].getPreviouslyServedByTimes();
-//            auto servedBy = customers[104].getPreviouslyServedBy();
-//            int a = 0;
-//            int b = 0;
-//            if (t[0] != t[1]) {
-//                std::cout << t[i] << " ";
-//            }
-//            for (int j = 0; j < vehicles[servedBy[0]].getRoute().size(); ++j) {
-//                if (vehicles[servedBy[0]].getRoute()[j] == 104) {
-//                    a = vehicles[servedBy[0]].getTimeSchedule()[j];
-//                }
-//            }
-//            for (int j = 0; j < vehicles[servedBy[1]].getRoute().size(); ++j) {
-//                if (vehicles[servedBy[1]].getRoute()[j] == 104) {
-//                    b = vehicles[servedBy[1]].getTimeSchedule()[j];
-//                }
-//            }
-//            if (a != b && a != 0 && b != 0) {
-//                std::cout << a << " " << b << std::endl;
-//            }
-//        }
     }
 
     auto bestSchedule = simulatedAnnealing->getBestTimeSchedule();
