@@ -235,7 +235,7 @@ int main(int argc, char * argv[]) {
 //    double r = 0.1;
     double eta = 0.025; //kontrola mnozstva hluku /noise control
     double ksi = 0.4; //parameter na kontrolu kolko requestov bude removnutych |  4 ≤ ro ≤ min(100,ξn)
-    double tau;
+//    double tau;
     int ro; //number of reguest removed in iteraton
 
     auto *solomon = new class solomon(customers, alfa1, alfa2, lambda, q, startingCriteria, eta, vehicles, unservedCustomers);
@@ -261,32 +261,55 @@ int main(int argc, char * argv[]) {
         timeSchedule.push_back(ts);
         usedCapacity.push_back(uc);
     }
-    /**docasne vymenena solomon->getTemperature*/
-    temperature = setInitialTemperature(w, 3000);
 
+    if (unservedCustomers.size() > 8) {
+        temperature = setInitialTemperature(w, 3000);
+    } else {
+        temperature = setInitialTemperature(w, solomon->getDistance());
+    }
+    std::cout << "Initial temperature: " << temperature << std::endl;
+    std::cout << "Initial distance: " << solomon->getDistance() << std::endl;
     auto *simulatedAnnealing = new class SimulatedAnnealing(temperature, c);
     auto *test = new class test();
     if (unservedCustomers.size() == 8) {
-        test->correctnessForCurrentSolution(customers, timeSchedule, routes, solomon->getWaitingTime(), distanceMatrix, usedCapacity, vehicles);
         simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), vehicles, solomon->getWaitingTime());
+        std::cout << "Initial distance: " << solomon->getDistance() << std::endl;
+        for (const auto & vehicle : vehicles) {
+            for (int j = 0; j < vehicle.getRoute().size(); j++) {
+                std::cout << vehicle.getRoute()[j] << " ";
+            }
+            std::cout << std::endl;
+            for (double j : vehicle.getTimeSchedule()) {
+                std::cout << j << " ";
+            }
+            std::cout << std::endl;
+        }
     }
     auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, (int)customers.size());
-    int i = 25000;
+    int i = 0;
     while (i < 25000) {
-//        if (i % 1000 == 1) {
             std::cout << "Iteracia: " << i << std::endl;
-//        }
         ro = calculateRo(ksi, customers);
-//        std::cout << "ro: " << ro << std::endl;
-//        std::cout << "Number of unserved customers: " << unservedCustomers.size() << std::endl;
+        std::cout << "ro: " << ro << std::endl;
+        std::cout << "Number of unserved customers: " << unservedCustomers.size() << std::endl;
         shawRemoval->removeRequests(distanceMatrix, customers, ro, solomon->getWaitingTime(), vehicles, unservedCustomers);
         solomon->run(customers, unservedCustomers, vehicles);
         if (unservedCustomers.size() == 8) {
             simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(),vehicles, solomon->getWaitingTime());
             test->correctnessForCurrentSolution(customers, simulatedAnnealing->getBestTimeSchedule(), simulatedAnnealing->getBestRoutes(), simulatedAnnealing->getBestWaitingTime(), distanceMatrix, usedCapacity, vehicles);
         } else {
-//            std::cout << simulatedAnnealing->getTemperature() << std::endl;
             simulatedAnnealing->updateTemperature();
+            std::cout << "Initial distance: " << solomon->getDistance() << std::endl;
+            for (const auto & vehicle : vehicles) {
+                for (int j = 0; j < vehicle.getRoute().size(); j++) {
+                    std::cout << vehicle.getRoute()[j] << " ";
+                }
+                std::cout << std::endl;
+                for (double j : vehicle.getTimeSchedule()) {
+                    std::cout << j << " ";
+                }
+                std::cout << std::endl;
+            }
         }
         i++;
     }
@@ -295,10 +318,8 @@ int main(int argc, char * argv[]) {
     auto bestDistance = simulatedAnnealing->getBestSolution();
     auto bestWaitingTime = simulatedAnnealing->getBestWaitingTime();
     auto bestRoutes = simulatedAnnealing->getBestRoutes();
-    if (unservedCustomers.empty()) {
-        test->correctnessForCurrentSolution(customers, bestSchedule, bestRoutes, bestWaitingTime, distanceMatrix, usedCapacity, vehicles);
-    }
-//-------------------------------------------------------------------------------------------------------------------
+
+    //-------------------------------------------------------------------------------------------------------------------
 
     for (int j = 0; j < bestSchedule.size(); ++j) {
         for (int k = 0; k < bestSchedule[j].size(); ++k) {

@@ -564,7 +564,6 @@ void solomon::run(std::vector<customer> &custs, std::vector<customer*>& unserved
         while (routeIndex < vehicles.size()) {
             auto res1 = findMinForC1(alfa1, alfa2, distanceMatrix, custs,
                                    timeWaitedAtCustomer, useNoise, vehicles, routeIndex, unservedCustomers);
-            routeIndex++;
             for (auto &i: res1) {
                 auto a = std::get<0>(i);
                 auto b = std::get<1>(i);
@@ -573,12 +572,21 @@ void solomon::run(std::vector<customer> &custs, std::vector<customer*>& unserved
                 auto e = std::get<4>(i);
                 c1.insert(c1.end(), std::make_tuple(a, b, c, d, e, routeIndex));
             }
+            routeIndex++;
         }
         if (!c1.empty()) {
             auto c2 = findOptimumForC2(c1, lambda, distanceMatrix, custs);
             routeIndex = std::get<4>(c2[0]);
             insertCustomerToRoad(vehicles[routeIndex], c2, custs, distanceMatrix, timeWaitedAtCustomer,
                                  unservedCustomers);
+//            for (int i = 0; i < vehicles[routeIndex].getRoute().size(); i++) {
+//                std::cout << vehicles[routeIndex].getRoute()[i] << " ";
+//            }
+//            std::cout << std::endl;
+//            for (double i : vehicles[routeIndex].getTimeSchedule()) {
+//                std::cout << i << " ";
+//            }
+//            std::cout << std::endl;
         } else {
             break;
         }
