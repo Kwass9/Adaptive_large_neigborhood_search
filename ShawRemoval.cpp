@@ -9,7 +9,7 @@
 #include <map>
 #include <iostream>
 
-Shaw_Removal::Shaw_Removal(double f, double ch, double ps, double o, int p, int problemSize) : fi(f), chi(ch), psi(ps), omega(o), p(p) {
+Shaw_Removal::Shaw_Removal(double f, double ch, int p, int problemSize, std::vector<customer>& notValidCustomers) : fi(f), chi(ch), p(p), notValidCustomers(notValidCustomers) {
     R.resize(problemSize);
 }
 
@@ -21,15 +21,12 @@ void Shaw_Removal::calculateRelatedness(std::vector<std::vector<double>> &distan
     int index_r;
     int nasledovnik_r_index;
 
-    /**vytahal som si data do jednej struktury nech nemusim prerabat stary vypocet*/
-    //TODO bude sa dat prepisat kod po zmene riesenia v solomonovy, tak aby sa dal lahsie citat
     std::vector<std::vector<int>> routes;
     std::vector<std::vector<double>> timeSchedule;
     for (auto & vehicle : vehicles) {
         routes.emplace_back(vehicle.getRoute());
         timeSchedule.emplace_back(vehicle.getTimeSchedule());
     }
-
 
     for (int i = 0; i < routes.size(); ++i) {
         for (int j = 1; j < routes[i].size() - 1; ++j) {
@@ -74,10 +71,14 @@ void Shaw_Removal::removeRequests(std::vector<std::vector<double>> &distanceMatr
     auto r = generateRandomNumber(1, (int)customers.size() - 1);
     auto it = std::find_if(unservedCustomers.begin(), unservedCustomers.end(),
                       [r](const customer* customerPtr) { return customerPtr->getId() == r; });
-    while (it != unservedCustomers.end() || customers[r].hasSpecificRequirements()) {
+    auto itNotValid = std::find_if(notValidCustomers.begin(), notValidCustomers.end(),
+                                  [r](const customer& customer) { return customer.getId() == r; });
+    while (it != unservedCustomers.end() || customers[r].hasSpecificRequirements() || itNotValid != notValidCustomers.end()) {
         r = generateRandomNumber(1, (int)customers.size() - 1);
         it = std::find_if(unservedCustomers.begin(), unservedCustomers.end(),
                           [r](const customer* customerPtr) { return customerPtr->getId() == r; });
+        itNotValid = std::find_if(notValidCustomers.begin(), notValidCustomers.end(),
+                                  [r](const customer& customer) { return customer.getId() == r; });
     }
     D.emplace_back(r);
     std::vector<std::pair<int, double>> L;
@@ -119,7 +120,6 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
                     vehicles[i].setUsedCapacity(vehicles[i].getUsedCapacity() - win.getDemand());
                     for (int i = 0; i < nWindows; ++i) {
                         customers[k].getTimeWindows()[winIndex].setCurrenVehiclesServing(0);
-//                        std::cout << "||||||||||||||||" << customers[k].getTimeWindows()[winIndex].getNumberOfVehiclesServing() << std::endl;
                     }
                     timeSchedule[i].erase(timeSchedule[i].begin() + j);
                     routes[i].erase(routes[i].begin() + j);
@@ -127,53 +127,9 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
                     vehicles[i].setRoute(routes[i]);
                     vehicles[i].setTimeSchedule(timeSchedule[i]);
                     vehicles[i].removeCustomerFromServed(k);
-//                    for (int o = 0; o < nWindows; ++o) {
-//                        for (int l = (int)customers[k].getPreviouslyServedBy().size() - 1; l >= 0; l--) {
-//                            if (customers[k].getPreviouslyServedBy()[l] == i) {
-//                                customers[k].removePreviouslyServedByTime(l);
-//                                customers[k].removePreviouslyServedBy(l);
                     customers[k].clearPreviouslyServedBy();
                     customers[k].clearPreviouslyServedByTime();
-//                                break;
-//                            }
-//                        }
-//                    }
 
-//                    auto l = j;
-//                    while (l < timeSchedule[i].size()) {
-//                        auto indexNasledovnik = routes[i][l];
-//                        if (indexNasledovnik == customers.size()) {
-//                            indexNasledovnik = 0;
-//                        }
-//                        auto indexPredchodca = routes[i][l - 1];
-//                        auto nasledovnik = l;
-//                        auto predchodca = l - 1;
-//
-//                        auto winPPredchodca = customers[indexPredchodca].getTimeWindow(timeSchedule[i][predchodca]);
-//                        auto winIndexPredchodca = customers[indexPredchodca].getIndexOfTimeWindow(winPPredchodca.first, winPPredchodca.second);
-//                        auto winPredchodca = customers[indexPredchodca].getTimeWindows()[winIndexPredchodca];
-//
-//                        auto winPNasledovnik = customers[indexNasledovnik].getTimeWindow(timeSchedule[i][nasledovnik]);
-//                        auto winIndexNasledovnik = customers[indexNasledovnik].getIndexOfTimeWindow(winPNasledovnik.first, winPNasledovnik.second);
-//                        auto winNasledovnik = customers[indexNasledovnik].getTimeWindows()[winIndexNasledovnik];
-//
-//                        auto newTimeOfService = timeSchedule[i][predchodca] + winPredchodca.getServiceTime()
-//                                                + distanceMatrix[indexPredchodca][indexNasledovnik];
-//                        if (newTimeOfService < winNasledovnik.getReadyTime()) {
-//                            timeSchedule[i][nasledovnik] = winNasledovnik.getReadyTime();
-//                            vehicles[i].setTimeSchedule(timeSchedule[i]);
-//                            auto iServ = customers[indexNasledovnik].findIndexOfPreviouslyServedBy(i);
-//                            customers[indexNasledovnik].editPreviouslyServedByTime(winNasledovnik.getReadyTime(), iServ);
-//                            waitingTime[indexNasledovnik] = winNasledovnik.getReadyTime() - newTimeOfService;
-//                        } else {
-//                            timeSchedule[i][nasledovnik] = newTimeOfService;
-//                            vehicles[i].setTimeSchedule(timeSchedule[i]);
-//                            auto iServ = customers[indexNasledovnik].findIndexOfPreviouslyServedBy(i);
-//                            customers[indexNasledovnik].editPreviouslyServedByTime(winNasledovnik.getReadyTime(), iServ);
-//                            waitingTime[indexNasledovnik] = 0;
-//                        }
-//                        ++l;
-//                    }
                     j = 0;
                 }
             }
@@ -221,26 +177,6 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
             }
         }
     }
-//    if (!customers[124].getPreviouslyServedBy().empty()) {
-//        auto ser124 = customers[124].getPreviouslyServedBy()[0];
-//        for (int i = 0; i < routes[ser124].size(); i++) {
-//            for (int l : routes[ser124]) {
-//                std::cout << l << " ";
-//            }
-//            std::cout << std::endl;
-//            for (double l : timeSchedule[ser124]) {
-//                std::cout << l << " ";
-//            }
-//            std::cout << std::endl;
-//        }
-//        for (int i = 0; i < customers[124].getPreviouslyServedBy().size(); i++) {
-//            std::cout << customers[124].getPreviouslyServedBy()[i] << " ";
-//        }
-//        std::cout << std::endl;
-//        for (int i = 0; i < customers[124].getPreviouslyServedByTimes().size(); ++i) {
-//            std::cout << customers[124].getPreviouslyServedByTimes()[i] << " ";
-//        }
-//    }
 }
 
 int Shaw_Removal::generateRandomNumber(int min, int max) {

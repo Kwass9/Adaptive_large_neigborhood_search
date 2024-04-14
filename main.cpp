@@ -217,6 +217,13 @@ int main(int argc, char * argv[]) {
         }
     }
     unservedCustomers.erase(unservedCustomers.begin()); //odstranenie depa
+    std::vector<customer> notValidCustomers;
+    for (int i = (int)unservedCustomers.size() - 1; i >= 0; --i) {
+        if (unservedCustomers[i]->getTimeWindows()[0].getReadyTime() == -1) {
+            notValidCustomers.push_back(*unservedCustomers[i]);
+            unservedCustomers.erase(unservedCustomers.begin() + i);
+        }
+    }
 
 //-------------------------------------------------------------------------------------------------------------------
 
@@ -226,16 +233,10 @@ int main(int argc, char * argv[]) {
     double psi = 2;
     double omega = 5;
     int p = 6;
-//    double pWorst = 3; //len pre worst removal
     double w = 0.05; //vysledok horsi o w percent od aktualneho ma sancu na akceptovanie 0.5
     double c = 0.99975; //cooling rate
-//    double sigma1 = 33; //adaptive weight adjustment
-//    double sigma2 = 9;
-//    double sigma3 = 13;
-//    double r = 0.1;
     double eta = 0.025; //kontrola mnozstva hluku /noise control
     double ksi = 0.4; //parameter na kontrolu kolko requestov bude removnutych |  4 ≤ ro ≤ min(100,ξn)
-//    double tau;
     int ro; //number of reguest removed in iteraton
 
     auto *solomon = new class solomon(customers, alfa1, alfa2, lambda, q, startingCriteria, eta, vehicles, unservedCustomers);
@@ -262,7 +263,7 @@ int main(int argc, char * argv[]) {
         usedCapacity.push_back(uc);
     }
 
-    if (unservedCustomers.size() > 8) {
+    if (unservedCustomers.empty()) {
         temperature = setInitialTemperature(w, 3000);
     } else {
         temperature = setInitialTemperature(w, solomon->getDistance());
@@ -271,7 +272,7 @@ int main(int argc, char * argv[]) {
     std::cout << "Initial distance: " << solomon->getDistance() << std::endl;
     auto *simulatedAnnealing = new class SimulatedAnnealing(temperature, c);
     auto *test = new class test();
-    if (unservedCustomers.size() == 8) {
+    if (unservedCustomers.empty()) {
         simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), vehicles, solomon->getWaitingTime());
         std::cout << "Initial distance: " << solomon->getDistance() << std::endl;
         for (const auto & vehicle : vehicles) {
@@ -285,16 +286,20 @@ int main(int argc, char * argv[]) {
             std::cout << std::endl;
         }
     }
-    auto *shawRemoval = new class Shaw_Removal(fi, chi, psi, omega, p, (int)customers.size());
+    auto *shawRemoval = new class Shaw_Removal(fi, chi, p, (int)customers.size(), notValidCustomers);
     int i = 0;
     while (i < 25000) {
             std::cout << "Iteracia: " << i << std::endl;
         ro = calculateRo(ksi, customers);
         std::cout << "ro: " << ro << std::endl;
         std::cout << "Number of unserved customers: " << unservedCustomers.size() << std::endl;
+        for (auto & unservedCustomer : unservedCustomers) {
+            std::cout << unservedCustomer->getId() << " ";
+        }
+        std::cout << std::endl;
         shawRemoval->removeRequests(distanceMatrix, customers, ro, solomon->getWaitingTime(), vehicles, unservedCustomers);
         solomon->run(customers, unservedCustomers, vehicles);
-        if (unservedCustomers.size() == 8) {
+        if (unservedCustomers.empty()) {
             simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(),vehicles, solomon->getWaitingTime());
             test->correctnessForCurrentSolution(customers, simulatedAnnealing->getBestTimeSchedule(), simulatedAnnealing->getBestRoutes(), simulatedAnnealing->getBestWaitingTime(), distanceMatrix, usedCapacity, vehicles);
         } else {

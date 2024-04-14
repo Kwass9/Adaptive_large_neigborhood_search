@@ -546,10 +546,6 @@ void solomon::run(std::vector<customer> &custs, std::vector<customer*>& unserved
     auto useNoise = doesNoiseApply();
     int windowsUsed = 0;
 
-    if (unservedCustomers.size() == custs.size() - 1) {
-        //TODO - insertBeginingOfRoute toto by sa dalo zjednotit s insertIntoNewRoute
-        insertBeginingOfRoute(custs, vehicles, routeIndex, startingCriteria, distanceMatrix, timeWaitedAtCustomer, unservedCustomers);
-    }
     for (int i = 0; i < vehicles.size(); ++i) {
         if (vehicles[i].getRoute().size() == 2 && vehicles[i].getIsWorking()) {
             timeWaitedAtCustomer[custs.size()] = vehicles[i].getDueTimeAt(0);
@@ -579,6 +575,8 @@ void solomon::run(std::vector<customer> &custs, std::vector<customer*>& unserved
             routeIndex = std::get<4>(c2[0]);
             insertCustomerToRoad(vehicles[routeIndex], c2, custs, distanceMatrix, timeWaitedAtCustomer,
                                  unservedCustomers);
+            c1.clear();
+            c2.clear();
 //            for (int i = 0; i < vehicles[routeIndex].getRoute().size(); i++) {
 //                std::cout << vehicles[routeIndex].getRoute()[i] << " ";
 //            }
