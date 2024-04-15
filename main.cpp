@@ -263,7 +263,7 @@ int main(int argc, char * argv[]) {
         usedCapacity.push_back(uc);
     }
 
-    if (unservedCustomers.empty()) {
+    if (!unservedCustomers.empty()) {
         temperature = setInitialTemperature(w, 3000);
     } else {
         temperature = setInitialTemperature(w, solomon->getDistance());
@@ -273,7 +273,7 @@ int main(int argc, char * argv[]) {
     auto *simulatedAnnealing = new class SimulatedAnnealing(temperature, c);
     auto *test = new class test();
     if (unservedCustomers.empty()) {
-        simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), vehicles, solomon->getWaitingTime());
+        simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), vehicles, solomon->getWaitingTime(), customers);
         std::cout << "Initial distance: " << solomon->getDistance() << std::endl;
         for (const auto & vehicle : vehicles) {
             for (int j = 0; j < vehicle.getRoute().size(); j++) {
@@ -300,10 +300,13 @@ int main(int argc, char * argv[]) {
         shawRemoval->removeRequests(distanceMatrix, customers, ro, solomon->getWaitingTime(), vehicles, unservedCustomers);
         solomon->run(customers, unservedCustomers, vehicles);
         if (unservedCustomers.empty()) {
-            simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(),vehicles, solomon->getWaitingTime());
+            simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(),vehicles, solomon->getWaitingTime(), customers);
             test->correctnessForCurrentSolution(customers, simulatedAnnealing->getBestTimeSchedule(), simulatedAnnealing->getBestRoutes(), simulatedAnnealing->getBestWaitingTime(), distanceMatrix, usedCapacity, vehicles);
         } else {
             simulatedAnnealing->updateTemperature();
+            if (simulatedAnnealing->hasPreviousSolution()) {
+                simulatedAnnealing->resetToCurrentSolution(customers, vehicles);
+            }
             std::cout << "Initial distance: " << solomon->getDistance() << std::endl;
             for (const auto & vehicle : vehicles) {
                 for (int j = 0; j < vehicle.getRoute().size(); j++) {

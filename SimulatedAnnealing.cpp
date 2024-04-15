@@ -22,6 +22,18 @@ SimulatedAnnealing::SimulatedAnnealing(SimulatedAnnealing &simulatedAnnealing) {
     coolingRate = simulatedAnnealing.coolingRate;
     bestSolution = simulatedAnnealing.getBestSolution();
     currentSolution = simulatedAnnealing.getBestSolution();
+    bestRoutes = simulatedAnnealing.getBestRoutes();
+    currentRoutes = simulatedAnnealing.getBestRoutes();
+    bestTimeSchedule = simulatedAnnealing.getBestTimeSchedule();
+    currentTimeSchedule = simulatedAnnealing.getBestTimeSchedule();
+    bestWaitingTime = simulatedAnnealing.getBestWaitingTime();
+    currentWaitingTime = simulatedAnnealing.getBestWaitingTime();
+    bestUsedCapacity = simulatedAnnealing.bestUsedCapacity;
+    currentUsedCapacity = simulatedAnnealing.currentUsedCapacity;
+    bestCustomers = simulatedAnnealing.bestCustomers;
+    currentCustomers = simulatedAnnealing.currentCustomers;
+    bestVehicles = simulatedAnnealing.bestVehicles;
+    currentVehicles = simulatedAnnealing.currentVehicles;
 }
 
 double SimulatedAnnealing::getTemperature() const {
@@ -49,7 +61,7 @@ void SimulatedAnnealing::updateTemperature() {
 }
 
 void SimulatedAnnealing::tryToAcceptNewSolution(double newSolution, std::vector<Vehicle> &vehicles,
-                                                std::vector<double> &newWaitingTime) {
+                                                std::vector<double> &newWaitingTime, std::vector<customer>& customers) {
     std::vector<std::vector<int>> newRoutes;
     std::vector<std::vector<double>> newTimeSchedule;
     std::vector<double> newUsedCapacity;
@@ -70,6 +82,10 @@ void SimulatedAnnealing::tryToAcceptNewSolution(double newSolution, std::vector<
         currentWaitingTime = newWaitingTime;
         currentUsedCapacity.clear();
         currentUsedCapacity = newUsedCapacity;
+        currentCustomers.clear();
+        currentCustomers = customers;
+        currentVehicles.clear();
+        currentVehicles = vehicles;
         if (newSolution < bestSolution) {
             bestSolution = newSolution;
             bestRoutes.clear();
@@ -80,6 +96,10 @@ void SimulatedAnnealing::tryToAcceptNewSolution(double newSolution, std::vector<
             bestWaitingTime = newWaitingTime;
             bestUsedCapacity.clear();
             bestUsedCapacity = newUsedCapacity;
+            bestCustomers.clear();
+            bestCustomers = customers;
+            bestVehicles.clear();
+            bestVehicles = vehicles;
         }
     } else {
         auto differenceInSolutions = newSolution - currentSolution;
@@ -94,15 +114,17 @@ void SimulatedAnnealing::tryToAcceptNewSolution(double newSolution, std::vector<
             currentTimeSchedule = newTimeSchedule;
             currentWaitingTime = newWaitingTime;
             currentUsedCapacity = newUsedCapacity;
+            currentCustomers.clear();
+            currentCustomers = customers;
+            currentVehicles.clear();
+            currentVehicles = vehicles;
             std::cout << "Accept new solution: " << newSolution << std::endl;
         } else {
             std::cout << "Reject new solution: " << newSolution << std::endl;
-            for (int i = 0; i < vehicles.size(); ++i) {
-                vehicles[i].setRoute(currentRoutes[i]);
-                vehicles[i].setTimeSchedule(currentTimeSchedule[i]);
-                vehicles[i].setUsedCapacity(currentUsedCapacity[i]);
-
-            }
+            vehicles.clear();
+            vehicles = currentVehicles;
+            customers.clear();
+            customers = currentCustomers;
             newWaitingTime = currentWaitingTime;
             newUsedCapacity.clear();
         }
@@ -119,4 +141,16 @@ void SimulatedAnnealing::tryToAcceptNewSolution(double newSolution, std::vector<
         std::cout << std::endl;
     }
     updateTemperature();
+}
+
+bool SimulatedAnnealing::hasPreviousSolution() const {
+    return bestSolution != std::numeric_limits<double>::max();
+}
+
+void SimulatedAnnealing::resetToCurrentSolution(std::vector<customer> &customers, std::vector<Vehicle> &vehicles) {
+    vehicles.clear();
+    vehicles = currentVehicles;
+    customers.clear();
+    customers = currentCustomers;
+    std::cout << "Reset to current solution: " << currentSolution << std::endl;
 }

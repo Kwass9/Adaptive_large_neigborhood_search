@@ -11,7 +11,6 @@ customer::customer(int idNum, double x, double y, int specificRequirementsForVeh
     id = idNum;
     xcord = x;
     ycord = y;
-//    routedStatus = false;
     this->specificRequirementsForVehicle = specificRequirementsForVehicle;
 }
 

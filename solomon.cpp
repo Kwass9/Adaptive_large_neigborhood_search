@@ -549,11 +549,9 @@ void solomon::run(std::vector<customer> &custs, std::vector<customer*>& unserved
     for (int i = 0; i < vehicles.size(); ++i) {
         if (vehicles[i].getRoute().size() == 2 && vehicles[i].getIsWorking()) {
             timeWaitedAtCustomer[custs.size()] = vehicles[i].getDueTimeAt(0);
-            insertIntoNewRoute(custs, vehicles, routeIndex, startingCriteria, distanceMatrix, timeWaitedAtCustomer, unservedCustomers);
-            routeIndex++;
+            insertIntoNewRoute(custs, vehicles, i, startingCriteria, distanceMatrix, timeWaitedAtCustomer, unservedCustomers);
         }
     }
-    routeIndex = 0;
     while (!unservedCustomers.empty()) {
         routeIndex = 0;
         std::vector<std::tuple<int, double, int, int, int, int>> c1;
@@ -565,26 +563,40 @@ void solomon::run(std::vector<customer> &custs, std::vector<customer*>& unserved
                 auto b = std::get<1>(i);
                 auto c = std::get<2>(i);
                 auto d = std::get<3>(i);
-                auto e = std::get<4>(i);
+                auto e = std::get<4>(i); //pocet okien
                 c1.insert(c1.end(), std::make_tuple(a, b, c, d, e, routeIndex));
             }
             routeIndex++;
         }
         if (!c1.empty()) {
-            auto c2 = findOptimumForC2(c1, lambda, distanceMatrix, custs);
-            routeIndex = std::get<4>(c2[0]);
-            insertCustomerToRoad(vehicles[routeIndex], c2, custs, distanceMatrix, timeWaitedAtCustomer,
-                                 unservedCustomers);
-            c1.clear();
-            c2.clear();
-//            for (int i = 0; i < vehicles[routeIndex].getRoute().size(); i++) {
-//                std::cout << vehicles[routeIndex].getRoute()[i] << " ";
+//            for (auto v : c1) {
+////                if (custs[std::get<2>(v)].getTimeWindows().size() == 2) {
+//                    std::cout << "---------------------------------------------------------------------" << std::endl;
+//                    std::cout << std::get<2>(v) << std::endl;
+////                }
 //            }
-//            std::cout << std::endl;
-//            for (double i : vehicles[routeIndex].getTimeSchedule()) {
-//                std::cout << i << " ";
-//            }
-//            std::cout << std::endl;
+            if (std::any_of(c1.begin(), c1.end(), [&custs](std::tuple<int, double, int, int, int, int> a) {
+                return custs[std::get<2>(a)].getTimeWindows().size() == 2;})) {
+                std::vector<std::tuple<int, double, int, int, int, int>> c1subset;
+                for (auto &i: c1) {
+                    if (std::get<4>(i) == 2) {
+                        c1subset.emplace_back(i);
+                    }
+                }
+                auto c2 = findOptimumForC2(c1subset, lambda, distanceMatrix, custs);
+                routeIndex = std::get<4>(c2[0]);
+                insertCustomerToRoad(vehicles[routeIndex], c2, custs, distanceMatrix, timeWaitedAtCustomer, unservedCustomers);
+                c1.clear();
+                c2.clear();
+                c1subset.clear();
+            } else {
+                auto c2 = findOptimumForC2(c1, lambda, distanceMatrix, custs);
+                routeIndex = std::get<4>(c2[0]);
+                insertCustomerToRoad(vehicles[routeIndex], c2, custs, distanceMatrix, timeWaitedAtCustomer,
+                                     unservedCustomers);
+                c1.clear();
+                c2.clear();
+            }
         } else {
             break;
         }
