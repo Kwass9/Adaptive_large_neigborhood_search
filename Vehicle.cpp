@@ -15,9 +15,9 @@ Vehicle::Vehicle(int id, double capacity, double x, double y, double readyTime, 
     editWorkingHours(readyTime, dueTime);
     xcord = x;
     ycord = y;
-    routeLength = 0;
-    routeTime = 0;
-    routeWaitingTime = 0;
+//    routeLength = 0;
+//    routeTime = 0;
+//    routeWaitingTime = 0;
     usedCapacity = 0;
     this->custSize = custSize;
     route.emplace_back(0);
@@ -41,9 +41,9 @@ Vehicle::Vehicle(const Vehicle &vehicle) {
     customersServed = vehicle.customersServed;
     capacity = vehicle.capacity;
     route = vehicle.route;
-    routeLength = vehicle.routeLength;
-    routeTime = vehicle.routeTime;
-    routeWaitingTime = vehicle.routeWaitingTime;
+//    routeLength = vehicle.routeLength;
+//    routeTime = vehicle.routeTime;
+//    routeWaitingTime = vehicle.routeWaitingTime;
     timeSchedule = vehicle.timeSchedule;
     usedCapacity = vehicle.usedCapacity;
     readyTime = vehicle.readyTime;
@@ -81,13 +81,13 @@ std::vector<int> Vehicle::getRoute() const {
     return route;
 }
 
-double Vehicle::getRouteLength() const {
-    return routeLength;
-}
-
-double Vehicle::getRouteTime() const {
-    return routeTime;
-}
+//double Vehicle::getRouteLength() const {
+//    return routeLength;
+//}
+//
+//double Vehicle::getRouteTime() const {
+//    return routeTime;
+//}
 
 double Vehicle::whenIsCustomerServed(int idCustomer) {
     for (int i = 0; i < route.size(); i++) {

@@ -129,17 +129,17 @@ void SimulatedAnnealing::tryToAcceptNewSolution(double newSolution, std::vector<
             newUsedCapacity.clear();
         }
     }
-    for (int i = 0; i < bestTimeSchedule.size(); ++i) {
-        std::cout << bestSolution << std::endl;
-        for (double j : bestTimeSchedule[i]) {
-            std::cout << j << " ";
-        }
-        std::cout << std::endl;
-        for (int j : bestRoutes[i]) {
-            std::cout << j << " ";
-        }
-        std::cout << std::endl;
-    }
+//    for (int i = 0; i < bestTimeSchedule.size(); ++i) {
+//        std::cout << bestSolution << std::endl;
+//        for (double j : bestTimeSchedule[i]) {
+//            std::cout << j << " ";
+//        }
+//        std::cout << std::endl;
+//        for (int j : bestRoutes[i]) {
+//            std::cout << j << " ";
+//        }
+//        std::cout << std::endl;
+//    }
     updateTemperature();
 }
 
@@ -152,5 +152,5 @@ void SimulatedAnnealing::resetToCurrentSolution(std::vector<customer> &customers
     vehicles = currentVehicles;
     customers.clear();
     customers = currentCustomers;
-    std::cout << "Reset to current solution: " << currentSolution << std::endl;
+//    std::cout << "Reset to current solution: " << currentSolution << std::endl;
 }

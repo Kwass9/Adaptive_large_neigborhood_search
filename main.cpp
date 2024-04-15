@@ -268,37 +268,39 @@ int main(int argc, char * argv[]) {
     } else {
         temperature = setInitialTemperature(w, solomon->getDistance());
     }
-    std::cout << "Initial temperature: " << temperature << std::endl;
-    std::cout << "Initial distance: " << solomon->getDistance() << std::endl;
+//    std::cout << "Initial temperature: " << temperature << std::endl;
+//    std::cout << "Initial distance: " << solomon->getDistance() << std::endl;
     auto *simulatedAnnealing = new class SimulatedAnnealing(temperature, c);
     auto *test = new class test();
     if (unservedCustomers.empty()) {
         simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), vehicles, solomon->getWaitingTime(), customers);
-        std::cout << "Initial distance: " << solomon->getDistance() << std::endl;
-        for (const auto & vehicle : vehicles) {
-            for (int j = 0; j < vehicle.getRoute().size(); j++) {
-                std::cout << vehicle.getRoute()[j] << " ";
-            }
-            std::cout << std::endl;
-            for (double j : vehicle.getTimeSchedule()) {
-                std::cout << j << " ";
-            }
-            std::cout << std::endl;
-        }
+//        std::cout << "Initial distance: " << solomon->getDistance() << std::endl;
+//        for (const auto & vehicle : vehicles) {
+//            for (int j = 0; j < vehicle.getRoute().size(); j++) {
+//                std::cout << vehicle.getRoute()[j] << " ";
+//            }
+//            std::cout << std::endl;
+//            for (double j : vehicle.getTimeSchedule()) {
+//                std::cout << j << " ";
+//            }
+//            std::cout << std::endl;
+//        }
     }
     auto *shawRemoval = new class Shaw_Removal(fi, chi, p, (int)customers.size(), notValidCustomers);
     int i = 0;
-    while (i < 25000) {
-            std::cout << "Iteracia: " << i << std::endl;
+    while (i < 1000) {
+//            std::cout << "Iteracia: " << i << std::endl;
         ro = calculateRo(ksi, customers);
-        std::cout << "ro: " << ro << std::endl;
-        std::cout << "Number of unserved customers: " << unservedCustomers.size() << std::endl;
+//        std::cout << "ro: " << ro << std::endl;
+//        std::cout << "Number of unserved customers: " << unservedCustomers.size() << std::endl;
         for (auto & unservedCustomer : unservedCustomers) {
             std::cout << unservedCustomer->getId() << " ";
         }
         std::cout << std::endl;
         shawRemoval->removeRequests(distanceMatrix, customers, ro, solomon->getWaitingTime(), vehicles, unservedCustomers);
+//        std::cout << "Number of unserved customers after shaw: " << unservedCustomers.size() << std::endl;
         solomon->run(customers, unservedCustomers, vehicles);
+//        std::cout << "Number of unserved customers after solomon : " << unservedCustomers.size() << std::endl;
         if (unservedCustomers.empty()) {
             simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(),vehicles, solomon->getWaitingTime(), customers);
             test->correctnessForCurrentSolution(customers, simulatedAnnealing->getBestTimeSchedule(), simulatedAnnealing->getBestRoutes(), simulatedAnnealing->getBestWaitingTime(), distanceMatrix, usedCapacity, vehicles);
@@ -306,18 +308,20 @@ int main(int argc, char * argv[]) {
             simulatedAnnealing->updateTemperature();
             if (simulatedAnnealing->hasPreviousSolution()) {
                 simulatedAnnealing->resetToCurrentSolution(customers, vehicles);
+                unservedCustomers.clear();
             }
-            std::cout << "Initial distance: " << solomon->getDistance() << std::endl;
-            for (const auto & vehicle : vehicles) {
-                for (int j = 0; j < vehicle.getRoute().size(); j++) {
-                    std::cout << vehicle.getRoute()[j] << " ";
-                }
-                std::cout << std::endl;
-                for (double j : vehicle.getTimeSchedule()) {
-                    std::cout << j << " ";
-                }
-                std::cout << std::endl;
-            }
+//            std::cout << "Initial distance: " << solomon->getDistance() << std::endl;
+//            for (const auto & vehicle : vehicles) {
+//                std::cout << "Vehicle id: " << vehicle.getId() << std::endl;
+//                for (int j = 0; j < vehicle.getRoute().size(); j++) {
+//                    std::cout << vehicle.getRoute()[j] << " ";
+//                }
+//                std::cout << std::endl;
+//                for (double j : vehicle.getTimeSchedule()) {
+//                    std::cout << j << " ";
+//                }
+//                std::cout << std::endl;
+//            }
         }
         i++;
     }
@@ -329,6 +333,7 @@ int main(int argc, char * argv[]) {
 
     //-------------------------------------------------------------------------------------------------------------------
 
+    std::cout << "------------------------------------------------- RESULTS -------------------------------------------------" << std::endl;
     for (int j = 0; j < bestSchedule.size(); ++j) {
         for (int k = 0; k < bestSchedule[j].size(); ++k) {
             if (k == bestSchedule[j].size() - 1) {
@@ -385,13 +390,6 @@ int main(int argc, char * argv[]) {
 //    std::cout << std::endl;
 //    std::cout << "Test results: " << test->getUncorectnessCounter() << std::endl;
 //    std::cout << "Number of unserved customers: " << unservedCustomers.size() << std::endl;
-
-//    for (auto & i : distanceMatrix) {
-//        for (double j : i) {
-//            std::cout << j << " ";
-//        }
-//        std::cout << std::endl;
-//    }
 
 
     delete test;

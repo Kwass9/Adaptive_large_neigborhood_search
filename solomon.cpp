@@ -792,10 +792,16 @@ void solomon::insertIntoNewRoute(std::vector<customer> &custs, std::vector<Vehic
                                  std::vector<double> &timeWaitedAtCust, std::vector<customer*> &unservedCustomers) {
     startingCriteria ? findFurthestUnroutedCustomer(distanceMatrix, unservedCustomers)
                                   : findCustomerWithEarliestDeadline(unservedCustomers);
-    auto indexSize = unservedCustomers.size();
+    auto indexSize = (int)unservedCustomers.size();
     int dec = 0;
     while (vehicles[routeIndex].getRoute().size() <= 2 && indexSize != 0 && dec < indexSize) {
         auto indexVybrateho = (int)unservedCustomers[dec]->getId();
+        if (std::any_of(unservedCustomers.begin(), unservedCustomers.end(), [](customer* a) {
+            return a->getTimeWindows().size() == 2;})) {
+            auto it = std::find_if(unservedCustomers.begin(), unservedCustomers.end(), [](customer* a) {
+                return a->getTimeWindows().size() == 2;});
+            indexVybrateho = (int)it.operator*()->getId();
+        }
         int correctWindow = 0;
         if (dec <= indexSize - 1) {
             dec++;

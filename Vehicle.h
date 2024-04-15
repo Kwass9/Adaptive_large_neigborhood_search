@@ -17,9 +17,9 @@ private:
     std::vector<int> customersServed;
     double capacity;
     std::vector<int> route;
-    double routeLength;
-    double routeTime;
-    double routeWaitingTime;
+//    double routeLength;
+//    double routeTime;
+//    double routeWaitingTime;
     std::vector<double> timeSchedule;
     double usedCapacity;
     std::vector<double> readyTime;
