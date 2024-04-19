@@ -271,7 +271,7 @@ int main(int argc, char * argv[]) {
 //    std::cout << "Initial temperature: " << temperature << std::endl;
 //    std::cout << "Initial distance: " << solomon->getDistance() << std::endl;
     auto *simulatedAnnealing = new class SimulatedAnnealing(temperature, c);
-    auto *test = new class test();
+//    auto *test = new class test();
     if (unservedCustomers.empty()) {
         simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), vehicles, solomon->getWaitingTime(), customers);
 //        std::cout << "Initial distance: " << solomon->getDistance() << std::endl;
@@ -288,22 +288,24 @@ int main(int argc, char * argv[]) {
     }
     auto *shawRemoval = new class Shaw_Removal(fi, chi, p, (int)customers.size(), notValidCustomers);
     int i = 0;
-    while (i < 1000) {
+    while (i < 3000) {
+//        if (i % 100 == 0) {
 //            std::cout << "Iteracia: " << i << std::endl;
+//        }
         ro = calculateRo(ksi, customers);
 //        std::cout << "ro: " << ro << std::endl;
 //        std::cout << "Number of unserved customers: " << unservedCustomers.size() << std::endl;
-        for (auto & unservedCustomer : unservedCustomers) {
-            std::cout << unservedCustomer->getId() << " ";
-        }
-        std::cout << std::endl;
+//        for (auto & unservedCustomer : unservedCustomers) {
+//            std::cout << unservedCustomer->getId() << " ";
+//        }
+//        std::cout << std::endl;
         shawRemoval->removeRequests(distanceMatrix, customers, ro, solomon->getWaitingTime(), vehicles, unservedCustomers);
 //        std::cout << "Number of unserved customers after shaw: " << unservedCustomers.size() << std::endl;
         solomon->run(customers, unservedCustomers, vehicles);
 //        std::cout << "Number of unserved customers after solomon : " << unservedCustomers.size() << std::endl;
         if (unservedCustomers.empty()) {
             simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(),vehicles, solomon->getWaitingTime(), customers);
-            test->correctnessForCurrentSolution(customers, simulatedAnnealing->getBestTimeSchedule(), simulatedAnnealing->getBestRoutes(), simulatedAnnealing->getBestWaitingTime(), distanceMatrix, usedCapacity, vehicles);
+//            test->correctnessForCurrentSolution(customers, simulatedAnnealing->getBestTimeSchedule(), simulatedAnnealing->getBestRoutes(), simulatedAnnealing->getBestWaitingTime(), distanceMatrix, usedCapacity, vehicles);
         } else {
             simulatedAnnealing->updateTemperature();
             if (simulatedAnnealing->hasPreviousSolution()) {
@@ -392,7 +394,7 @@ int main(int argc, char * argv[]) {
 //    std::cout << "Number of unserved customers: " << unservedCustomers.size() << std::endl;
 
 
-    delete test;
+//    delete test;
     delete solomon;
     delete simulatedAnnealing;
     delete shawRemoval;

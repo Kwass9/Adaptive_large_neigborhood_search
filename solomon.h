@@ -47,14 +47,14 @@ private:
                                std::vector<int> &route, std::vector<customer>& customers, int zakaznikU,
                                std::vector<double> &beginingOfService, double timeOfService,
                                const std::vector<std::vector<double>> &distanceMatrix, int u);
-    bool lema11(const std::vector<double> &beginingOfService, const std::vector<double> &pushForward,
+    static bool lema11(const std::vector<double> &beginingOfService, const std::vector<double> &pushForward,
                        const std::vector<int> &route, std::vector<customer> &customers, int u, int position, double timeOfService,
                        const Vehicle &vehicle, const CustomersTimeWindow& timeWinCustomerU);
 
     std::vector<std::tuple<int, double, int, int, int>> findMinForC1(double a1, double a2, const std::vector<std::vector<double>> &dMatrix,
-                                                                     std::vector<customer> custs,
-                                                                     const std::vector<double> timeWaitedAtCust, int doesNoiseApply,
-                                                                     const std::vector<Vehicle> vehicles, int vehicleIndex,
+                                                                     std::vector<customer>& custs,
+                                                                     const std::vector<double>& timeWaitedAtCust, int doesNoiseApply,
+                                                                     const std::vector<Vehicle>& vehicles, int vehicleIndex,
                                                                      const std::vector<customer*>& unservedCusts);
     std::tuple<int, double> calculateC1(std::vector<int> route, std::vector<std::vector<double>> dMatrix,
                                                           int i, int u, double a1, double a2, bool doesNoiseApply, double min,
@@ -62,10 +62,7 @@ private:
     /**pokial bolo treba pushnut vozidlo v jednej ceste no uz je aj v inej pridelene kvoli sucasnej obsluhe*/
     bool checkIfCustomerCanBePushedInRoute(const Vehicle &vehicle, int u, double timeOfService,
                                            std::vector<customer> &customers, double waitingTime);
-    bool checkIfCustomerIsServedMultipleTimesAndNeedToBePushed(Vehicle vehicle, int position, std::vector<customer> customers, std::vector<double> pf);
-//    void pushCustomerInRoute(std::vector<Vehicle>& vehicles, Vehicle& vehicle, std::vector<double> &timeWaitedAtCustomer,
-//                             std::vector<double> &beginingOfService, std::vector<customer> &customers,
-//                             int u, int position, double timeOfService, double waitingTime);
+    static bool checkIfCustomerIsServedMultipleTimesAndNeedToBePushed(Vehicle& vehicle, int position, std::vector<customer>& customers, std::vector<double> pf);
     static std::vector<std::tuple<int, int, int, int, int>> findOptimumForC2(std::vector<std::tuple<int, double, int, int, int, int>> &mnozinaC1, double lambda,
                                          std::vector<std::vector<double>> &distanceMatrix, std::vector<customer> &customers);
     static void insertCustomerToRoad(Vehicle& vehicle, std::vector<std::tuple<int, int, int, int, int>> optimalInsertion, std::vector<customer>& custs,
@@ -77,7 +74,7 @@ private:
     double createNoise() const;
     static int doesNoiseApply();
     void finalPrint(std::vector<customer>& custs, std::vector<Vehicle>& vehicles);
-    void insertBeginingOfRoute(std::vector<customer>& custs, std::vector<Vehicle>& vehicles, int routeIndex, bool criteria,
+    static void insertBeginingOfRoute(std::vector<customer>& custs, std::vector<Vehicle>& vehicles, int routeIndex, bool criteria,
                                std::vector<std::vector<double>> &dMatrix, std::vector<double> &timeWaitedAtCust, std::vector<customer*> &unservedCustomers);
     void insertIntoNewRoute(std::vector<customer>& custs, std::vector<Vehicle>& vehicles, int routeIndex, int customerIndex,
                             std::vector<std::vector<double>> &dMatrix, std::vector<double> &timeWaitedAtCust, std::vector<customer*> &unservedCustomers);
