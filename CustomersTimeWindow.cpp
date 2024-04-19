@@ -39,38 +39,38 @@ void CustomersTimeWindow::incrementVehiclesRequired() {
     vehiclesRequired++;
 }
 
-void CustomersTimeWindow::decrementVehiclesRequired() {
-    vehiclesRequired--;
-}
+//void CustomersTimeWindow::decrementVehiclesRequired() {
+//    vehiclesRequired--;
+//}
 
 void CustomersTimeWindow::incrementCurentVehiclesServing() {
     curentVehiclesServing++;
 }
 
-void CustomersTimeWindow::decrementCurentVehiclesServing() {
-    curentVehiclesServing--;
-}
+//void CustomersTimeWindow::decrementCurentVehiclesServing() {
+//    curentVehiclesServing--;
+//}
 
 bool CustomersTimeWindow::isServedByEnoughVehicles() const {
     return curentVehiclesServing == vehiclesRequired;
 }
 
-void CustomersTimeWindow::editWorkingHours(double start, double end) {
-    readyTime = start;
-    dueDate = end;
-}
+//void CustomersTimeWindow::editWorkingHours(double start, double end) {
+//    readyTime = start;
+//    dueDate = end;
+//}
 
-void CustomersTimeWindow::setReadyTime(double rTime) {
-    readyTime = rTime;
-}
+//void CustomersTimeWindow::setReadyTime(double rTime) {
+//    readyTime = rTime;
+//}
 
-void CustomersTimeWindow::setDueDate(double dueD) {
-    dueDate = dueD;
-}
+//void CustomersTimeWindow::setDueDate(double dueD) {
+//    dueDate = dueD;
+//}
 
-void CustomersTimeWindow::setVehiclesRequired(int vehRequired) {
-    vehiclesRequired = vehRequired;
-}
+//void CustomersTimeWindow::setVehiclesRequired(int vehRequired) {
+//    vehiclesRequired = vehRequired;
+//}
 
 int CustomersTimeWindow::getNumberOfVehiclesServing() const {
     return curentVehiclesServing;

@@ -157,14 +157,12 @@ void Shaw_Removal::editSolution(std::vector<std::vector<double>> &distanceMatrix
                                             + distanceMatrix[indexPredchodca][indexNasledovnik];
             if (winNasledovnik.getNumberOfVehiclesServing() != 2) {
                 if (newTimeOfService < winNasledovnik.getReadyTime()) {
-                    timeSchedule[i][nasledovnik] = winNasledovnik.getReadyTime();
-                    vehicles[i].setTimeSchedule(timeSchedule[i]);
+                    vehicles[i].editTimeScheduleAtPlace(winNasledovnik.getReadyTime(), nasledovnik);
                     auto servedByTimeToEdit = customers[indexNasledovnik].getPreviouslyServedByTimes()[winIndexNasledovnik];
                     customers[indexNasledovnik].editPreviouslyServedByTime(winNasledovnik.getReadyTime(), servedByTimeToEdit);
                     waitingTime[indexNasledovnik] = winNasledovnik.getReadyTime() - newTimeOfService;
                 } else {
-                    timeSchedule[i][nasledovnik] = newTimeOfService;
-                    vehicles[i].setTimeSchedule(timeSchedule[i]);
+                    vehicles[i].editTimeScheduleAtPlace(newTimeOfService, nasledovnik);
                     if (indexNasledovnik != 0) {
                         auto servedByTimeToEdit = customers[indexNasledovnik].getPreviouslyServedByTimes()[winIndexNasledovnik];
                         customers[indexNasledovnik].editPreviouslyServedByTime(winNasledovnik.getReadyTime(), servedByTimeToEdit);

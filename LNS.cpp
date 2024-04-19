@@ -11,7 +11,7 @@
 #include "solomon.h"
 #include "SimulatedAnnealing.h"
 #include "ShawRemoval.h"
-#include "test.h"
+//#include "test.h"
 #include "Vehicle.h"
 
 void removeCharsFromString( std::string &str, char* charsToRemove ) {
@@ -230,8 +230,8 @@ int main(int argc, char * argv[]) {
     double temperature;
     double fi = 9;
     double chi = 3;
-    double psi = 2;
-    double omega = 5;
+//    double psi = 2;
+//    double omega = 5;
     int p = 6;
     double w = 0.05; //vysledok horsi o w percent od aktualneho ma sancu na akceptovanie 0.5
     double c = 0.99975; //cooling rate
@@ -288,13 +288,13 @@ int main(int argc, char * argv[]) {
     }
     auto *shawRemoval = new class Shaw_Removal(fi, chi, p, (int)customers.size(), notValidCustomers);
     int i = 0;
-    while (i < 3000) {
-//        if (i % 100 == 0) {
-//            std::cout << "Iteracia: " << i << std::endl;
-//        }
+    while (i < 25000) {
+        if (i % 100 == 0) {
+            std::cout << "Iteracia: " << i << std::endl;
+        }
         ro = calculateRo(ksi, customers);
 //        std::cout << "ro: " << ro << std::endl;
-//        std::cout << "Number of unserved customers: " << unservedCustomers.size() << std::endl;
+//        std::cout << "Number of unserved customers: " << unservedCustomers.size() << " |||||" << solomon->getDistance() << std::endl;
 //        for (auto & unservedCustomer : unservedCustomers) {
 //            std::cout << unservedCustomer->getId() << " ";
 //        }
@@ -302,7 +302,7 @@ int main(int argc, char * argv[]) {
         shawRemoval->removeRequests(distanceMatrix, customers, ro, solomon->getWaitingTime(), vehicles, unservedCustomers);
 //        std::cout << "Number of unserved customers after shaw: " << unservedCustomers.size() << std::endl;
         solomon->run(customers, unservedCustomers, vehicles);
-//        std::cout << "Number of unserved customers after solomon : " << unservedCustomers.size() << std::endl;
+//        std::cout << "Number of unserved customers after solomon : " << unservedCustomers.size() << " |||||" << solomon->getDistance() << std::endl;
         if (unservedCustomers.empty()) {
             simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(),vehicles, solomon->getWaitingTime(), customers);
 //            test->correctnessForCurrentSolution(customers, simulatedAnnealing->getBestTimeSchedule(), simulatedAnnealing->getBestRoutes(), simulatedAnnealing->getBestWaitingTime(), distanceMatrix, usedCapacity, vehicles);
