@@ -34,7 +34,7 @@ private:
     double lambda;
     double q;
     bool startingCriteria;
-    double totalDistance; //este pojde von...
+    double totalDistance;
     double maxN;
 
     static void findCustomerWithEarliestDeadline(std::vector<customer*> &customers);
@@ -59,7 +59,6 @@ private:
     std::tuple<int, double> calculateC1(std::vector<int> route, std::vector<std::vector<double>> dMatrix,
                                                           int i, int u, double a1, double a2, bool doesNoiseApply, double min,
                                                           int minIndex, std::vector<double> pf);
-    /**pokial bolo treba pushnut vozidlo v jednej ceste no uz je aj v inej pridelene kvoli sucasnej obsluhe*/
     bool checkIfCustomerCanBePushedInRoute(const Vehicle &vehicle, int u, double timeOfService,
                                            std::vector<customer> &customers, double waitingTime);
     static bool checkIfCustomerIsServedMultipleTimesAndNeedToBePushed(Vehicle vehicle, int position, std::vector<customer>& customers, std::vector<double> pf);
@@ -74,8 +73,8 @@ private:
     double createNoise() const;
     static int doesNoiseApply();
     void finalPrint(std::vector<customer>& custs, std::vector<Vehicle>& vehicles);
-    static void insertBeginingOfRoute(std::vector<customer>& custs, std::vector<Vehicle>& vehicles, int routeIndex, bool criteria,
-                               std::vector<std::vector<double>> &dMatrix, std::vector<double> &timeWaitedAtCust, std::vector<customer*> &unservedCustomers);
+//    static void insertBeginingOfRoute(std::vector<customer>& custs, std::vector<Vehicle>& vehicles, int routeIndex, bool criteria,
+//                               std::vector<std::vector<double>> &dMatrix, std::vector<double> &timeWaitedAtCust, std::vector<customer*> &unservedCustomers);
     void insertIntoNewRoute(std::vector<customer>& custs, std::vector<Vehicle>& vehicles, int routeIndex, int customerIndex,
                             std::vector<std::vector<double>> &dMatrix, std::vector<double> &timeWaitedAtCust, std::vector<customer*> &unservedCustomers);
     static void c1Minimums(int minIndex, double min, std::vector<int> &minIndexesLocal, std::vector<double> &minValuesLocal, std::vector<int> &wLocal,
@@ -83,11 +82,11 @@ private:
     static void fakeRouteLogic(std::vector<std::vector<int>>& routes, std::vector<double> &timeWaitedAtCustomer, std::vector<double> &pf, std::vector<std::vector<double>> &beginingOfService,
                                std::vector<customer> &customers, int u, double timeOfService, const std::vector<std::vector<double>> &distanceMatrix, int i,
                                std::vector<int> &route, std::vector<double> &fakeBegOfServ);
-    void workWithRoute(std::vector<std::vector<int>>& fakeRoutes, int x, const std::vector<std::vector<double>>& dMatrix, int i, int u, double a1, double a2,
-                       bool doesNoiseApply, double min, int minIndex, std::vector<int> &minIndexesLocal,
-                       std::vector<double> &minLocal, std::vector<int> &wLocal, std::vector<bool> &validTimeWindows, int w,
-                       std::vector<std::vector<double>> &fakeBegOfServ, std::vector<customer> &custs, double timeOfService,
-                       const std::vector<double> &timeWaitedAtCust, std::vector<double> &pf, std::vector<std::vector<double>>& fakeTimes);
+//    void workWithRoute(std::vector<std::vector<int>>& fakeRoutes, int x, const std::vector<std::vector<double>>& dMatrix, int i, int u, double a1, double a2,
+//                       bool doesNoiseApply, double min, int minIndex, std::vector<int> &minIndexesLocal,
+//                       std::vector<double> &minLocal, std::vector<int> &wLocal, std::vector<bool> &validTimeWindows, int w,
+//                       std::vector<std::vector<double>> &fakeBegOfServ, std::vector<customer> &custs, double timeOfService,
+//                       const std::vector<double> &timeWaitedAtCust, std::vector<double> &pf, std::vector<std::vector<double>>& fakeTimes);
     static CustomersTimeWindow findWindowJ(std::vector<int>& route, std::vector<double>& begOfServ, std::vector<customer>& customers, int i);
 };
 

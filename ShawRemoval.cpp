@@ -7,7 +7,6 @@
 #include "ShawRemoval.h"
 #include <cmath>
 #include <map>
-#include <iostream>
 
 Shaw_Removal::Shaw_Removal(double f, double ch, int p, int problemSize, std::vector<customer>& notValidCustomers) : fi(f), chi(ch), p(p), notValidCustomers(notValidCustomers) {
     R.resize(problemSize);
@@ -216,7 +215,7 @@ void Shaw_Removal::calculateD(const int &ro, std::vector<std::pair<int, double>>
         D.emplace_back(L[index].first);
         L.erase(itr);
     }
-    if (D.size() < ro) { //TODO toto bude treba skontrolovat este
+    if (D.size() < ro) {
         r = generateRandomNumber(1, s - 1);
         while (std::find(D.begin(), D.end(), r) != D.end()) { //pokial r je v D vyber nove r
             r = generateRandomNumber(1, s - 1);
@@ -228,9 +227,8 @@ void Shaw_Removal::calculateL(std::vector<std::pair<int, double>> &L, int s) {
     L.clear();
     for (int i = 1; i < s; ++i) {
         if (std::find(D.begin(), D.end(), i) == D.end()) {
-            L.emplace_back(i, R[i]); /**mal som tu i + 1 dal som to + 1 doprec lebo nechapem co som tam vlastne robil tym...*/
+            L.emplace_back(i, R[i]);
         }
     }
     std::sort(L.begin(), L.end(), [&](std::pair<int, double> a, std::pair<int, double> b) { return a.second < b.second; });
 }
-

@@ -53,14 +53,6 @@ void customer::clearPreviouslyServedBy() {
     previouslyServedBy.clear();
 }
 
-//void customer::setPreviouslyServedBy(std::vector<int> vehicles) {
-//    previouslyServedBy = std::move(vehicles);
-//}
-//
-//bool customer::isPreviouslyServedBy(int vehicleId) const {
-//    return std::find(previouslyServedBy.begin(), previouslyServedBy.end(), vehicleId) != previouslyServedBy.end();
-//}
-
 std::vector<double> customer::getPreviouslyServedByTimes() const {
     return previouslyServedByTime;
 }
@@ -88,7 +80,6 @@ int customer::getIndexOfPreviouslyServedBy(double time) {
     return -1;
 }
 
-
 int customer::getIdOfPreviouslyServedBy(double time) {
     return previouslyServedBy[getIndexOfPreviouslyServedBy(time)];
 }
@@ -110,20 +101,6 @@ bool customer::isServedByEnoughVehicles() const {
         return timeWindow.isServedByEnoughVehicles();
     });
 }
-
-//CustomersTimeWindow& customer::findTimeWindowWithTimes(double readyTime, double dueDate) {
-//    return *std::find_if(timeWindows.begin(), timeWindows.end(), [readyTime, dueDate](const CustomersTimeWindow & timeWindow) {
-//        return timeWindow.getReadyTime() == readyTime && timeWindow.getDueDate() == dueDate;
-//    });
-//}
-//
-//void customer::createTimeWindowIfNotFount(double readyTime, double dueDate, double demand, double serviceTime) {
-//    if (std::find_if(timeWindows.begin(), timeWindows.end(), [readyTime, dueDate](const CustomersTimeWindow & timeWindow) {
-//        return timeWindow.getReadyTime() == readyTime && timeWindow.getDueDate() == dueDate;
-//    }) == timeWindows.end()) {
-//        createNewTimeWindow(readyTime, dueDate, demand, serviceTime);
-//    }
-//}
 
 bool customer::doesTimeWindowExist(double readyTime, double dueDate) {
     return std::find_if(timeWindows.begin(), timeWindows.end(), [readyTime, dueDate](const CustomersTimeWindow & timeWindow) {
@@ -185,24 +162,6 @@ CustomersTimeWindow &customer::getTimeWindowAfterTime(double serviceTime) {
     return timeWindows[index];
 }
 
-//void customer::setPreviouslyServedByTimes(std::vector<double> times) {
-//    previouslyServedByTime = std::move(times);
-//}
-//
-////TODO: check if this is correct
-//void customer::removePreviouslyServedBy(int position) {
-//    previouslyServedBy.erase(previouslyServedBy.begin() + position);
-//}
-//
-////TODO: check if this is correct
-//void customer::removePreviouslyServedByTime(int position) {
-//    previouslyServedByTime.erase(previouslyServedByTime.begin() + position);
-//}
-//
-//int customer::findIndexOfPreviouslyServedBy(int vehicleId) {
-//    return (int)std::distance(previouslyServedBy.begin(), std::find(previouslyServedBy.begin(), previouslyServedBy.end(), vehicleId));
-//}
-
 bool customer::hasSpecificRequirements() const {
     return specificRequirementsForVehicle != - 1;
 }
@@ -232,4 +191,12 @@ void customer::clearPreviouslyServedByTime() {
 
 std::vector<CustomersTimeWindow> customer::getCopyOfTimeWindows() {
     return timeWindows;
+}
+
+void customer::prepareForNextRun() {
+    previouslyServedBy.clear();
+    previouslyServedByTime.clear();
+    for (auto & timeWindow : timeWindows) {
+        timeWindow.prepareForNextRun();
+    }
 }

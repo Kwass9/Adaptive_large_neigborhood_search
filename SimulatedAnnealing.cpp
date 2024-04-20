@@ -70,9 +70,7 @@ void SimulatedAnnealing::tryToAcceptNewSolution(double newSolution, std::vector<
         newTimeSchedule.push_back(vehicle.getTimeSchedule());
         newUsedCapacity.push_back(vehicle.getUsedCapacity());
     }
-//    std::cout << "New solution: " << newSolution << std::endl;
     if (newSolution < currentSolution - 0.0001) {
-//        std::cout << "New better solution: " << newSolution << std::endl;
         currentSolution = newSolution;
         currentRoutes.clear();
         currentRoutes = newRoutes;
@@ -118,9 +116,7 @@ void SimulatedAnnealing::tryToAcceptNewSolution(double newSolution, std::vector<
             currentCustomers = customers;
             currentVehicles.clear();
             currentVehicles = vehicles;
-//            std::cout << "Accept new solution: " << newSolution << std::endl;
         } else {
-//            std::cout << "Reject new solution: " << newSolution << std::endl;
             vehicles.clear();
             vehicles = currentVehicles;
             customers.clear();
@@ -129,17 +125,6 @@ void SimulatedAnnealing::tryToAcceptNewSolution(double newSolution, std::vector<
             newUsedCapacity.clear();
         }
     }
-//    for (int i = 0; i < bestTimeSchedule.size(); ++i) {
-//        std::cout << bestSolution << std::endl;
-//        for (double j : bestTimeSchedule[i]) {
-//            std::cout << j << " ";
-//        }
-//        std::cout << std::endl;
-//        for (int j : bestRoutes[i]) {
-//            std::cout << j << " ";
-//        }
-//        std::cout << std::endl;
-//    }
     updateTemperature();
 }
 
@@ -152,5 +137,4 @@ void SimulatedAnnealing::resetToCurrentSolution(std::vector<customer> &customers
     vehicles = currentVehicles;
     customers.clear();
     customers = currentCustomers;
-//    std::cout << "Reset to current solution: " << currentSolution << std::endl;
 }

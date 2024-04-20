@@ -11,8 +11,58 @@
 #include "solomon.h"
 #include "SimulatedAnnealing.h"
 #include "ShawRemoval.h"
-//#include "test.h"
 #include "Vehicle.h"
+
+std::string getAnswer(const std::string& question) {
+    std::cout << question << std::endl;
+    std::string answer;
+    std::cin >> answer;
+    return answer;
+}
+
+void exportResults(const std::vector<std::vector<double>>& bestSchedule, const std::vector<std::vector<int>>& bestRoutes, double bestDistance) {
+    std::ofstream output;
+    output.open("results.txt");
+    if (output) {
+        output << "BestSchedule" << std::endl;
+        for (auto &r: bestSchedule) {
+            for (double j: r) {
+                output << j << " ";
+            }
+            output << std::endl;
+        }
+        output << "BestRoutes" << std::endl;
+        for (auto &r: bestRoutes) {
+            for (double j: r) {
+                output << j << " ";
+            }
+            output << std::endl;
+        }
+        output << std::endl;
+        output << "BestDistance" << std::endl;
+        output << bestDistance << std::endl;
+    }
+}
+
+void printResults(const std::vector<std::vector<double>>& bestSchedule, const std::vector<std::vector<int>>& bestRoutes, double bestDistance) {
+    std::cout << "BestSchedule" << std::endl;
+    for (auto &r: bestSchedule) {
+        for (double j: r) {
+            std::cout << j << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "BestRoutes" << std::endl;
+    for (auto &r: bestRoutes) {
+        for (double j: r) {
+            std::cout << j << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+    std::cout << "BestDistance" << std::endl;
+    std::cout << bestDistance << std::endl;
+}
 
 void removeCharsFromString( std::string &str, char* charsToRemove ) {
     for (unsigned int i = 0; i < strlen(charsToRemove); ++i) {
@@ -230,8 +280,6 @@ int main(int argc, char * argv[]) {
     double temperature;
     double fi = 9;
     double chi = 3;
-//    double psi = 2;
-//    double omega = 5;
     int p = 6;
     double w = 0.05; //vysledok horsi o w percent od aktualneho ma sancu na akceptovanie 0.5
     double c = 0.99975; //cooling rate
@@ -247,156 +295,101 @@ int main(int argc, char * argv[]) {
     } else {
         std::cerr << "Not valid distance parameter" << std::endl;
     }
-    solomon->insertSpecialRequirements(customers, vehicles, unservedCustomers);
-    solomon->run(customers, unservedCustomers, vehicles);
-
-    auto distanceMatrix = solomon->getDistanceMatrix();
-    std::vector<std::vector<int>> routes;
-    std::vector<std::vector<double>> timeSchedule;
-    std::vector<double> usedCapacity;
-    for (auto & vehicle : vehicles) {
-        auto r = vehicle.getRoute();
-        auto ts = vehicle.getTimeSchedule();
-        auto uc = vehicle.getUsedCapacity();
-        routes.push_back(r);
-        timeSchedule.push_back(ts);
-        usedCapacity.push_back(uc);
-    }
-
-    if (!unservedCustomers.empty()) {
-        temperature = setInitialTemperature(w, 3000);
-    } else {
-        temperature = setInitialTemperature(w, solomon->getDistance());
-    }
-//    std::cout << "Initial temperature: " << temperature << std::endl;
-//    std::cout << "Initial distance: " << solomon->getDistance() << std::endl;
-    auto *simulatedAnnealing = new class SimulatedAnnealing(temperature, c);
-//    auto *test = new class test();
-    if (unservedCustomers.empty()) {
-        simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), vehicles, solomon->getWaitingTime(), customers);
-//        std::cout << "Initial distance: " << solomon->getDistance() << std::endl;
-//        for (const auto & vehicle : vehicles) {
-//            for (int j = 0; j < vehicle.getRoute().size(); j++) {
-//                std::cout << vehicle.getRoute()[j] << " ";
-//            }
-//            std::cout << std::endl;
-//            for (double j : vehicle.getTimeSchedule()) {
-//                std::cout << j << " ";
-//            }
-//            std::cout << std::endl;
-//        }
-    }
-    auto *shawRemoval = new class Shaw_Removal(fi, chi, p, (int)customers.size(), notValidCustomers);
-    int i = 0;
-    while (i < 25000) {
-        if (i % 100 == 0) {
-            std::cout << "Iteracia: " << i << std::endl;
+    std::string parPrint;
+    std::string parExport;
+    std::string parRun;
+    const std::string questionPrint = "Do you want to print the results? (y/n)";
+    const std::string questionExport = "Do you want to export the results? (y/n)";
+    const std::string questionRun = "Do you want to run the program again? (y/n)";
+    std::string answer = "y";
+    while (answer == "y") {
+        auto answer = getAnswer(questionRun);
+        while (answer != "y" || answer != "n") {
+            std::cout << "Invalid answer try again" << std::endl;
+            answer = getAnswer(questionRun);
         }
-        ro = calculateRo(ksi, customers);
-//        std::cout << "ro: " << ro << std::endl;
-//        std::cout << "Number of unserved customers: " << unservedCustomers.size() << " |||||" << solomon->getDistance() << std::endl;
-//        for (auto & unservedCustomer : unservedCustomers) {
-//            std::cout << unservedCustomer->getId() << " ";
-//        }
-//        std::cout << std::endl;
-        shawRemoval->removeRequests(distanceMatrix, customers, ro, solomon->getWaitingTime(), vehicles, unservedCustomers);
-//        std::cout << "Number of unserved customers after shaw: " << unservedCustomers.size() << std::endl;
+        if (answer == "n") {
+            break;
+        }
+        solomon->insertSpecialRequirements(customers, vehicles, unservedCustomers);
         solomon->run(customers, unservedCustomers, vehicles);
-//        std::cout << "Number of unserved customers after solomon : " << unservedCustomers.size() << " |||||" << solomon->getDistance() << std::endl;
-        if (unservedCustomers.empty()) {
-            simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(),vehicles, solomon->getWaitingTime(), customers);
-//            test->correctnessForCurrentSolution(customers, simulatedAnnealing->getBestTimeSchedule(), simulatedAnnealing->getBestRoutes(), simulatedAnnealing->getBestWaitingTime(), distanceMatrix, usedCapacity, vehicles);
+        auto distanceMatrix = solomon->getDistanceMatrix();
+        std::vector<std::vector<int>> routes;
+        std::vector<std::vector<double>> timeSchedule;
+        std::vector<double> usedCapacity;
+        for (auto & vehicle : vehicles) {
+            auto r = vehicle.getRoute();
+            auto ts = vehicle.getTimeSchedule();
+            auto uc = vehicle.getUsedCapacity();
+            routes.push_back(r);
+            timeSchedule.push_back(ts);
+            usedCapacity.push_back(uc);
+        }
+        if (!unservedCustomers.empty()) {
+            temperature = setInitialTemperature(w, 3000);
         } else {
-            simulatedAnnealing->updateTemperature();
-            if (simulatedAnnealing->hasPreviousSolution()) {
-                simulatedAnnealing->resetToCurrentSolution(customers, vehicles);
-                unservedCustomers.clear();
-            }
-//            std::cout << "Initial distance: " << solomon->getDistance() << std::endl;
-//            for (const auto & vehicle : vehicles) {
-//                std::cout << "Vehicle id: " << vehicle.getId() << std::endl;
-//                for (int j = 0; j < vehicle.getRoute().size(); j++) {
-//                    std::cout << vehicle.getRoute()[j] << " ";
-//                }
-//                std::cout << std::endl;
-//                for (double j : vehicle.getTimeSchedule()) {
-//                    std::cout << j << " ";
-//                }
-//                std::cout << std::endl;
-//            }
+            temperature = setInitialTemperature(w, solomon->getDistance());
         }
-        i++;
-    }
-
-    auto bestSchedule = simulatedAnnealing->getBestTimeSchedule();
-    auto bestDistance = simulatedAnnealing->getBestSolution();
-    auto bestWaitingTime = simulatedAnnealing->getBestWaitingTime();
-    auto bestRoutes = simulatedAnnealing->getBestRoutes();
-
-    //-------------------------------------------------------------------------------------------------------------------
-
-    std::cout << "------------------------------------------------- RESULTS -------------------------------------------------" << std::endl;
-    for (int j = 0; j < bestSchedule.size(); ++j) {
-        for (int k = 0; k < bestSchedule[j].size(); ++k) {
-            if (k == bestSchedule[j].size() - 1) {
-                std::cout << "{ " << bestSchedule[j][k] << " " << bestRoutes[j][k] << " }" << std::endl;
+        auto *simulatedAnnealing = new class SimulatedAnnealing(temperature, c);
+        if (unservedCustomers.empty()) {
+            simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(), vehicles, solomon->getWaitingTime(), customers);
+        }
+        auto *shawRemoval = new class Shaw_Removal(fi, chi, p, (int)customers.size(), notValidCustomers);
+        int i = 0;
+        while (i < 100) {
+            ro = calculateRo(ksi, customers);
+            shawRemoval->removeRequests(distanceMatrix, customers, ro, solomon->getWaitingTime(), vehicles, unservedCustomers);
+            solomon->run(customers, unservedCustomers, vehicles);
+            if (unservedCustomers.empty()) {
+                simulatedAnnealing->tryToAcceptNewSolution(solomon->getDistance(),vehicles, solomon->getWaitingTime(), customers);
             } else {
-                auto node = bestRoutes[j][k];
-                auto nodeNext = bestRoutes[j][k + 1];
-                std::cout << " { " << bestSchedule[j][k] << " " << node << " }" << "- " << distanceMatrix[node][nodeNext] <<  " ->";
+                simulatedAnnealing->updateTemperature();
+                if (simulatedAnnealing->hasPreviousSolution()) {
+                    simulatedAnnealing->resetToCurrentSolution(customers, vehicles);
+                    unservedCustomers.clear();
+                }
             }
+            i++;
         }
-        std::cout << std::endl;
-    }
-    std::cout << "BestSchedule" << std::endl;
-    for (auto & r : bestSchedule) {
-        for (double j : r) {
-            std::cout << j << " ";
+        auto bestSchedule = simulatedAnnealing->getBestTimeSchedule();
+        auto bestDistance = simulatedAnnealing->getBestSolution();
+        auto bestWaitingTime = simulatedAnnealing->getBestWaitingTime();
+        auto bestRoutes = simulatedAnnealing->getBestRoutes();
+
+        //-------------------------------------------------------------------------------------------------------------------
+
+        answer = getAnswer(questionPrint);
+        while (answer != "y" || answer != "n") {
+            std::cout << "Invalid answer try again" << std::endl;
+            answer = getAnswer(questionRun);
         }
-        std::cout << std::endl;
-    }
-    std::cout << "BestRoutes" << std::endl;
-    for (auto & r : bestRoutes) {
-        for (double j : r) {
-            std::cout << j << " ";
+        if (answer == "y") {
+            printResults(bestSchedule, bestRoutes, bestDistance);
         }
-        std::cout << std::endl;
-    }
-
-    std::vector<std::pair<int, double>> printResVec;
-    std::cout << "Best r/s " << std::endl;
-    for (int j = 0; j < bestRoutes.size(); ++j) {
-        for (int k = 0; k < bestRoutes[j].size(); ++k) {
-            printResVec.emplace_back(bestRoutes[j][k], bestSchedule[j][k]);
+        answer = getAnswer(questionExport);
+        while(answer != "y" || answer != "n") {
+            std::cout << "Invalid answer try again" << std::endl;
+            answer = getAnswer(questionExport);
+        }
+        if (answer == "y") {
+            exportResults(bestSchedule, bestRoutes, bestDistance);
+        }
+        delete simulatedAnnealing;
+        delete shawRemoval;
+        bestRoutes.clear();
+        bestSchedule.clear();
+        bestWaitingTime.clear();
+        usedCapacity.clear();
+        routes.clear();
+        timeSchedule.clear();
+        for (auto & customer : customers) {
+            customer.prepareForNextRun();
+        }
+        for (auto & vehicle : vehicles) {
+            vehicle.prepareForNextRun();
         }
     }
-    std::sort(printResVec.begin(), printResVec.end(), [&](std::pair<int, double> a, std::pair<int, double> b) { return a.first < b.first ; });
-    for (auto & i : printResVec) {
-        std::cout << "{ " << i.first << " " << i.second << " }" << std::endl;
-    }
-
-
-//    std::cout << "BestWaitingTime" << std::endl;
-//    for (int i = 0; i < bestWaitingTime.size(); ++i) {
-//        std::cout << i << " :" << bestWaitingTime[i] << " " << std::endl;
-//    }
-    std::cout << std::endl;
-    std::cout << "BestDistance" << std::endl;
-    std::cout << bestDistance << std::endl;
-//    std::cout << i << std::endl;
-
-//    for (auto & unservedCustomer : unservedCustomers) {
-//        std::cout << unservedCustomer->getId() << " ";
-//    }
-
-//    std::cout << std::endl;
-//    std::cout << "Test results: " << test->getUncorectnessCounter() << std::endl;
-//    std::cout << "Number of unserved customers: " << unservedCustomers.size() << std::endl;
-
-
-//    delete test;
     delete solomon;
-    delete simulatedAnnealing;
-    delete shawRemoval;
+    std::cout << "Program finished" << std::endl;
     return 0;
 }
