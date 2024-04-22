@@ -190,7 +190,7 @@ int main(int argc, char * argv[]) {
                 //pokial su dve liny rovnake a maju rovnake casy obsluhy tak potrebuje obsluhu dvoch opatrovateliek naraz
                 customer& custBack = customers.back();
                 if (id == custBack.getId()) {
-                    if (custBack.doesTimeWindowExist(readyTime, dueDate)) { /**pozor v subore su okna ktore su rovnake no neprekrivaju sa presne*/
+                    if (custBack.doesTimeWindowExist(readyTime, dueDate)) {
                         auto winIndex = custBack.getIndexOfTimeWindow(readyTime, dueDate);
                         custBack.getTimeWindowAt(winIndex).incrementVehiclesRequired();
                     }
@@ -255,25 +255,7 @@ int main(int argc, char * argv[]) {
     }
 
     std::vector<customer*> unservedCustomers;
-    for (auto & customer : customers) {
-        if (customer.getSpecificRequirementsForVehicle() != -1) {
-            if (!vehicles[customer.getSpecificRequirementsForVehicle()].getIsWorking()) {
-                std::cout << "Customer " << customer.getId() << " has specific requirements for vehicle " << customer.getSpecificRequirementsForVehicle() << " but it is not working" << std::endl;
-                customer.setSpecificRequirementsForVehicle(-1);
-            }
-        }
-        if (!customer.isServedByEnoughVehicles()) {
-            unservedCustomers.push_back(&customer);
-        }
-    }
-    unservedCustomers.erase(unservedCustomers.begin()); //odstranenie depa
     std::vector<customer> notValidCustomers;
-    for (int i = (int)unservedCustomers.size() - 1; i >= 0; --i) {
-        if (unservedCustomers[i]->getTimeWindows()[0].getReadyTime() == -1) {
-            notValidCustomers.push_back(*unservedCustomers[i]);
-            unservedCustomers.erase(unservedCustomers.begin() + i);
-        }
-    }
 
 //-------------------------------------------------------------------------------------------------------------------
 
@@ -300,16 +282,44 @@ int main(int argc, char * argv[]) {
     std::string parRun;
     const std::string questionPrint = "Do you want to print the results? (y/n)";
     const std::string questionExport = "Do you want to export the results? (y/n)";
-    const std::string questionRun = "Do you want to run the program again? (y/n)";
+    const std::string questionRun = "Do you want to run the program? (y/n)";
     std::string answer = "y";
     while (answer == "y") {
         auto answer = getAnswer(questionRun);
-        while (answer != "y" || answer != "n") {
+        while (answer != "y" && answer != "n") {
             std::cout << "Invalid answer try again" << std::endl;
             answer = getAnswer(questionRun);
         }
         if (answer == "n") {
             break;
+        }
+        if (answer == "y") {
+            for (auto &customer: customers) {
+                if (customer.getSpecificRequirementsForVehicle() != -1) {
+                    if (!vehicles[customer.getSpecificRequirementsForVehicle()].getIsWorking()) {
+                        std::cout << "Customer " << customer.getId() << " has specific requirements for vehicle "
+                                  << customer.getSpecificRequirementsForVehicle() << " but it is not working"
+                                  << std::endl;
+                        customer.setSpecificRequirementsForVehicle(-1);
+                    }
+                }
+                if (!customer.isServedByEnoughVehicles()) {
+                    unservedCustomers.push_back(&customer);
+                }
+            }
+            for (int i = (int) unservedCustomers.size() - 1; i >= 0; --i) {
+                if (unservedCustomers[i]->getTimeWindows()[0].getReadyTime() == -1) {
+                    notValidCustomers.push_back(*unservedCustomers[i]);
+                }
+            }
+            for (auto &customer : notValidCustomers) {
+                for (int i = (int) unservedCustomers.size() - 1; i >= 0; --i) {
+                    if (unservedCustomers[i]->getId() == customer.getId()) {
+                        unservedCustomers.erase(unservedCustomers.begin() + i);
+                    }
+                }
+            }
+            unservedCustomers.erase(unservedCustomers.begin()); //odstranenie depa
         }
         solomon->insertSpecialRequirements(customers, vehicles, unservedCustomers);
         solomon->run(customers, unservedCustomers, vehicles);
@@ -336,6 +346,7 @@ int main(int argc, char * argv[]) {
         }
         auto *shawRemoval = new class Shaw_Removal(fi, chi, p, (int)customers.size(), notValidCustomers);
         int i = 0;
+        std::cout << "Running..." << std::endl;
         while (i < 100) {
             ro = calculateRo(ksi, customers);
             shawRemoval->removeRequests(distanceMatrix, customers, ro, solomon->getWaitingTime(), vehicles, unservedCustomers);
@@ -359,7 +370,7 @@ int main(int argc, char * argv[]) {
         //-------------------------------------------------------------------------------------------------------------------
 
         answer = getAnswer(questionPrint);
-        while (answer != "y" || answer != "n") {
+        while (answer != "y" && answer != "n") {
             std::cout << "Invalid answer try again" << std::endl;
             answer = getAnswer(questionRun);
         }
@@ -367,7 +378,7 @@ int main(int argc, char * argv[]) {
             printResults(bestSchedule, bestRoutes, bestDistance);
         }
         answer = getAnswer(questionExport);
-        while(answer != "y" || answer != "n") {
+        while(answer != "y" && answer != "n") {
             std::cout << "Invalid answer try again" << std::endl;
             answer = getAnswer(questionExport);
         }

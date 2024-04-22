@@ -717,36 +717,6 @@ void solomon::insertSpecialRequirements(std::vector<customer>& custs, std::vecto
     }
 }
 
-//void solomon::insertBeginingOfRoute(std::vector<customer>& custs, std::vector<Vehicle>& vehicles, int routeIndex, bool criteria,
-//                                    std::vector<std::vector<double>> &dMatrix, std::vector<double> &timeWaitedAtCust, std::vector<customer*> &unservedCustomers) {
-//    timeWaitedAtCust[custs.size()] = vehicles[routeIndex].getDueTimeAt(0); //prve casove okno koniec //este musim domysliet
-//    criteria ? findFurthestUnroutedCustomer(dMatrix, unservedCustomers)
-//                     : findCustomerWithEarliestDeadline(unservedCustomers);
-//    int dec = 0;
-//    while (vehicles[routeIndex].getRoute().size() <= 2) {
-//        auto indexVybrateho = (int)unservedCustomers[dec]->getId();
-//        dec++;
-//        if (dec == unservedCustomers.size()) {
-//            break;
-//        }
-//        auto timeWinCustomerU = custs[indexVybrateho].getTimeWindowAt(0);
-//        auto timeWinCustomerJ = custs[0].getTimeWindowAt(0);
-//
-//        if (lema11(vehicles[routeIndex].getTimeSchedule(), calculatePushForward(vehicles[routeIndex].getRoute(), indexVybrateho, 1,
-//                                                                                timeWaitedAtCust, dMatrix, custs,
-//                                                                                vehicles[routeIndex].getTimeSchedule()[0],
-//                                                                                timeWaitedAtCust[indexVybrateho],
-//                                                                                vehicles[routeIndex].getTimeSchedule(), timeWinCustomerU, timeWinCustomerJ),
-//                   vehicles[routeIndex].getRoute(), custs, indexVybrateho, 1,
-//                   vehicles[routeIndex].getTimeSchedule()[0], vehicles[routeIndex], timeWinCustomerU))
-//        {
-//            std::vector<std::tuple<int, int, int, int, int>> vec;
-//            vec.emplace_back(1, indexVybrateho, 0, custs[indexVybrateho].getTimeWindows().size(), 0);
-//            insertCustomerToRoad(vehicles[routeIndex], vec, custs, dMatrix, timeWaitedAtCust, unservedCustomers);
-//        }
-//    }
-//}
-
 void solomon::insertIntoNewRoute(std::vector<customer> &custs, std::vector<Vehicle> &vehicles, int routeIndex,
                                  int customerIndex, std::vector<std::vector<double>> &dMatrix,
                                  std::vector<double> &timeWaitedAtCust, std::vector<customer*> &unservedCustomers) {
@@ -871,22 +841,6 @@ CustomersTimeWindow solomon::findWindowJ(std::vector<int>& route, std::vector<do
     }
     return winJ;
 }
-
-//void solomon::workWithRoute(std::vector<std::vector<int>>& fakeRoutes, int x, const std::vector<std::vector<double>>& dMatrix, int i, int u, double a1, double a2,
-//                            bool doesNoiseApply, double min, int minIndex, std::vector<int> &minIndexesLocal,
-//                            std::vector<double> &minLocal, std::vector<int> &wLocal, std::vector<bool> &validTimeWindows, int w,
-//                            std::vector<std::vector<double>> &fakeBegOfServ, std::vector<customer> &custs, double timeOfService,
-//                            const std::vector<double> &timeWaitedAtCust, std::vector<double> &pf, std::vector<std::vector<double>>& fakeTimes) {
-//    auto res = calculateC1(fakeRoutes[x], dMatrix, i, u, a1, a2, doesNoiseApply, min, minIndex, pf);
-//    minIndex = std::get<0>(res);
-//    min = std::get<1>(res);
-//    c1Minimums(minIndex, min, minIndexesLocal, minLocal, wLocal, validTimeWindows, w);
-//    if (w == 0 || (int)fakeRoutes.size() != 0) {
-//        auto r = fakeRoutes[x];
-//        auto b = fakeBegOfServ[x];
-//        fakeRouteLogic(fakeRoutes, fakeTimes[x], pf, fakeBegOfServ, custs, u, timeOfService, dMatrix, i, r, b);
-//    }
-//}
 
 bool solomon::checkIfCustomerIsServedMultipleTimesAndNeedToBePushed(Vehicle vehicle, int position,
                                                                     std::vector<customer>& customers,

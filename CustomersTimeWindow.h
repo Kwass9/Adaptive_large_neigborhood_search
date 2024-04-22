@@ -28,7 +28,6 @@ public:
     double getServiceTime() const;
     int getNumberOfVehiclesServing() const;
     void setCurrenVehiclesServing(int vehiclesServing);
-
     void prepareForNextRun();
 };
 
