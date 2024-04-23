@@ -2,17 +2,16 @@
 // Created by Andrej on 07/10/2023.
 //
 
+#include <algorithm>
+#include <climits>
+#include <utility>
 #include "Customer.h"
 
-customer::customer(unsigned int idNum, double x, double y, double dem, double rdyTime, double dueD,
-                   double serviceDuration) {
+customer::customer(int idNum, double x, double y, int specificRequirementsForVehicle) {
     id = idNum;
     xcord = x;
     ycord = y;
-    demand = dem;
-    readyTime = rdyTime;
-    dueDate = dueD;
-    serviceTime = serviceDuration;
+    this->specificRequirementsForVehicle = specificRequirementsForVehicle;
 }
 
 
@@ -20,17 +19,14 @@ customer::customer(const customer &customer) {
     id = customer.id;
     xcord = customer.xcord;
     ycord = customer.ycord;
-    demand = customer.demand;
-    readyTime = customer.readyTime;
-    dueDate = customer.dueDate;
-    serviceTime = customer.serviceTime;
-    routedStatus = customer.routedStatus;
+    timeWindows = customer.timeWindows;
+    previouslyServedBy = customer.previouslyServedBy;
+    previouslyServedByTime = customer.previouslyServedByTime;
+    specificRequirementsForVehicle = customer.specificRequirementsForVehicle;
 }
 
-customer::~customer() = default;
-
-void customer::markAsRouted() {
-    routedStatus = true;
+customer::~customer() {
+    timeWindows.clear();
 }
 
 double customer::getYcord() const {
@@ -41,30 +37,166 @@ double customer::getXcord() const {
     return xcord;
 }
 
-bool customer::isRouted() const {
-    return routedStatus;
-}
-
-double customer::getDemand() const {
-    return demand;
-}
-
-double customer::getReadyTime() const {
-    return readyTime;
-}
-
-double customer::getDueDate() const {
-    return dueDate;
-}
-
-double customer::getServiceTime() const {
-    return serviceTime;
-}
-
-void customer::markAsUnrouted() {
-    routedStatus = false;
-}
-
 unsigned int customer::getId() const {
     return id;
+}
+
+void customer::addPreviouslyServedBy(int vehicleId) {
+    previouslyServedBy.push_back(vehicleId);
+}
+
+std::vector<int> customer::getPreviouslyServedBy() const {
+    return previouslyServedBy;
+}
+
+void customer::clearPreviouslyServedBy() {
+    previouslyServedBy.clear();
+}
+
+std::vector<double> customer::getPreviouslyServedByTimes() const {
+    return previouslyServedByTime;
+}
+
+void customer::addPreviouslyServedByTime(double time) {
+    previouslyServedByTime.push_back(time);
+}
+
+void customer::editPreviouslyServedByTime(double time, double position) {
+    if (!previouslyServedByTime.empty()) {
+        for (double & i : previouslyServedByTime) {
+            if (i <= position + 0.0001 && i >= position - 0.0001) {
+                i = time;
+            }
+        }
+    }
+}
+
+int customer::getIndexOfPreviouslyServedBy(double time) {
+    for (int i = 0; i < previouslyServedByTime.size(); i++) {
+        if (previouslyServedByTime[i] == time) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int customer::getIdOfPreviouslyServedBy(double time) {
+    return previouslyServedBy[getIndexOfPreviouslyServedBy(time)];
+}
+
+void customer::createNewTimeWindow(double readyTime, double dueDate, double demand, double serviceTime) {
+    timeWindows.emplace_back(readyTime, dueDate, demand, serviceTime);
+}
+
+CustomersTimeWindow & customer::getTimeWindowAt(int index) {
+    return timeWindows[index];
+}
+
+std::vector<CustomersTimeWindow>& customer::getTimeWindows() {
+    return timeWindows;
+}
+
+bool customer::isServedByEnoughVehicles() const {
+    return std::all_of(timeWindows.begin(), timeWindows.end(), [](const CustomersTimeWindow & timeWindow) {
+        return timeWindow.isServedByEnoughVehicles();
+    });
+}
+
+bool customer::doesTimeWindowExist(double readyTime, double dueDate) {
+    return std::find_if(timeWindows.begin(), timeWindows.end(), [readyTime, dueDate](const CustomersTimeWindow & timeWindow) {
+        return timeWindow.getReadyTime() == readyTime && timeWindow.getDueDate() == dueDate;
+    }) != timeWindows.end();
+}
+
+int customer::getIndexOfTimeWindow(double readyTime, double dueDate) {
+    auto index = (int)std::distance(timeWindows.begin(), std::find_if(timeWindows.begin(), timeWindows.end(), [readyTime, dueDate](const CustomersTimeWindow & timeWindow) {
+        return timeWindow.getReadyTime() == readyTime && timeWindow.getDueDate() == dueDate;
+    }));
+    return index;
+}
+
+double customer::getReadyTimeAt(double serviceTime) const {
+    double highestReasonable = 0;
+    for (const auto & timeWindow : timeWindows) {
+        if (timeWindow.getReadyTime() <= serviceTime) {
+            if (timeWindow.getReadyTime() >= highestReasonable) {
+                highestReasonable = timeWindow.getReadyTime();
+            }
+        }
+    }
+    return highestReasonable;
+}
+
+double customer::getDueTimeAt(double serviceTime) const {
+    for (const auto & timeWindow : timeWindows) {
+        if (timeWindow.getDueDate() > serviceTime) {
+            return timeWindow.getDueDate();
+        }
+    }
+    return INT_MAX;
+}
+
+std::pair<double, double> customer::getTimeWindow(double serviceTime) const {
+    auto beginingOfTheWindowTime = getReadyTimeAt(serviceTime);
+    return std::make_pair(beginingOfTheWindowTime, getDueTimeAt(beginingOfTheWindowTime));
+}
+
+CustomersTimeWindow & customer::getTimeWindowBeforeTime(double serviceTime) {
+    int index = 0;
+    for (int i = 0; i < timeWindows.size(); i++) {
+        if (timeWindows[i].getReadyTime() <= serviceTime) {
+            index = i;
+        }
+    }
+    return timeWindows[index];
+}
+
+CustomersTimeWindow &customer::getTimeWindowAfterTime(double serviceTime) {
+    int index = 0;
+    for (int i = 0; i < timeWindows.size(); i++) {
+        if (timeWindows[i].getDueDate() >= serviceTime) {
+            index = i;
+            break;
+        }
+    }
+    return timeWindows[index];
+}
+
+bool customer::hasSpecificRequirements() const {
+    return specificRequirementsForVehicle != - 1;
+}
+
+void customer::setSpecificRequirementsForVehicle(int vehicleId) {
+    specificRequirementsForVehicle = vehicleId;
+}
+
+int customer::getSpecificRequirementsForVehicle() const {
+    return specificRequirementsForVehicle;
+}
+
+bool customer::wasServedByThisVehicleAtWindow(int vehicleID, int windowOrderNumber) const {
+    for (int i = 0; i < previouslyServedBy.size(); i++) {
+        if (previouslyServedBy[i] == vehicleID) {
+            if (previouslyServedByTime[i] >= timeWindows[windowOrderNumber].getReadyTime() && previouslyServedByTime[i] <= timeWindows[windowOrderNumber].getDueDate()) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void customer::clearPreviouslyServedByTime() {
+    previouslyServedByTime.clear();
+}
+
+std::vector<CustomersTimeWindow> customer::getCopyOfTimeWindows() {
+    return timeWindows;
+}
+
+void customer::prepareForNextRun() {
+    previouslyServedBy.clear();
+    previouslyServedByTime.clear();
+    for (auto & timeWindow : timeWindows) {
+        timeWindow.prepareForNextRun();
+    }
 }

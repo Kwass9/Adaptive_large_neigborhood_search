@@ -24,6 +24,10 @@ private:
     std::vector<std::vector<double>> currentTimeSchedule;
     std::vector<double> currentWaitingTime;
     std::vector<double> currentUsedCapacity;
+    std::vector<customer> currentCustomers;
+    std::vector<customer> bestCustomers;
+    std::vector<Vehicle> currentVehicles;
+    std::vector<Vehicle> bestVehicles;
 public:
     SimulatedAnnealing(double temperature, double coolingRate);
     ~SimulatedAnnealing();
@@ -34,9 +38,10 @@ public:
     const std::vector<double> &getBestWaitingTime() const;
     double getTemperature() const;
     void updateTemperature();
-    void tryToAcceptNewSolution(double newSolution, std::vector<std::vector<int>> &newRoutes,
-                                std::vector<std::vector<double>> &newTimeSchedule,
-                                std::vector<double> &newWaitingTime, std::vector<double> &newUsedCapacity);
+    void tryToAcceptNewSolution(double newSolution, std::vector<Vehicle> &vehicles,
+                                std::vector<double> &newWaitingTime, std::vector<customer>& customers);
+    bool hasPreviousSolution() const;
+    void resetToCurrentSolution(std::vector<customer>& customers, std::vector<Vehicle> &vehicles);
 };
 
 
